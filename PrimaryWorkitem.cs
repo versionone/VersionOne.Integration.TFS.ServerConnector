@@ -39,16 +39,8 @@ namespace VersionOne.ServerConnector {
 
         public IDictionary<string, Oid> Priorities { private get; set; }
 
-        // TODO resolve
-        //[LkkTag(Prefix = "VersionOne:Feature:")]
         public string FeatureGroupName { get { return GetProperty<string>(ParentNameProperty); } }
-
-        // TODO resolve
-        //[LkkTag(Prefix = "VersionOne:Team:")]
         public string Team { get { return GetProperty<string>(TeamNameProperty); } }
-
-        // TODO resolve
-        //[LkkTag(Prefix = "VersionOne:Sprint:")]
         public string SprintName { get { return GetProperty<string>(SprintNameProperty); } }
 
         public string Name {
