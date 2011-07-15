@@ -42,7 +42,7 @@ namespace VersionOne.ServerConnector {
             propertyOids = QueryPropertyOidValues("WorkitemPriority");
         }
 
-        public IList<Workitem> GetWorkitemsByProjectId(string projectId) {
+        public IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId) {
             var workitemType = metaModel.GetAssetType("PrimaryWorkitem");
 
             var projectOid = Oid.FromToken(projectId, metaModel);
@@ -55,7 +55,7 @@ namespace VersionOne.ServerConnector {
             return GetWorkitems(new AndFilterTerm(scopeTerm, stateTerm));
         }
 
-        public IList<Workitem> GetClosedWorkitemsByProjectId(string projectId) {
+        public IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId) {
             var workitemType = metaModel.GetAssetType("PrimaryWorkitem");
 
             var projectOid = Oid.FromToken(projectId, metaModel);
@@ -68,26 +68,26 @@ namespace VersionOne.ServerConnector {
             return GetWorkitems(new AndFilterTerm(scopeTerm, stateTerm));
         }
 
-        private IList<Workitem> GetWorkitems(IFilterTerm filter) {
+        private IList<PrimaryWorkitem> GetWorkitems(IFilterTerm filter) {
             try {
                 var workitemType = metaModel.GetAssetType("PrimaryWorkitem");
                 var query = new Query(workitemType) { Filter = filter };
 
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.NumberProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.NameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.DescriptionProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.PriorityProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.StatusProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.EstimateProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.AssetTypeProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.ParentNameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.TeamNameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.SprintNameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.OrderProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.NumberProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.NameProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.DescriptionProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.PriorityProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.StatusProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.EstimateProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.AssetTypeProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.ParentNameProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.TeamNameProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.SprintNameProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.OrderProperty));
 
                 var assetList = services.Retrieve(query).Assets;
 
-                return assetList.Select(item => new Workitem(item, propertyOids)).ToList();
+                return assetList.Select(item => new PrimaryWorkitem(item, propertyOids)).ToList();
             } catch (Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -97,7 +97,7 @@ namespace VersionOne.ServerConnector {
             return new[] { "Story", "Defect" };
         }
 
-        public void UpdateWorkitemLinkAndReference(Workitem workitem, string cardId, string cardLink) {
+        public void UpdateWorkitemLinkAndReference(PrimaryWorkitem workitem, string cardId, string cardLink) {
             logger.Log(LogMessage.SeverityType.Info, "Updating V1 workitem reference and creating link");
 
             const string linkTitle = "LeanKitKanban Card";
@@ -119,7 +119,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        public void SaveWorkitems(IEnumerable<Workitem> workitems) {
+        public void SaveWorkitems(IEnumerable<PrimaryWorkitem> workitems) {
             var assetList = new AssetList();
 
             if(workitems == null) {
@@ -130,7 +130,7 @@ namespace VersionOne.ServerConnector {
             services.Save(assetList);
         }
 
-        public void CloseWorkitem(Workitem workitem) {
+        public void CloseWorkitem(PrimaryWorkitem workitem) {
             try {
                 var closeOperation = workitem.Asset.AssetType.GetOperation("Inactivate");
                 services.ExecuteOperation(closeOperation, workitem.Asset.Oid);
@@ -147,7 +147,7 @@ namespace VersionOne.ServerConnector {
             }
         }
         
-        public void SetWorkitemStatus(Workitem workitem, string statusId) {
+        public void SetWorkitemStatus(PrimaryWorkitem workitem, string statusId) {
             try {
                 var primaryWorkitemType = metaModel.GetAssetType("PrimaryWorkitem");
                 var statusAttributeDefinition = primaryWorkitemType.GetAttributeDefinition("Status");
@@ -185,7 +185,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        public string GetWorkitemLink(Workitem workitem) {
+        public string GetWorkitemLink(PrimaryWorkitem workitem) {
             return string.Format("{0}assetdetail.v1?oid={1}", configuration["ApplicationUrl"].InnerText, workitem.Id);
         }
 

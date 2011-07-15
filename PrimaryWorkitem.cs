@@ -4,7 +4,7 @@ using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector {
     [DebuggerDisplay("{TypeName} {Name}, Id={Id}, Number={Number}")]
-    public class Workitem {
+    public class PrimaryWorkitem {
         public const string AssetTypeProperty = "AssetType";
         public const string NumberProperty = "Number";
         public const string StatusProperty = "Status.Name";
@@ -30,7 +30,7 @@ namespace VersionOne.ServerConnector {
             set { SetProperty(EstimateProperty, value);}
         }
 
-        internal string PriorityToken {
+        public string PriorityToken {
             get { return GetProperty<Oid>(PriorityProperty).Momentless.Token; }
             set {
                 SetProperty(PriorityProperty, Priorities[value]);
@@ -69,9 +69,9 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        protected Workitem() { }
+        protected PrimaryWorkitem() { }
 
-        internal Workitem(Asset asset, IDictionary<string, Oid> dictionary) {
+        internal PrimaryWorkitem(Asset asset, IDictionary<string, Oid> dictionary) {
             Asset = asset;
             Id = asset.Oid.ToString();
             TypeName = asset.AssetType.Token;
