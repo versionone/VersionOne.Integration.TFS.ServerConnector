@@ -17,6 +17,8 @@ namespace VersionOne.ServerConnector {
         public const string NameProperty = "Name";
         public const string DescriptionProperty = "Description";
         public const string OrderProperty = "Order";
+
+        public const string PriorityList = "WorkitemPriority";
         
         internal readonly Asset Asset;
 
@@ -42,17 +44,42 @@ namespace VersionOne.ServerConnector {
         }
 
         public string PriorityToken {
-            get { return GetProperty<Oid>(PriorityProperty).Momentless.Token; }
+            get {
+                var oid = GetProperty<Oid>(PriorityProperty);
+                return oid.IsNull ? null : oid.Momentless.Token;
+            }
             set {
-                SetProperty(PriorityProperty, Priorities[value]);
+                var priority = ListValues[PriorityList].Find(value);
+                if (priority != null) {
+                    SetProperty(PriorityProperty, priority.Oid);
+                }
+            }
+        }
+
+        //TODO just some thoughts maybe we can avoid using it
+        public string GetCustomField(string fieldName) {
+            var fullFieldName = fieldName;
+            if (!fullFieldName.StartsWith("Custom_")) {
+                fullFieldName += "Custom_";
+            }
+            return GetProperty<string>(fullFieldName);
+        }
+
+        //TODO just some thoughts maybe we can avoid using it
+        public void SetCustomListValue(string fieldName, string value) {
+            var valueData = ListValues[PriorityProperty].Find(value);
+            if (valueData != null) {
+                SetProperty(fieldName, valueData.Oid);
             }
         }
 
         // TODO get rid of this
-        protected IDictionary<string, Oid> Priorities { get; set; }
+        protected IDictionary<string, PropertyValues> ListValues { get; set; }
 
-        internal Workitem(Asset asset, IDictionary<string, Oid> priorities) : this(asset) {
-            Priorities = priorities;
+        //protected Dictionary<string, PropertyValues> FieldListValues { get; set; }
+
+        internal Workitem(Asset asset, IDictionary<string, PropertyValues> listValues) : this(asset) {
+            ListValues = listValues;
         }
 
         internal Workitem(Asset asset) {

@@ -16,7 +16,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        internal PrimaryWorkitem(Asset asset, IDictionary<string, Oid> priorities) : base(asset, priorities) { }
+        internal PrimaryWorkitem(Asset asset, Dictionary<string, PropertyValues> listValues) : base(asset, listValues) { }
 
         protected PrimaryWorkitem() { }
     }

@@ -11,8 +11,10 @@ namespace VersionOne.ServerConnector {
         private IMetaModel metaModel;
         private readonly ILogger logger;
         private readonly XmlElement configuration;
+        private readonly static LinkedList<AttributeInfo> attributesToQuery = new LinkedList<AttributeInfo>();
 
-        private IDictionary<string, Oid> propertyOids;
+        //private IDictionary<string, Oid> propertyOids;
+        private Dictionary<string, PropertyValues> listPropertyValues;
 
         public VersionOneProcessor(XmlElement config, ILogger logger) {
             configuration = config;
@@ -24,7 +26,7 @@ namespace VersionOne.ServerConnector {
             connector.Validate();
             services = connector.Services;
             metaModel = connector.MetaModel;
-            LoadListValues();
+            listPropertyValues = GetListPropertyValues();
         }
 
         public bool ValidateConnection() {
@@ -38,9 +40,6 @@ namespace VersionOne.ServerConnector {
             return true;
         }
 
-        private void LoadListValues() {
-            propertyOids = QueryPropertyOidValues("WorkitemPriority");
-        }
 
         public IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId) {
             var workitemType = metaModel.GetAssetType("PrimaryWorkitem");
@@ -52,7 +51,7 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetState"));
             stateTerm.NotEqual(AssetState.Closed);
 
-            return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, propertyOids)).ToList();
+            return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, listPropertyValues)).ToList();
         }
 
         public IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId) {
@@ -65,7 +64,7 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetState"));
             stateTerm.Equal(AssetState.Closed);
 
-            return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, propertyOids)).ToList();
+            return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, listPropertyValues)).ToList();
         }
 
         public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId) {
@@ -83,6 +82,7 @@ namespace VersionOne.ServerConnector {
                 var workitemType = metaModel.GetAssetType(workitemTypeName);
                 var query = new Query(workitemType) { Filter = filter };
 
+                /* //TODO remove after testing
                 query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.NumberProperty));
                 query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.NameProperty));
                 query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.DescriptionProperty));
@@ -94,6 +94,8 @@ namespace VersionOne.ServerConnector {
                 query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.TeamNameProperty));
                 query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.SprintNameProperty));
                 query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.OrderProperty));
+                 * */
+                AddSelection(query, workitemTypeName, workitemType);
 
                 var assetList = services.Retrieve(query).Assets;
 
@@ -211,6 +213,10 @@ namespace VersionOne.ServerConnector {
             return GetProjectById(projectId) != null;
         }
 
+        public void AddProperty(string attr, string prefix, bool isList) {
+            attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList));
+        }
+
         private Asset GetProjectById(string projectId) {
             var scopeType = metaModel.GetAssetType("Scope");
             var scopeState = scopeType.GetAttributeDefinition("AssetState");
@@ -290,16 +296,14 @@ namespace VersionOne.ServerConnector {
             return res;
         }
 
-        private IDictionary<string, Oid> QueryPropertyOidValues(string propertyName) {
-            var res = new Dictionary<string, Oid>();
+        private PropertyValues QueryPropertyOidValues(string propertyName) {
+            var res = new PropertyValues();
             IAttributeDefinition nameDef;
-            Query query = GetPropertyValuesQuery(propertyName, out nameDef);
+            var query = GetPropertyValuesQuery(propertyName, out nameDef);
 
             foreach (var asset in services.Retrieve(query).Assets) {
                 var name = asset.GetAttribute(nameDef).Value as string;
-                if (name != null) {
-                    res.Add(asset.Oid.Momentless.Token, asset.Oid);
-                }
+                res.Add(new ValueId(asset.Oid, name));
             }
             return res;
         }
@@ -321,6 +325,63 @@ namespace VersionOne.ServerConnector {
 
             query.OrderBy.MajorSort(assetType.DefaultOrderBy, OrderBy.Order.Ascending);
             return query;
+        }
+
+        private static void AddSelection(Query query, string typePrefix, IAssetType type) {
+            foreach (var attrInfo in attributesToQuery) {
+                if(attrInfo.Prefix != typePrefix) {
+                    continue;
+                }
+                var def = type.GetAttributeDefinition(attrInfo.Attr);
+                query.Selection.Add(def);
+            }
+        }
+
+        private Dictionary<string, PropertyValues> GetListPropertyValues() {
+            var res = new Dictionary<string, PropertyValues>(attributesToQuery.Count);
+            foreach (var attrInfo in attributesToQuery) {
+                if (!attrInfo.IsList) {
+                    continue;
+                }
+
+                var propertyAlias = attrInfo.Prefix + attrInfo.Attr;
+                if (!res.ContainsKey(propertyAlias)) {
+                    var propertyName = ResolvePropertyKey(propertyAlias);
+
+                    PropertyValues values;
+                    if (res.ContainsKey(propertyName)) {
+                        values = res[propertyName];
+                    } else {
+                        values = QueryPropertyOidValues(propertyName);
+                        res.Add(propertyName, values);
+                    }
+
+                    if (!res.ContainsKey(propertyAlias)) {
+                        res.Add(propertyAlias, values);
+                    }
+                }
+            }
+            return res;
+        }
+
+        private static string ResolvePropertyKey(string propertyAlias) {
+            switch (propertyAlias) {
+                case "DefectStatus":
+                    return "StoryStatus";
+                case "DefectSource":
+                    return "StorySource";
+                case "ScopeBuildProjects":
+                    return "BuildProject";
+                case "TaskOwners":
+                case "StoryOwners":
+                case "DefectOwners":
+                case "TestOwners":
+                    return "Member";
+                case "PrimaryWorkitemPriority":                      
+                    return "WorkitemPriority";
+            }
+
+            return propertyAlias;
         }
     }
 }

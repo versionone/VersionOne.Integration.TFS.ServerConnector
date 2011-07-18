@@ -17,5 +17,6 @@ namespace VersionOne.ServerConnector {
         IList<KeyValuePair<string, string>> GetWorkitemStatuses();
         IList<KeyValuePair<string, string>> GetWorkitemPriorities();
         bool IsProjectExist(string projectId);
+        void AddProperty(string attr, string prefix, bool isList);
     }
 }
