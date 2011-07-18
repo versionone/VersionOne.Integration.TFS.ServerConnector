@@ -52,7 +52,7 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetState"));
             stateTerm.NotEqual(AssetState.Closed);
 
-            return GetWorkitems(new AndFilterTerm(scopeTerm, stateTerm));
+            return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, propertyOids)).ToList();
         }
 
         public IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId) {
@@ -65,29 +65,39 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetState"));
             stateTerm.Equal(AssetState.Closed);
 
-            return GetWorkitems(new AndFilterTerm(scopeTerm, stateTerm));
+            return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, propertyOids)).ToList();
         }
 
-        private IList<PrimaryWorkitem> GetWorkitems(IFilterTerm filter) {
+        public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId) {
+             var workitemType = metaModel.GetAssetType("Theme");
+
+            var projectOid = Oid.FromToken(projectId, metaModel);
+            var scopeTerm = new FilterTerm(workitemType.GetAttributeDefinition("Scope"));
+            scopeTerm.Equal(projectOid);
+
+            return GetWorkitems("Theme", scopeTerm).Select(asset => new FeatureGroup(asset)).ToList();
+        }
+
+        private AssetList GetWorkitems(string workitemTypeName, IFilterTerm filter) {
             try {
-                var workitemType = metaModel.GetAssetType("PrimaryWorkitem");
+                var workitemType = metaModel.GetAssetType(workitemTypeName);
                 var query = new Query(workitemType) { Filter = filter };
 
-                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.NumberProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.NameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.DescriptionProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.PriorityProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.StatusProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.EstimateProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.AssetTypeProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.ParentNameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.TeamNameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.SprintNameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(PrimaryWorkitem.OrderProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.NumberProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.NameProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.DescriptionProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.PriorityProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.StatusProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.EstimateProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.AssetTypeProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.ParentNameProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.TeamNameProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.SprintNameProperty));
+                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.OrderProperty));
 
                 var assetList = services.Retrieve(query).Assets;
 
-                return assetList.Select(item => new PrimaryWorkitem(item, propertyOids)).ToList();
+                return assetList;
             } catch (Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
