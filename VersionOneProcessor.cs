@@ -109,15 +109,15 @@ namespace VersionOne.ServerConnector {
             return new[] { "Story", "Defect" };
         }
 
-        public void UpdateWorkitemLinkAndReference(PrimaryWorkitem workitem, string cardId, string cardLink) {
+        public void UpdateWorkitemLinkAndReference(Workitem workitem, string id, string cardLink) {
             logger.Log(LogMessage.SeverityType.Info, "Updating V1 workitem reference and creating link");
 
             const string linkTitle = "LeanKitKanban Card";
 
             try {
-                if(!string.IsNullOrEmpty(cardId)) {
-                    var storyType = metaModel.GetAssetType("PrimaryWorkitem");
-                    workitem.Asset.SetAttributeValue(storyType.GetAttributeDefinition("Reference"), cardId);
+                if (!string.IsNullOrEmpty(id)) {
+                    var workitemType = metaModel.GetAssetType("Workitem");
+                    workitem.Asset.SetAttributeValue(workitemType.GetAttributeDefinition("Reference"), id);
                     services.Save(workitem.Asset);
                     
                     logger.Log(LogMessage.SeverityType.Info, "Workitem reference updated");
