@@ -7,7 +7,7 @@ namespace VersionOne.ServerConnector {
 
         public ValueId() : this(Oid.Null, string.Empty) { }
 
-        public ValueId(Oid oid, string name) {
+        internal ValueId(Oid oid, string name) {
             Oid = oid.Momentless;
             this.name = name;
         }
@@ -16,28 +16,17 @@ namespace VersionOne.ServerConnector {
             return name;
         }
 
-        public bool Equals(ValueId obj) {
-            if (ReferenceEquals(null, obj)) {
-                return false;
-            }
-            if (ReferenceEquals(this, obj)) {
-                return true;
-            }
-            return Equals(obj.Oid, Oid);
-        }
-
         public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
-                return false;
-            }
-            if (ReferenceEquals(this, obj)) {
-                return true;
-            }
-            if (obj.GetType() != typeof(ValueId)) {
+            if(obj == null || obj.GetType() != typeof(ValueId)) {
                 return false;
             }
 
-            return Equals((ValueId)obj);
+            if(ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            var other = (ValueId) obj;
+            return Equals(Oid, other.Oid);
         }
 
         public override int GetHashCode() {
