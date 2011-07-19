@@ -7,7 +7,7 @@ namespace VersionOne.ServerConnector {
         IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId);
         IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId);
         void UpdateWorkitemLinkAndReference(PrimaryWorkitem workitem, string cardId, string cardLink);
-        void SaveWorkitems(IEnumerable<PrimaryWorkitem> workitems);
+        void SaveWorkitems(IEnumerable<Workitem> workitems);
         void CloseWorkitem(PrimaryWorkitem workitem);
         void UpdateProject(string projectId, string boardLink);
         string GetWorkitemLink(PrimaryWorkitem workitem);

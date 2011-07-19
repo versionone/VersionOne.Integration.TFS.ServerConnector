@@ -74,7 +74,7 @@ namespace VersionOne.ServerConnector {
             var scopeTerm = new FilterTerm(workitemType.GetAttributeDefinition("Scope"));
             scopeTerm.Equal(projectOid);
 
-            return GetWorkitems("Theme", scopeTerm).Select(asset => new FeatureGroup(asset)).ToList();
+            return GetWorkitems("Theme", scopeTerm).Select(asset => new FeatureGroup(asset, listPropertyValues)).ToList();
         }
 
         private AssetList GetWorkitems(string workitemTypeName, IFilterTerm filter) {
@@ -131,7 +131,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        public void SaveWorkitems(IEnumerable<PrimaryWorkitem> workitems) {
+        public void SaveWorkitems(IEnumerable<Workitem> workitems) {
             var assetList = new AssetList();
 
             if(workitems == null) {
@@ -344,21 +344,25 @@ namespace VersionOne.ServerConnector {
                     continue;
                 }
 
-                var propertyAlias = attrInfo.Prefix + attrInfo.Attr;
+                var propertyAlias = attrInfo.Attr;
+                if (!attrInfo.Attr.StartsWith("Custom_")) {
+                    propertyAlias = attrInfo.Prefix + propertyAlias;
+                }
+                if(res.ContainsKey(propertyAlias)) {
+                    continue;
+                }
+                var propertyName = ResolvePropertyKey(propertyAlias);
+
+                PropertyValues values;
+                if (res.ContainsKey(propertyName)) {
+                    values = res[propertyName];
+                } else {
+                    values = QueryPropertyOidValues(propertyName);
+                    res.Add(propertyName, values);
+                }
+
                 if (!res.ContainsKey(propertyAlias)) {
-                    var propertyName = ResolvePropertyKey(propertyAlias);
-
-                    PropertyValues values;
-                    if (res.ContainsKey(propertyName)) {
-                        values = res[propertyName];
-                    } else {
-                        values = QueryPropertyOidValues(propertyName);
-                        res.Add(propertyName, values);
-                    }
-
-                    if (!res.ContainsKey(propertyAlias)) {
-                        res.Add(propertyAlias, values);
-                    }
+                    res.Add(propertyAlias, values);
                 }
             }
             return res;

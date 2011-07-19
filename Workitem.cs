@@ -57,26 +57,27 @@ namespace VersionOne.ServerConnector {
         }
 
         //TODO just some thoughts maybe we can avoid using it
-        public string GetCustomField(string fieldName) {
+        public string GetCustomFieldValue(string fieldName) {
             var fullFieldName = fieldName;
             if (!fullFieldName.StartsWith("Custom_")) {
                 fullFieldName += "Custom_";
             }
-            return GetProperty<string>(fullFieldName);
+            var value = GetProperty<object>(fullFieldName);
+            if (value != null && value is Oid && ((Oid)value).IsNull) {
+                return null;
+            }
+            return value != null ? value.ToString() : null;
         }
 
         //TODO just some thoughts maybe we can avoid using it
-        public void SetCustomListValue(string fieldName, string value) {
-            var valueData = ListValues[PriorityProperty].Find(value);
+        public void SetCustomListValue(string fieldName, string type, string value) {
+            var valueData = ListValues[type].Find(value);
             if (valueData != null) {
                 SetProperty(fieldName, valueData.Oid);
             }
         }
 
-        // TODO get rid of this
         protected IDictionary<string, PropertyValues> ListValues { get; set; }
-
-        //protected Dictionary<string, PropertyValues> FieldListValues { get; set; }
 
         internal Workitem(Asset asset, IDictionary<string, PropertyValues> listValues) : this(asset) {
             ListValues = listValues;
