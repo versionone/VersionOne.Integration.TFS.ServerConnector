@@ -217,6 +217,20 @@ namespace VersionOne.ServerConnector {
             attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList));
         }
 
+        public void GetFeatureGroupChildren(string featureGroupParentToken) {
+            //http://integsrv01/VersionOne11/rest-1.v1/Data/Workitem?where=(Parent.ParentMeAndUp='Theme:1056';AssetType!='Theme')
+            var workitemType = metaModel.GetAssetType("Workitem");
+            var terms = new List<FilterTerm>();
+            var term = new FilterTerm(workitemType.GetAttributeDefinition("ParentAndUp"));
+            term.Equal(featureGroupParentToken);
+            terms.Add(term);
+            term = new FilterTerm(workitemType.GetAttributeDefinition("AssetType"));
+            term.NotEqual("Theme");
+            terms.Add(term);
+            var query = new Query(workitemType) {Filter = new AndFilterTerm(terms.ToArray())};
+            var result = services.Retrieve(query);
+        }
+
         private Asset GetProjectById(string projectId) {
             var scopeType = metaModel.GetAssetType("Scope");
             var scopeState = scopeType.GetAttributeDefinition("AssetState");
