@@ -68,13 +68,15 @@ namespace VersionOne.ServerConnector {
         }
 
         public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId) {
-             var workitemType = metaModel.GetAssetType("Theme");
+            var featureGroupType = metaModel.GetAssetType("Theme");
 
             var projectOid = Oid.FromToken(projectId, metaModel);
-            var scopeTerm = new FilterTerm(workitemType.GetAttributeDefinition("Scope"));
+            var scopeTerm = new FilterTerm(featureGroupType.GetAttributeDefinition("Scope"));
             scopeTerm.Equal(projectOid);
+            var assetTypeTerm = new FilterTerm(featureGroupType.GetAttributeDefinition("Parent"));
+            assetTypeTerm.Equal("");
 
-            return GetWorkitems("Theme", scopeTerm).Select(asset => new FeatureGroup(asset, listPropertyValues)).ToList();
+            return GetWorkitems("Theme", new AndFilterTerm(scopeTerm, assetTypeTerm)).Select(asset => new FeatureGroup(asset, listPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString()))).ToList();
         }
 
         private AssetList GetWorkitems(string workitemTypeName, IFilterTerm filter) {
@@ -217,9 +219,9 @@ namespace VersionOne.ServerConnector {
             attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList));
         }
 
-        public void GetFeatureGroupChildren(string featureGroupParentToken) {
+        public IList<Workitem> GetFeatureGroupChildren(string featureGroupParentToken) {
             //http://integsrv01/VersionOne11/rest-1.v1/Data/Workitem?where=(Parent.ParentMeAndUp='Theme:1056';AssetType!='Theme')
-            var workitemType = metaModel.GetAssetType("Workitem");
+            var workitemType = metaModel.GetAssetType("PrimaryWorkitem");
             var terms = new List<FilterTerm>();
             var term = new FilterTerm(workitemType.GetAttributeDefinition("ParentAndUp"));
             term.Equal(featureGroupParentToken);
@@ -227,8 +229,9 @@ namespace VersionOne.ServerConnector {
             term = new FilterTerm(workitemType.GetAttributeDefinition("AssetType"));
             term.NotEqual("Theme");
             terms.Add(term);
-            var query = new Query(workitemType) {Filter = new AndFilterTerm(terms.ToArray())};
-            var result = services.Retrieve(query);
+
+            return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(terms.ToArray())).
+                    Select( asset => new Workitem(asset, listPropertyValues)).ToList();
         }
 
         private Asset GetProjectById(string projectId) {
