@@ -40,7 +40,6 @@ namespace VersionOne.ServerConnector {
             return true;
         }
 
-
         public IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId) {
             var workitemType = metaModel.GetAssetType("PrimaryWorkitem");
 
@@ -84,19 +83,6 @@ namespace VersionOne.ServerConnector {
                 var workitemType = metaModel.GetAssetType(workitemTypeName);
                 var query = new Query(workitemType) { Filter = filter };
 
-                /* //TODO remove after testing
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.NumberProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.NameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.DescriptionProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.PriorityProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.StatusProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.EstimateProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.AssetTypeProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.ParentNameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.TeamNameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.SprintNameProperty));
-                query.Selection.Add(workitemType.GetAttributeDefinition(Workitem.OrderProperty));
-                 * */
                 AddSelection(query, workitemTypeName, workitemType);
 
                 var assetList = services.Retrieve(query).Assets;
@@ -111,6 +97,7 @@ namespace VersionOne.ServerConnector {
             return new[] { "Story", "Defect" };
         }
 
+        // TODO remove LK related stuff
         public void UpdateWorkitemLinkAndReference(Workitem workitem, string id, string cardLink) {
             logger.Log(LogMessage.SeverityType.Info, "Updating V1 workitem reference and creating link");
 

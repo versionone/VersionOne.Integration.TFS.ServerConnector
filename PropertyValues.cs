@@ -4,8 +4,8 @@ using System.Text;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector {
+    // TODO use LINQ, remove unused methods
     public class PropertyValues : IEnumerable<ValueId> {
-
         private readonly Dictionary<Oid, ValueId> dictionary = new Dictionary<Oid, ValueId>();
 
         public PropertyValues(IEnumerable valueIds) {
@@ -27,6 +27,7 @@ namespace VersionOne.ServerConnector {
         public override string ToString() {
             var dataBuilder = new StringBuilder();
             var isFirst = true;
+            
             foreach (var value in this) {
                 if (!isFirst) {
                     dataBuilder.Append(", ");
