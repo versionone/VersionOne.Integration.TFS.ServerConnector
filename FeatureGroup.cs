@@ -5,7 +5,7 @@ namespace VersionOne.ServerConnector {
     public class FeatureGroup : Workitem {
 
         public IList<Workitem> Children {
-            get; private set;
+            get; protected set;
         }
 
         protected FeatureGroup() { }
