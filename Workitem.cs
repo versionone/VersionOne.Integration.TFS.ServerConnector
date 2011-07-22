@@ -17,6 +17,7 @@ namespace VersionOne.ServerConnector {
         public const string NameProperty = "Name";
         public const string DescriptionProperty = "Description";
         public const string OrderProperty = "Order";
+        public const string ReferenceProperty = "Reference";
 
         public const string PriorityList = "WorkitemPriority";
         
@@ -36,6 +37,11 @@ namespace VersionOne.ServerConnector {
         public string Description {
             get { return GetProperty<string>(DescriptionProperty); }
             set { SetProperty(DescriptionProperty, value); }
+        }
+
+        public string Reference {
+            get { return GetProperty<string>(ReferenceProperty); }
+            set { SetProperty(ReferenceProperty, value); }
         }
 
         public double? Estimate {

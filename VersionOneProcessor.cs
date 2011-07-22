@@ -97,6 +97,10 @@ namespace VersionOne.ServerConnector {
             return new[] { "Story", "Defect" };
         }
 
+
+        // TODO remove LK related stuff
+        //TODO remove it after testing
+        /*
         public void UpdateWorkitemLink(Workitem workitem, string link, string linkTitle) {
             logger.Log(LogMessage.SeverityType.Debug, "Creating link to external entity");
 
@@ -124,6 +128,7 @@ namespace VersionOne.ServerConnector {
                 throw new VersionOneException(ex.Message);
             }
         }
+         * */
 
         public void SaveWorkitems(IEnumerable<Workitem> workitems) {
             var assetList = new AssetList();
@@ -184,7 +189,7 @@ namespace VersionOne.ServerConnector {
             try {
                 if(!string.IsNullOrEmpty(boardLink)) {
                     var projectAsset = GetProjectById(projectId);
-                    AddLinkToAsset(projectAsset, boardLink, linkTitle);
+                    AddLinkToAsset(projectAsset, boardLink, linkTitle, true);
                 }
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
@@ -264,21 +269,21 @@ namespace VersionOne.ServerConnector {
             return null;
         }
 
-        private void AddLinkToAsset(Asset asset, string link, string title) {
-            if(asset == null) {
+        private void AddLinkToAsset(Asset asset, string link, string title, bool onMenu) {
+            if (asset == null) {
                 return;
             }
 
             var linkType = metaModel.GetAssetType("Link");
 
             var linkAsset = GetLinkByTitle(asset.Oid, title);
-            if(linkAsset == null) {
+            if (linkAsset == null) {
                 logger.Log(LogMessage.SeverityType.Info,
                     string.Format("Creating new link with title {0} for asset {1}", title, asset.Oid));
 
                 linkAsset = services.New(linkType, asset.Oid.Momentless);
                 linkAsset.SetAttributeValue(linkType.GetAttributeDefinition("Name"), title);
-                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition("OnMenu"), true);
+                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition("OnMenu"), onMenu);
             }
 
             linkAsset.SetAttributeValue(linkType.GetAttributeDefinition("URL"), link);
@@ -286,6 +291,16 @@ namespace VersionOne.ServerConnector {
             services.Save(linkAsset);
 
             logger.Log(LogMessage.SeverityType.Info, string.Format("{0} link saved", title));
+        }
+
+        public void AddLinkToAsset(Workitem workitem, string link, string title, bool onMenu) {            
+            try {
+                if (!string.IsNullOrEmpty(link)) {
+                    AddLinkToAsset(workitem.Asset, link, title, onMenu);
+                }
+            } catch (Exception ex) {
+                throw new VersionOneException(ex.Message);
+            }
         }
 
         /// <summary>

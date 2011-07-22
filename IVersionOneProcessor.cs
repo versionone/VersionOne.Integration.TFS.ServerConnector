@@ -6,11 +6,7 @@ namespace VersionOne.ServerConnector {
         
         IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId);
         IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId);
-        IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId);
-        
-        void UpdateWorkitemLink(Workitem workitem, string link, string linkTitle);
-        void UpdateWorkitemReference(Workitem workitem, string reference);
-
+        IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId);       
         void SaveWorkitems(IEnumerable<Workitem> workitems);
         void CloseWorkitem(PrimaryWorkitem workitem);
         void UpdateProject(string projectId, string boardLink);
@@ -22,5 +18,6 @@ namespace VersionOne.ServerConnector {
         IList<KeyValuePair<string, string>> GetWorkitemPriorities();
         bool ProjectExists(string projectId);
         void AddProperty(string attr, string prefix, bool isList);
+        void AddLinkToAsset(Workitem asset, string link, string title, bool onMenu);
     }
 }
