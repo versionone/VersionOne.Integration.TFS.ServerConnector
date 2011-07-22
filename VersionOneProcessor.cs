@@ -33,7 +33,7 @@ namespace VersionOne.ServerConnector {
             try {
                 Connect();                
             } catch(Exception ex) {
-                logger.Log(LogMessage.SeverityType.Error, "Connection is not valid." + ex.Message);
+                logger.Log(LogMessage.SeverityType.Error, "Connection is not valid. " + ex.Message);
                 return false;
             }
 
@@ -85,9 +85,7 @@ namespace VersionOne.ServerConnector {
 
                 AddSelection(query, workitemTypeName, workitemType);
 
-                var assetList = services.Retrieve(query).Assets;
-
-                return assetList;
+                return services.Retrieve(query).Assets;
             } catch (Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -113,6 +111,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
+        // TODO impl Reference property and remove this method
         public void UpdateWorkitemReference(Workitem workitem, string reference) {
             logger.Log(LogMessage.SeverityType.Debug, "Updating V1 workitem reference");
 
@@ -183,13 +182,11 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        public void UpdateProject(string projectId, string boardLink) {
-            const string linkTitle = "LeanKitKanban Board";
-
+        public void UpdateProject(string projectId, string link, string linkTitle) {
             try {
-                if(!string.IsNullOrEmpty(boardLink)) {
+                if(!string.IsNullOrEmpty(link)) {
                     var projectAsset = GetProjectById(projectId);
-                    AddLinkToAsset(projectAsset, boardLink, linkTitle, true);
+                    AddLinkToAsset(projectAsset, link, linkTitle, true);
                 }
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);

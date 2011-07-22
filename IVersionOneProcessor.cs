@@ -9,7 +9,7 @@ namespace VersionOne.ServerConnector {
         IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId);       
         void SaveWorkitems(IEnumerable<Workitem> workitems);
         void CloseWorkitem(PrimaryWorkitem workitem);
-        void UpdateProject(string projectId, string boardLink);
+        void UpdateProject(string projectId, string link, string linkTitle);
         string GetWorkitemLink(PrimaryWorkitem workitem);
         IList<string> GetAssetTypes();
         void SetWorkitemStatus(PrimaryWorkitem workitem, string statusId);
