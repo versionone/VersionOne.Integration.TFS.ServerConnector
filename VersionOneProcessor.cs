@@ -254,7 +254,7 @@ namespace VersionOne.ServerConnector {
             if(result.Any()) {
                 logger.Log(LogMessage.SeverityType.Info,
                     string.Format(
-                        "No need to create link to LKK - it already exists. Updating link with title {0} for asset {1}",
+                        "No need to create link - it already exists. Updating link with title {0} for asset {1}",
                         linkTitle,
                         assetOid));
 
@@ -274,7 +274,7 @@ namespace VersionOne.ServerConnector {
             var linkAsset = GetLinkByTitle(asset.Oid, title);
             if(linkAsset == null) {
                 logger.Log(LogMessage.SeverityType.Info,
-                    string.Format("Creating new link to LKK with title {0} for asset {1}", title, asset.Oid));
+                    string.Format("Creating new link with title {0} for asset {1}", title, asset.Oid));
 
                 linkAsset = services.New(linkType, asset.Oid.Momentless);
                 linkAsset.SetAttributeValue(linkType.GetAttributeDefinition("Name"), title);
@@ -293,16 +293,12 @@ namespace VersionOne.ServerConnector {
         /// </summary>
         /// <param name="propertyName">Property name, ex. PrimaryWorkitem.Status</param>
         private IList<KeyValuePair<string, string>> QueryPropertyValues(string propertyName) {
-            var res = new List<KeyValuePair<string, string>>();
             IAttributeDefinition nameDef;
-            Query query = GetPropertyValuesQuery(propertyName, out nameDef);
+            var query = GetPropertyValuesQuery(propertyName, out nameDef);
 
-            foreach(var asset in services.Retrieve(query).Assets) {
-                var name = asset.GetAttribute(nameDef).Value as string;
-                res.Add(new KeyValuePair<string, string>(name, asset.Oid.ToString()));
-            }
-
-            return res;
+            return services.Retrieve(query).Assets
+                .Select(asset => new KeyValuePair<string, string>((string) asset.GetAttribute(nameDef).Value, asset.Oid.ToString()))
+                .ToList();
         }
 
         private PropertyValues QueryPropertyOidValues(string propertyName) {
@@ -314,6 +310,7 @@ namespace VersionOne.ServerConnector {
                 var name = asset.GetAttribute(nameDef).Value as string;
                 res.Add(new ValueId(asset.Oid, name));
             }
+
             return res;
         }
 
