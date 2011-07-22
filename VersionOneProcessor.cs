@@ -16,18 +16,6 @@ namespace VersionOne.ServerConnector {
 
         private Dictionary<string, PropertyValues> listPropertyValues;
 
-
-        private readonly IDictionary<string, string> propertyKeys = new Dictionary<string, string>() {
-                                                                            { "DefectStatus", "StoryStatus" },
-                                                                            { "DefectSource", "StorySource", },
-                                                                            { "ScopeBuildProjects", "BuildProject", },
-                                                                            { "TaskOwners", "Member", },
-                                                                            { "StoryOwners", "Member", },
-                                                                            { "DefectOwners", "Member", },
-                                                                            { "TestOwners", "Member", },
-                                                                            { "PrimaryWorkitemPriority", "WorkitemPriority", },
-                                                                        };
-
         public VersionOneProcessor(XmlElement config, ILogger logger) {
             configuration = config;
             this.logger = logger;
@@ -365,8 +353,24 @@ namespace VersionOne.ServerConnector {
             return res;
         }
 
-        private string ResolvePropertyKey(string propertyAlias) {
-            return propertyKeys.ContainsKey(propertyAlias) ? propertyKeys[propertyAlias] : propertyAlias;
+        private static string ResolvePropertyKey(string propertyAlias) {
+            switch (propertyAlias) {
+                case "DefectStatus":
+                    return "StoryStatus";
+                case "DefectSource":
+                    return "StorySource";
+                case "ScopeBuildProjects":
+                    return "BuildProject";
+                case "TaskOwners":
+                case "StoryOwners":
+                case "DefectOwners":
+                case "TestOwners":
+                    return "Member";
+                case "PrimaryWorkitemPriority":                      
+                    return "WorkitemPriority";
+            }
+
+            return propertyAlias;
         }
     }
 }
