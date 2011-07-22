@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using VersionOne.SDK.APIClient;
+using VersionOne.ServerConnector.Filters;
 using VersionOne.ServiceHost.Core.Logging;
 using System.Xml;
 
@@ -66,16 +67,22 @@ namespace VersionOne.ServerConnector {
             return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, listPropertyValues)).ToList();
         }
 
-        public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId) {
+        public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId, Filter filters) {
             var featureGroupType = metaModel.GetAssetType("Theme");
 
             var projectOid = Oid.FromToken(projectId, metaModel);
             var scopeTerm = new FilterTerm(featureGroupType.GetAttributeDefinition("Scope"));
             scopeTerm.Equal(projectOid);
             var assetTypeTerm = new FilterTerm(featureGroupType.GetAttributeDefinition("Parent"));
-            assetTypeTerm.Equal("");
+            assetTypeTerm.Equal(string.Empty);
 
-            return GetWorkitems("Theme", new AndFilterTerm(scopeTerm, assetTypeTerm)).Select(asset => new FeatureGroup(asset, listPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString()))).ToList();
+            var terms = new AndFilterTerm(scopeTerm, assetTypeTerm);
+            var customTerm = filters.GetFilter(featureGroupType);
+            if (customTerm.HasTerms) {
+                terms.And(customTerm);
+            }
+
+            return GetWorkitems("Theme", terms).Select(asset => new FeatureGroup(asset, listPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString()))).ToList();
         }
 
         private AssetList GetWorkitems(string workitemTypeName, IFilterTerm filter) {
@@ -84,8 +91,8 @@ namespace VersionOne.ServerConnector {
                 var query = new Query(workitemType) { Filter = filter };
 
                 AddSelection(query, workitemTypeName, workitemType);
-
                 return services.Retrieve(query).Assets;
+
             } catch (Exception ex) {
                 throw new VersionOneException(ex.Message);
             }

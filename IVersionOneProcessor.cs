@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using VersionOne.ServerConnector.Filters;
 
 namespace VersionOne.ServerConnector {
     public interface IVersionOneProcessor {
@@ -6,7 +7,7 @@ namespace VersionOne.ServerConnector {
         
         IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId);
         IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId);
-        IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId);       
+        IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId, Filter filters);
         void SaveWorkitems(IEnumerable<Workitem> workitems);
         void CloseWorkitem(PrimaryWorkitem workitem);
         void UpdateProject(string projectId, string link, string linkTitle);
