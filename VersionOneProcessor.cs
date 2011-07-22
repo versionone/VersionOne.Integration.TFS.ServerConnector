@@ -17,8 +17,8 @@ namespace VersionOne.ServerConnector {
         private Dictionary<string, PropertyValues> listPropertyValues;
 
 
-        private readonly IDictionary<string, string> propertyKeys = new Dictionary<string, string> {
-                                                                            { "DefectStatus", "StoryStatus", },
+        private readonly IDictionary<string, string> propertyKeys = new Dictionary<string, string>() {
+                                                                            { "DefectStatus", "StoryStatus" },
                                                                             { "DefectSource", "StorySource", },
                                                                             { "ScopeBuildProjects", "BuildProject", },
                                                                             { "TaskOwners", "Member", },
