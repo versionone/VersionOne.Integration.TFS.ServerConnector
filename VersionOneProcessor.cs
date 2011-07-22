@@ -16,6 +16,18 @@ namespace VersionOne.ServerConnector {
 
         private Dictionary<string, PropertyValues> listPropertyValues;
 
+
+        private readonly IDictionary<string, string> propertyKeys = new Dictionary<string, string> {
+                                                                            { "DefectStatus", "StoryStatus", },
+                                                                            { "DefectSource", "StorySource", },
+                                                                            { "ScopeBuildProjects", "BuildProject", },
+                                                                            { "TaskOwners", "Member", },
+                                                                            { "StoryOwners", "Member", },
+                                                                            { "DefectOwners", "Member", },
+                                                                            { "TestOwners", "Member", },
+                                                                            { "PrimaryWorkitemPriority", "WorkitemPriority", },
+                                                                        };
+
         public VersionOneProcessor(XmlElement config, ILogger logger) {
             configuration = config;
             this.logger = logger;
@@ -94,40 +106,6 @@ namespace VersionOne.ServerConnector {
         public virtual IList<string> GetAssetTypes() {
             return new[] { "Story", "Defect" };
         }
-
-
-        // TODO remove LK related stuff
-        //TODO remove it after testing
-        /*
-        public void UpdateWorkitemLink(Workitem workitem, string link, string linkTitle) {
-            logger.Log(LogMessage.SeverityType.Debug, "Creating link to external entity");
-
-            try {
-                if(!string.IsNullOrEmpty(link)) {
-                    AddLinkToAsset(workitem.Asset, link, linkTitle);
-                }
-            } catch(Exception ex) {
-                throw new VersionOneException(ex.Message);
-            }
-        }
-
-        // TODO impl Reference property and remove this method
-        public void UpdateWorkitemReference(Workitem workitem, string reference) {
-            logger.Log(LogMessage.SeverityType.Debug, "Updating V1 workitem reference");
-
-            try {
-                if (!string.IsNullOrEmpty(reference)) {
-                    var workitemType = metaModel.GetAssetType("Workitem");
-                    workitem.Asset.SetAttributeValue(workitemType.GetAttributeDefinition("Reference"), reference);
-                    services.Save(workitem.Asset);
-                    
-                    logger.Log(LogMessage.SeverityType.Info, "Workitem reference updated");
-                }
-            } catch(Exception ex) {
-                throw new VersionOneException(ex.Message);
-            }
-        }
-         * */
 
         public void SaveWorkitems(IEnumerable<Workitem> workitems) {
             var assetList = new AssetList();
@@ -290,7 +268,7 @@ namespace VersionOne.ServerConnector {
             logger.Log(LogMessage.SeverityType.Info, string.Format("{0} link saved", title));
         }
 
-        public void AddLinkToAsset(Workitem workitem, string link, string title, bool onMenu) {            
+        public void AddLinkToWorkitem(Workitem workitem, string link, string title, bool onMenu) {            
             try {
                 if (!string.IsNullOrEmpty(link)) {
                     AddLinkToAsset(workitem.Asset, link, title, onMenu);
@@ -357,6 +335,7 @@ namespace VersionOne.ServerConnector {
 
         private Dictionary<string, PropertyValues> GetListPropertyValues() {
             var res = new Dictionary<string, PropertyValues>(AttributesToQuery.Count);
+            
             foreach (var attrInfo in AttributesToQuery) {
                 if (!attrInfo.IsList) {
                     continue;
@@ -386,24 +365,8 @@ namespace VersionOne.ServerConnector {
             return res;
         }
 
-        private static string ResolvePropertyKey(string propertyAlias) {
-            switch (propertyAlias) {
-                case "DefectStatus":
-                    return "StoryStatus";
-                case "DefectSource":
-                    return "StorySource";
-                case "ScopeBuildProjects":
-                    return "BuildProject";
-                case "TaskOwners":
-                case "StoryOwners":
-                case "DefectOwners":
-                case "TestOwners":
-                    return "Member";
-                case "PrimaryWorkitemPriority":                      
-                    return "WorkitemPriority";
-            }
-
-            return propertyAlias;
+        private string ResolvePropertyKey(string propertyAlias) {
+            return propertyKeys.ContainsKey(propertyAlias) ? propertyKeys[propertyAlias] : propertyAlias;
         }
     }
 }

@@ -18,6 +18,6 @@ namespace VersionOne.ServerConnector {
         IList<KeyValuePair<string, string>> GetWorkitemPriorities();
         bool ProjectExists(string projectId);
         void AddProperty(string attr, string prefix, bool isList);
-        void AddLinkToAsset(Workitem asset, string link, string title, bool onMenu);
+        void AddLinkToWorkitem(Workitem workitem, string link, string title, bool onMenu);
     }
 }
