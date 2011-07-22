@@ -11,9 +11,9 @@ namespace VersionOne.ServerConnector {
         private IMetaModel metaModel;
         private readonly ILogger logger;
         private readonly XmlElement configuration;
-        private readonly static LinkedList<AttributeInfo> attributesToQuery = new LinkedList<AttributeInfo>();
+        
+        private readonly static LinkedList<AttributeInfo> AttributesToQuery = new LinkedList<AttributeInfo>();
 
-        //private IDictionary<string, Oid> propertyOids;
         private Dictionary<string, PropertyValues> listPropertyValues;
 
         public VersionOneProcessor(XmlElement config, ILogger logger) {
@@ -97,23 +97,28 @@ namespace VersionOne.ServerConnector {
             return new[] { "Story", "Defect" };
         }
 
-        // TODO remove LK related stuff
-        public void UpdateWorkitemLinkAndReference(Workitem workitem, string id, string cardLink) {
-            logger.Log(LogMessage.SeverityType.Info, "Updating V1 workitem reference and creating link");
-
-            const string linkTitle = "LeanKitKanban Card";
+        public void UpdateWorkitemLink(Workitem workitem, string link, string linkTitle) {
+            logger.Log(LogMessage.SeverityType.Debug, "Creating link to external entity");
 
             try {
-                if (!string.IsNullOrEmpty(id)) {
+                if(!string.IsNullOrEmpty(link)) {
+                    AddLinkToAsset(workitem.Asset, link, linkTitle);
+                }
+            } catch(Exception ex) {
+                throw new VersionOneException(ex.Message);
+            }
+        }
+
+        public void UpdateWorkitemReference(Workitem workitem, string reference) {
+            logger.Log(LogMessage.SeverityType.Debug, "Updating V1 workitem reference");
+
+            try {
+                if (!string.IsNullOrEmpty(reference)) {
                     var workitemType = metaModel.GetAssetType("Workitem");
-                    workitem.Asset.SetAttributeValue(workitemType.GetAttributeDefinition("Reference"), id);
+                    workitem.Asset.SetAttributeValue(workitemType.GetAttributeDefinition("Reference"), reference);
                     services.Save(workitem.Asset);
                     
                     logger.Log(LogMessage.SeverityType.Info, "Workitem reference updated");
-                }
-
-                if(!string.IsNullOrEmpty(cardLink)) {
-                    AddLinkToAsset(workitem.Asset, cardLink, linkTitle);
                 }
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
@@ -198,12 +203,12 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        public bool IsProjectExist(string projectId) {
+        public bool ProjectExists(string projectId) {
             return GetProjectById(projectId) != null;
         }
 
         public void AddProperty(string attr, string prefix, bool isList) {
-            attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList));
+            AttributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList));
         }
 
         public IList<Workitem> GetFeatureGroupChildren(string featureGroupParentToken) {
@@ -332,7 +337,7 @@ namespace VersionOne.ServerConnector {
         }
 
         private static void AddSelection(Query query, string typePrefix, IAssetType type) {
-            foreach (var attrInfo in attributesToQuery) {
+            foreach (var attrInfo in AttributesToQuery) {
                 if(attrInfo.Prefix != typePrefix) {
                     continue;
                 }
@@ -342,8 +347,8 @@ namespace VersionOne.ServerConnector {
         }
 
         private Dictionary<string, PropertyValues> GetListPropertyValues() {
-            var res = new Dictionary<string, PropertyValues>(attributesToQuery.Count);
-            foreach (var attrInfo in attributesToQuery) {
+            var res = new Dictionary<string, PropertyValues>(AttributesToQuery.Count);
+            foreach (var attrInfo in AttributesToQuery) {
                 if (!attrInfo.IsList) {
                     continue;
                 }

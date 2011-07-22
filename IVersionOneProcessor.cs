@@ -3,10 +3,14 @@
 namespace VersionOne.ServerConnector {
     public interface IVersionOneProcessor {
         bool ValidateConnection();
+        
         IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId);
         IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId);
         IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId);
-        void UpdateWorkitemLinkAndReference(Workitem workitem, string reference, string cardLink);
+        
+        void UpdateWorkitemLink(Workitem workitem, string link, string linkTitle);
+        void UpdateWorkitemReference(Workitem workitem, string reference);
+
         void SaveWorkitems(IEnumerable<Workitem> workitems);
         void CloseWorkitem(PrimaryWorkitem workitem);
         void UpdateProject(string projectId, string boardLink);
@@ -16,7 +20,7 @@ namespace VersionOne.ServerConnector {
         KeyValuePair<string, string> CreateWorkitemStatus(string statusName);
         IList<KeyValuePair<string, string>> GetWorkitemStatuses();
         IList<KeyValuePair<string, string>> GetWorkitemPriorities();
-        bool IsProjectExist(string projectId);
+        bool ProjectExists(string projectId);
         void AddProperty(string attr, string prefix, bool isList);
     }
 }
