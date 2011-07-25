@@ -13,7 +13,7 @@ namespace VersionOne.ServerConnector {
         private readonly ILogger logger;
         private readonly XmlElement configuration;
         
-        private readonly static LinkedList<AttributeInfo> AttributesToQuery = new LinkedList<AttributeInfo>();
+        private readonly LinkedList<AttributeInfo> attributesToQuery = new LinkedList<AttributeInfo>();
 
         private Dictionary<string, PropertyValues> listPropertyValues;
 
@@ -54,6 +54,7 @@ namespace VersionOne.ServerConnector {
             return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, listPropertyValues)).ToList();
         }
 
+        //TODO we can remove this method used filter
         public IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId) {
             var workitemType = metaModel.GetAssetType("PrimaryWorkitem");
 
@@ -67,7 +68,7 @@ namespace VersionOne.ServerConnector {
             return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, listPropertyValues)).ToList();
         }
 
-        public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId, Filter filters) {
+        public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId, Filter filters, Filter childrenFilters) {
             var featureGroupType = metaModel.GetAssetType("Theme");
 
             var projectOid = Oid.FromToken(projectId, metaModel);
@@ -82,7 +83,7 @@ namespace VersionOne.ServerConnector {
                 terms.And(customTerm);
             }
 
-            return GetWorkitems("Theme", terms).Select(asset => new FeatureGroup(asset, listPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString()))).ToList();
+            return GetWorkitems("Theme", terms).Select(asset => new FeatureGroup(asset, listPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters))).ToList();
         }
 
         private AssetList GetWorkitems(string workitemTypeName, IFilterTerm filter) {
@@ -183,21 +184,23 @@ namespace VersionOne.ServerConnector {
         }
 
         public void AddProperty(string attr, string prefix, bool isList) {
-            AttributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList));
+            attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList));
         }
 
-        public IList<Workitem> GetFeatureGroupChildren(string featureGroupParentToken) {
-            //http://integsrv01/VersionOne11/rest-1.v1/Data/Workitem?where=(Parent.ParentMeAndUp='Theme:1056';AssetType!='Theme')
-            var workitemType = metaModel.GetAssetType("PrimaryWorkitem");
-            var terms = new List<FilterTerm>();
-            var term = new FilterTerm(workitemType.GetAttributeDefinition("ParentAndUp"));
-            term.Equal(featureGroupParentToken);
-            terms.Add(term);
-            term = new FilterTerm(workitemType.GetAttributeDefinition("AssetType"));
-            term.NotEqual("Theme");
-            terms.Add(term);
+        public IList<Workitem> GetFeatureGroupChildren(string featureGroupParentToken, Filter filter) {
+            var workitemType = metaModel.GetAssetType("Story");
+            
+            var parentTerm = new FilterTerm(workitemType.GetAttributeDefinition("ParentAndUp"));
+            parentTerm.Equal(featureGroupParentToken);
+            var typeTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetType"));
+            typeTerm.NotEqual("Theme");
 
-            return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(terms.ToArray())).
+            var terms = new AndFilterTerm(parentTerm, typeTerm);
+            var customTerm = filter.GetFilter(workitemType);
+            if (customTerm.HasTerms) {
+                terms.And(customTerm);
+            }
+            return GetWorkitems("Story", terms).
                     Select( asset => new Workitem(asset, listPropertyValues)).ToList();
         }
 
@@ -318,8 +321,8 @@ namespace VersionOne.ServerConnector {
             return query;
         }
 
-        private static void AddSelection(Query query, string typePrefix, IAssetType type) {
-            foreach (var attrInfo in AttributesToQuery) {
+        private void AddSelection(Query query, string typePrefix, IAssetType type) {
+            foreach (var attrInfo in attributesToQuery) {
                 if(attrInfo.Prefix != typePrefix) {
                     continue;
                 }
@@ -329,9 +332,9 @@ namespace VersionOne.ServerConnector {
         }
 
         private Dictionary<string, PropertyValues> GetListPropertyValues() {
-            var res = new Dictionary<string, PropertyValues>(AttributesToQuery.Count);
+            var res = new Dictionary<string, PropertyValues>(attributesToQuery.Count);
             
-            foreach (var attrInfo in AttributesToQuery) {
+            foreach (var attrInfo in attributesToQuery) {
                 if (!attrInfo.IsList) {
                     continue;
                 }
