@@ -3,7 +3,6 @@ using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector {
     public class PrimaryWorkitem : Workitem {        
-
         public string FeatureGroupName { get { return GetProperty<string>(ParentNameProperty); } }
         public string Team { get { return GetProperty<string>(TeamNameProperty); } }
         public string SprintName { get { return GetProperty<string>(SprintNameProperty); } }
@@ -16,7 +15,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        internal PrimaryWorkitem(Asset asset, Dictionary<string, PropertyValues> listValues) : base(asset, listValues) { }
+        internal PrimaryWorkitem(Asset asset, IDictionary<string, PropertyValues> listValues) : base(asset, listValues) { }
 
         protected PrimaryWorkitem() { }
     }

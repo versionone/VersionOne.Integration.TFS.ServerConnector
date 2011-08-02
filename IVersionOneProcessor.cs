@@ -25,5 +25,7 @@ namespace VersionOne.ServerConnector {
         
         void AddProperty(string attr, string prefix, bool isList);
         void AddLinkToWorkitem(Workitem workitem, string link, string title, bool onMenu);
+
+        IDictionary<string, PropertyValues> ListPropertyValues { get; }
     }
 }

@@ -8,6 +8,7 @@ using System.Xml;
 
 namespace VersionOne.ServerConnector {
     // TODO extract hardcoded strings to constants
+    // TODO this one is getting huge - it should be split
     public class VersionOneProcessor : IVersionOneProcessor {
         public const string FeatureGroupType = "Theme";
         public const string StoryType = "Story";
@@ -20,7 +21,7 @@ namespace VersionOne.ServerConnector {
         
         private readonly LinkedList<AttributeInfo> attributesToQuery = new LinkedList<AttributeInfo>();
 
-        private Dictionary<string, PropertyValues> listPropertyValues;
+        public IDictionary<string, PropertyValues> ListPropertyValues { get; private set; }
 
         public VersionOneProcessor(XmlElement config, ILogger logger) {
             configuration = config;
@@ -32,7 +33,7 @@ namespace VersionOne.ServerConnector {
             connector.Validate();
             services = connector.Services;
             metaModel = connector.MetaModel;
-            listPropertyValues = GetListPropertyValues();
+            ListPropertyValues = GetListPropertyValues();
         }
 
         public bool ValidateConnection() {
@@ -56,7 +57,7 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetState"));
             stateTerm.NotEqual(AssetState.Closed);
 
-            return GetWorkitems(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, listPropertyValues)).ToList();
+            return GetWorkitems(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
         }
 
         //TODO we can remove this method used filter
@@ -70,7 +71,7 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetState"));
             stateTerm.Equal(AssetState.Closed);
 
-            return GetWorkitems(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, listPropertyValues)).ToList();
+            return GetWorkitems(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
         }
 
         public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId, Filter filters, Filter childrenFilters) {
@@ -88,7 +89,7 @@ namespace VersionOne.ServerConnector {
                 terms.And(customTerm);
             }
 
-            return GetWorkitems(FeatureGroupType, terms).Select(asset => new FeatureGroup(asset, listPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters))).ToList();
+            return GetWorkitems(FeatureGroupType, terms).Select(asset => new FeatureGroup(asset, ListPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters))).ToList();
         }
 
         private AssetList GetWorkitems(string workitemTypeName, IFilterTerm filter) {
@@ -226,7 +227,7 @@ namespace VersionOne.ServerConnector {
                 terms.And(customTerm);
             }
             return GetWorkitems("Story", terms).
-                    Select( asset => new Workitem(asset, listPropertyValues)).ToList();
+                    Select( asset => new Workitem(asset, ListPropertyValues)).ToList();
         }
 
         private Asset GetProjectById(string projectId) {
