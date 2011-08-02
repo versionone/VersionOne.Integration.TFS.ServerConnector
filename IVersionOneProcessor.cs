@@ -21,6 +21,7 @@ namespace VersionOne.ServerConnector {
         
         bool ProjectExists(string projectId);
         bool TypeExists(string typeName);
+        bool AttributeExists(string typeName, string attributeName);
         
         void AddProperty(string attr, string prefix, bool isList);
         void AddLinkToWorkitem(Workitem workitem, string link, string title, bool onMenu);

@@ -9,6 +9,10 @@ using System.Xml;
 namespace VersionOne.ServerConnector {
     // TODO extract hardcoded strings to constants
     public class VersionOneProcessor : IVersionOneProcessor {
+        public const string FeatureGroupType = "Theme";
+        public const string StoryType = "Story";
+        public const string PrimaryWorkitemType = "PrimaryWorkitem";
+
         private IServices services;
         private IMetaModel metaModel;
         private readonly ILogger logger;
@@ -43,7 +47,7 @@ namespace VersionOne.ServerConnector {
         }
 
         public IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId) {
-            var workitemType = metaModel.GetAssetType("PrimaryWorkitem");
+            var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
 
             var projectOid = Oid.FromToken(projectId, metaModel);
             var scopeTerm = new FilterTerm(workitemType.GetAttributeDefinition("Scope"));
@@ -52,12 +56,12 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetState"));
             stateTerm.NotEqual(AssetState.Closed);
 
-            return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, listPropertyValues)).ToList();
+            return GetWorkitems(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, listPropertyValues)).ToList();
         }
 
         //TODO we can remove this method used filter
         public IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId) {
-            var workitemType = metaModel.GetAssetType("PrimaryWorkitem");
+            var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
 
             var projectOid = Oid.FromToken(projectId, metaModel);
             var scopeTerm = new FilterTerm(workitemType.GetAttributeDefinition("Scope"));
@@ -66,11 +70,11 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetState"));
             stateTerm.Equal(AssetState.Closed);
 
-            return GetWorkitems("PrimaryWorkitem", new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, listPropertyValues)).ToList();
+            return GetWorkitems(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, listPropertyValues)).ToList();
         }
 
         public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId, Filter filters, Filter childrenFilters) {
-            var featureGroupType = metaModel.GetAssetType("Theme");
+            var featureGroupType = metaModel.GetAssetType(FeatureGroupType);
 
             var projectOid = Oid.FromToken(projectId, metaModel);
             var scopeTerm = new FilterTerm(featureGroupType.GetAttributeDefinition("Scope"));
@@ -84,7 +88,7 @@ namespace VersionOne.ServerConnector {
                 terms.And(customTerm);
             }
 
-            return GetWorkitems("Theme", terms).Select(asset => new FeatureGroup(asset, listPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters))).ToList();
+            return GetWorkitems(FeatureGroupType, terms).Select(asset => new FeatureGroup(asset, listPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters))).ToList();
         }
 
         private AssetList GetWorkitems(string workitemTypeName, IFilterTerm filter) {
@@ -135,7 +139,7 @@ namespace VersionOne.ServerConnector {
         
         public void SetWorkitemStatus(PrimaryWorkitem workitem, string statusId) {
             try {
-                var primaryWorkitemType = metaModel.GetAssetType("PrimaryWorkitem");
+                var primaryWorkitemType = metaModel.GetAssetType(PrimaryWorkitemType);
                 var statusAttributeDefinition = primaryWorkitemType.GetAttributeDefinition("Status");
 
                 workitem.Asset.SetAttributeValue(statusAttributeDefinition, Oid.FromToken(statusId, metaModel));
@@ -189,7 +193,17 @@ namespace VersionOne.ServerConnector {
             try {
                 var type = metaModel.GetAssetType(typeName);
                 return type != null;
-            } catch(MetaException ex) {
+            } catch(MetaException) {
+                return false;
+            }
+        }
+
+        public bool AttributeExists(string typeName, string attributeName) {
+            try {
+                var type = metaModel.GetAssetType(typeName);
+                var attributeDefinition = type.GetAttributeDefinition(attributeName);
+                return attributeDefinition != null;
+            } catch(MetaException) {
                 return false;
             }
         }
@@ -204,7 +218,7 @@ namespace VersionOne.ServerConnector {
             var parentTerm = new FilterTerm(workitemType.GetAttributeDefinition("ParentAndUp"));
             parentTerm.Equal(featureGroupParentToken);
             var typeTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetType"));
-            typeTerm.NotEqual("Theme");
+            typeTerm.NotEqual(FeatureGroupType);
 
             var terms = new AndFilterTerm(parentTerm, typeTerm);
             var customTerm = filter.GetFilter(workitemType);
