@@ -7,6 +7,7 @@ using VersionOne.ServiceHost.Core.Logging;
 using System.Xml;
 
 namespace VersionOne.ServerConnector {
+    // TODO extract hardcoded strings to constants
     public class VersionOneProcessor : IVersionOneProcessor {
         private IServices services;
         private IMetaModel metaModel;
@@ -99,6 +100,7 @@ namespace VersionOne.ServerConnector {
             }
         }       
 
+        // TODO remove this from library code
         public virtual IList<string> GetAssetTypes() {
             return new[] { "Story", "Defect" };
         }
@@ -183,11 +185,20 @@ namespace VersionOne.ServerConnector {
             return GetProjectById(projectId) != null;
         }
 
+        public bool TypeExists(string typeName) {
+            try {
+                var type = metaModel.GetAssetType(typeName);
+                return type != null;
+            } catch(MetaException ex) {
+                return false;
+            }
+        }
+
         public void AddProperty(string attr, string prefix, bool isList) {
             attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList));
         }
 
-        public IList<Workitem> GetFeatureGroupChildren(string featureGroupParentToken, Filter filter) {
+        private IList<Workitem> GetFeatureGroupChildren(string featureGroupParentToken, Filter filter) {
             var workitemType = metaModel.GetAssetType("Story");
             
             var parentTerm = new FilterTerm(workitemType.GetAttributeDefinition("ParentAndUp"));
