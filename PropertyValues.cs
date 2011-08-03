@@ -27,7 +27,7 @@ namespace VersionOne.ServerConnector {
             return string.Join(", ", this.Select(item => item.ToString()).ToArray());
         }
 
-        public ValueId Find(string token) {
+        public virtual ValueId Find(string token) {
             return dictionary.Where(id => token.Equals(id.Key.Momentless.Token)).Select(id => id.Value).FirstOrDefault();
         }
 
