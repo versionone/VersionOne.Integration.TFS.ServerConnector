@@ -5,10 +5,10 @@ using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector {
     public class PropertyValues : IEnumerable<ValueId> {
-        private readonly Dictionary<Oid, ValueId> dictionary = new Dictionary<Oid, ValueId>();
+        private readonly IDictionary<Oid, ValueId> dictionary = new Dictionary<Oid, ValueId>();
 
-        public PropertyValues(IEnumerable valueIds) {
-            foreach (ValueId id in valueIds) {
+        public PropertyValues(IEnumerable<ValueId> valueIds) {
+            foreach (var id in valueIds) {
                 Add(id);
             }
         }
