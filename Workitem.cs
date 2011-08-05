@@ -62,24 +62,20 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        //TODO just some thoughts maybe we can avoid using it
         public string GetCustomFieldValue(string fieldName) {
             var fullFieldName = fieldName;
 
             if (!fullFieldName.StartsWith("Custom_")) {
                 fullFieldName = "Custom_" + fullFieldName;
             }
-            
             var value = GetProperty<object>(fullFieldName);
             
             if (value != null && value is Oid && ((Oid)value).IsNull) {
                 return null;
             }
-            
             return value != null ? value.ToString() : null;
         }
 
-        //TODO just some thoughts maybe we can avoid using it
         public void SetCustomListValue(string fieldName, string type, string value) {
             var valueData = ListValues[type].Find(value);
             
