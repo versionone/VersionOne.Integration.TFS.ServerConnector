@@ -53,10 +53,12 @@
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
     <Compile Include="AttributeInfo.cs" />
+    <Compile Include="Entity.cs" />
     <Compile Include="Filters\Filter.cs" />
     <Compile Include="Filters\FilterActions.cs" />
     <Compile Include="Filters\FilterValue.cs" />
     <Compile Include="Filters\FilterValuesActions.cs" />
+    <Compile Include="Member.cs" />
     <Compile Include="PropertyValues.cs" />
     <Compile Include="FeatureGroup.cs" />
     <Compile Include="IVersionOneProcessor.cs" />

@@ -13,7 +13,12 @@ namespace VersionOne.ServerConnector {
 
         internal FeatureGroup(Asset asset, IDictionary<string, PropertyValues> listValues) : base(asset, listValues) { }
 
-        internal FeatureGroup(Asset asset, IDictionary<string, PropertyValues> listValues, IList<Workitem> children) : base(asset, listValues) {
+        internal FeatureGroup(Asset asset, IDictionary<string, PropertyValues> listValues, IList<Workitem> children)
+            : this(asset, listValues, children, new List<Member>()) {
+        }
+
+        internal FeatureGroup(Asset asset, IDictionary<string, PropertyValues> listValues, IList<Workitem> children, IList<Member> owners)
+            : base(asset, listValues, owners) {
             Children = children;
         }
     }

@@ -5,6 +5,7 @@ using VersionOne.SDK.APIClient;
 using VersionOne.ServerConnector.Filters;
 using VersionOne.ServiceHost.Core.Logging;
 using System.Xml;
+using System.Collections;
 
 namespace VersionOne.ServerConnector {
     // TODO extract hardcoded strings to constants
@@ -13,6 +14,21 @@ namespace VersionOne.ServerConnector {
         public const string FeatureGroupType = "Theme";
         public const string StoryType = "Story";
         public const string PrimaryWorkitemType = "PrimaryWorkitem";
+        public const string MemberType = "Member";
+        private const string LinkType = "Link";
+
+        private const string OwnersAttribute = "Owners";
+        private const string AssetStateAttribute = "AssetState";
+        private const string ScopeAttribute = "Scope";
+        private const string ParentAttribute = "Parent";
+        private const string IdAttribute = "ID";
+        private const string StatusAttribute = "Status";
+        private const string ParentAndUpAttribute = "ParentAndUp";
+        private const string AssetTypeAttribute = "AssetType";
+        private const string NameAttribute = "Name";
+        private const string AssetAttribute = "Asset";
+        private const string UrlAttribute = "URL";
+        private const string OnMenuAttribute = "OnMenu";
 
         private IServices services;
         private IMetaModel metaModel;
@@ -51,10 +67,10 @@ namespace VersionOne.ServerConnector {
             var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
 
             var projectOid = Oid.FromToken(projectId, metaModel);
-            var scopeTerm = new FilterTerm(workitemType.GetAttributeDefinition("Scope"));
+            var scopeTerm = new FilterTerm(workitemType.GetAttributeDefinition(ScopeAttribute));
             scopeTerm.Equal(projectOid);
 
-            var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetState"));
+            var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
             stateTerm.NotEqual(AssetState.Closed);
 
             return GetWorkitems(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
@@ -65,10 +81,10 @@ namespace VersionOne.ServerConnector {
             var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
 
             var projectOid = Oid.FromToken(projectId, metaModel);
-            var scopeTerm = new FilterTerm(workitemType.GetAttributeDefinition("Scope"));
+            var scopeTerm = new FilterTerm(workitemType.GetAttributeDefinition(ScopeAttribute));
             scopeTerm.Equal(projectOid);
 
-            var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetState"));
+            var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
             stateTerm.Equal(AssetState.Closed);
 
             return GetWorkitems(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
@@ -76,11 +92,12 @@ namespace VersionOne.ServerConnector {
 
         public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId, Filter filters, Filter childrenFilters) {
             var featureGroupType = metaModel.GetAssetType(FeatureGroupType);
+            var ownersDefinition = featureGroupType.GetAttributeDefinition(OwnersAttribute);
 
             var projectOid = Oid.FromToken(projectId, metaModel);
-            var scopeTerm = new FilterTerm(featureGroupType.GetAttributeDefinition("Scope"));
+            var scopeTerm = new FilterTerm(featureGroupType.GetAttributeDefinition(ScopeAttribute));
             scopeTerm.Equal(projectOid);
-            var assetTypeTerm = new FilterTerm(featureGroupType.GetAttributeDefinition("Parent"));
+            var assetTypeTerm = new FilterTerm(featureGroupType.GetAttributeDefinition(ParentAttribute));
             assetTypeTerm.Equal(string.Empty);
 
             var terms = new AndFilterTerm(scopeTerm, assetTypeTerm);
@@ -89,7 +106,23 @@ namespace VersionOne.ServerConnector {
                 terms.And(customTerm);
             }
 
-            return GetWorkitems(FeatureGroupType, terms).Select(asset => new FeatureGroup(asset, ListPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters))).ToList();
+            return GetWorkitems(FeatureGroupType, terms).Select(asset => new FeatureGroup(asset, ListPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters), GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList))).ToList();
+        }
+
+        public IList<Member> GetMembersByIds(IList oids) {
+            if (oids.Count == 0) {
+                return new List<Member>();
+            }
+            var memberType = metaModel.GetAssetType(MemberType);
+
+            var terms = new OrFilterTerm();
+            foreach(var oid in oids) {
+                var term = new FilterTerm(memberType.GetAttributeDefinition(IdAttribute));
+                term.Equal(oid);
+                terms.Or(term);
+            }
+            var members = GetWorkitems(MemberType, terms).Select(asset => new Member(asset)).ToList();
+            return members;
         }
 
         private AssetList GetWorkitems(string workitemTypeName, IFilterTerm filter) {
@@ -141,7 +174,7 @@ namespace VersionOne.ServerConnector {
         public void SetWorkitemStatus(PrimaryWorkitem workitem, string statusId) {
             try {
                 var primaryWorkitemType = metaModel.GetAssetType(PrimaryWorkitemType);
-                var statusAttributeDefinition = primaryWorkitemType.GetAttributeDefinition("Status");
+                var statusAttributeDefinition = primaryWorkitemType.GetAttributeDefinition(StatusAttribute);
 
                 workitem.Asset.SetAttributeValue(statusAttributeDefinition, Oid.FromToken(statusId, metaModel));
                 services.Save(workitem.Asset);
@@ -214,11 +247,11 @@ namespace VersionOne.ServerConnector {
         }
 
         private IList<Workitem> GetFeatureGroupChildren(string featureGroupParentToken, Filter filter) {
-            var workitemType = metaModel.GetAssetType("Story");
+            var workitemType = metaModel.GetAssetType(StoryType);
             
-            var parentTerm = new FilterTerm(workitemType.GetAttributeDefinition("ParentAndUp"));
+            var parentTerm = new FilterTerm(workitemType.GetAttributeDefinition(ParentAndUpAttribute));
             parentTerm.Equal(featureGroupParentToken);
-            var typeTerm = new FilterTerm(workitemType.GetAttributeDefinition("AssetType"));
+            var typeTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetTypeAttribute));
             typeTerm.NotEqual(FeatureGroupType);
 
             var terms = new AndFilterTerm(parentTerm, typeTerm);
@@ -226,13 +259,13 @@ namespace VersionOne.ServerConnector {
             if (customTerm.HasTerms) {
                 terms.And(customTerm);
             }
-            return GetWorkitems("Story", terms).
+            return GetWorkitems(StoryType, terms).
                     Select( asset => new Workitem(asset, ListPropertyValues)).ToList();
         }
 
         private Asset GetProjectById(string projectId) {
-            var scopeType = metaModel.GetAssetType("Scope");
-            var scopeState = scopeType.GetAttributeDefinition("AssetState");
+            var scopeType = metaModel.GetAssetType(ScopeAttribute);
+            var scopeState = scopeType.GetAttributeDefinition(AssetStateAttribute);
 
             var scopeStateTerm = new FilterTerm(scopeState);
             scopeStateTerm.NotEqual(AssetState.Closed);
@@ -244,12 +277,12 @@ namespace VersionOne.ServerConnector {
         }
 
         private Asset GetLinkByTitle(Oid assetOid, string linkTitle) {
-            var linkType = metaModel.GetAssetType("Link");
+            var linkType = metaModel.GetAssetType(LinkType);
 
-            var nameTerm = new FilterTerm(linkType.GetAttributeDefinition("Name"));
+            var nameTerm = new FilterTerm(linkType.GetAttributeDefinition(NameAttribute));
             nameTerm.Equal(linkTitle);
 
-            var assetTerm = new FilterTerm(linkType.GetAttributeDefinition("Asset"));
+            var assetTerm = new FilterTerm(linkType.GetAttributeDefinition(AssetAttribute));
             assetTerm.Equal(assetOid);
 
             var query = new Query(linkType) {Filter = new AndFilterTerm(nameTerm, assetTerm)};
@@ -273,7 +306,7 @@ namespace VersionOne.ServerConnector {
                 return;
             }
 
-            var linkType = metaModel.GetAssetType("Link");
+            var linkType = metaModel.GetAssetType(LinkType);
 
             var linkAsset = GetLinkByTitle(asset.Oid, title);
             if (linkAsset == null) {
@@ -281,11 +314,11 @@ namespace VersionOne.ServerConnector {
                     string.Format("Creating new link with title {0} for asset {1}", title, asset.Oid));
 
                 linkAsset = services.New(linkType, asset.Oid.Momentless);
-                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition("Name"), title);
-                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition("OnMenu"), onMenu);
+                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(NameAttribute), title);
+                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(OnMenuAttribute), onMenu);
             }
 
-            linkAsset.SetAttributeValue(linkType.GetAttributeDefinition("URL"), link);
+            linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(UrlAttribute), link);
 
             services.Save(linkAsset);
 
@@ -330,7 +363,7 @@ namespace VersionOne.ServerConnector {
 
         private Query GetPropertyValuesQuery(string propertyName, out IAttributeDefinition nameDef) {
             var assetType = metaModel.GetAssetType(propertyName);
-            nameDef = assetType.GetAttributeDefinition("Name");
+            nameDef = assetType.GetAttributeDefinition(NameAttribute);
 
             IAttributeDefinition inactiveDef;
 
@@ -401,6 +434,7 @@ namespace VersionOne.ServerConnector {
                 case "StoryOwners":
                 case "DefectOwners":
                 case "TestOwners":
+                case "ThemeOwners":
                     return "Member";
                 case "PrimaryWorkitemPriority":                      
                     return "WorkitemPriority";
