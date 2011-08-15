@@ -53,21 +53,22 @@
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
     <Compile Include="AttributeInfo.cs" />
-    <Compile Include="Entity.cs" />
+    <Compile Include="Entities\Entity.cs" />
     <Compile Include="Filters\Filter.cs" />
     <Compile Include="Filters\FilterActions.cs" />
     <Compile Include="Filters\FilterValue.cs" />
     <Compile Include="Filters\FilterValuesActions.cs" />
-    <Compile Include="Member.cs" />
-    <Compile Include="PropertyValues.cs" />
-    <Compile Include="FeatureGroup.cs" />
+    <Compile Include="Entities\Member.cs" />
+    <Compile Include="Entities\PropertyValues.cs" />
+    <Compile Include="Entities\FeatureGroup.cs" />
     <Compile Include="IVersionOneProcessor.cs" />
-    <Compile Include="PrimaryWorkitem.cs" />
+    <Compile Include="Entities\PrimaryWorkitem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ValueId.cs" />
+    <Compile Include="Entities\Story.cs" />
+    <Compile Include="Entities\ValueId.cs" />
     <Compile Include="VersionOneException.cs" />
     <Compile Include="VersionOneProcessor.cs" />
-    <Compile Include="Workitem.cs" />
+    <Compile Include="Entities\Workitem.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VersionOne.ServiceHost.Core\VersionOne.ServiceHost.Core.csproj">

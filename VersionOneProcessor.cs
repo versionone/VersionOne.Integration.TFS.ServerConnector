@@ -104,9 +104,9 @@ namespace VersionOne.ServerConnector {
             var customTerm = filters.GetFilter(featureGroupType);
             if (customTerm.HasTerms) {
                 terms.And(customTerm);
-            }
+            } 
 
-            return GetWorkitems(FeatureGroupType, terms).Select(asset => new FeatureGroup(asset, ListPropertyValues, GetFeatureGroupChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters), GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList))).ToList();
+            return GetWorkitems(FeatureGroupType, terms).Select(asset => new FeatureGroup(asset, ListPropertyValues, GetFeatureGroupStoryChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters).Cast<Workitem>().ToList(), GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList))).ToList();
         }
 
         public IList<Member> GetMembersByIds(IList oids) {
@@ -246,7 +246,7 @@ namespace VersionOne.ServerConnector {
             attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList));
         }
 
-        private IList<Workitem> GetFeatureGroupChildren(string featureGroupParentToken, Filter filter) {
+        private IList<Story> GetFeatureGroupStoryChildren(string featureGroupParentToken, Filter filter) {
             var workitemType = metaModel.GetAssetType(StoryType);
             
             var parentTerm = new FilterTerm(workitemType.GetAttributeDefinition(ParentAndUpAttribute));
@@ -260,7 +260,7 @@ namespace VersionOne.ServerConnector {
                 terms.And(customTerm);
             }
             return GetWorkitems(StoryType, terms).
-                    Select( asset => new Workitem(asset, ListPropertyValues)).ToList();
+                    Select(asset => new Story(asset, ListPropertyValues)).ToList();
         }
 
         private Asset GetProjectById(string projectId) {

@@ -2,7 +2,7 @@
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector {
-    public class PrimaryWorkitem : Workitem {        
+    public class PrimaryWorkitem : Workitem {
         public string FeatureGroupName { get { return GetProperty<string>(ParentNameProperty); } }
         public string Team { get { return GetProperty<string>(TeamNameProperty); } }
         public string SprintName { get { return GetProperty<string>(SprintNameProperty); } }
