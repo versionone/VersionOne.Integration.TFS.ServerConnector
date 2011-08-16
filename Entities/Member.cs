@@ -5,8 +5,8 @@ namespace VersionOne.ServerConnector.Entities {
         public const string NameProperty = "Name";
         public const string EmailProperty = "Email";
 
-        public Member(Asset asset) : base(asset) {
-        }
+        public Member(){}
+        public Member(Asset asset) : base(asset) {}
 
         public string Name {
             get { return GetProperty<string>(NameProperty); }
