@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.ServerConnector {
+namespace VersionOne.ServerConnector.Entities {
     [DebuggerDisplay("{TypeName} {Name}, Id={Id}, Number={Number}")]
     // TODO decide on hierarchy
     public class Workitem :Entity {
@@ -59,7 +59,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        public IList<Member> Owners { get; private set; }
+        public IList<Member> Owners { get; protected internal set; }
 
         internal Workitem(Asset asset, IDictionary<string, PropertyValues> listValues, IList<Member> owners) 
             : this(asset, listValues) {

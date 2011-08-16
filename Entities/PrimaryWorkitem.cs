@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.ServerConnector {
+namespace VersionOne.ServerConnector.Entities {
     public class PrimaryWorkitem : Workitem {
         public string FeatureGroupName { get { return GetProperty<string>(ParentNameProperty); } }
         public string Team { get { return GetProperty<string>(TeamNameProperty); } }

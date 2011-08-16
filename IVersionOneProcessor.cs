@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using VersionOne.ServerConnector.Entities;
 using VersionOne.ServerConnector.Filters;
 
 namespace VersionOne.ServerConnector {

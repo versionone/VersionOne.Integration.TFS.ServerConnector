@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using VersionOne.SDK.APIClient;
+using VersionOne.ServerConnector.Entities;
 using VersionOne.ServerConnector.Filters;
 using VersionOne.ServiceHost.Core.Logging;
 using System.Xml;

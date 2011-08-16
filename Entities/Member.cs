@@ -1,6 +1,6 @@
 ﻿using VersionOne.SDK.APIClient;
 
-namespace VersionOne.ServerConnector {
+namespace VersionOne.ServerConnector.Entities {
     public class Member : Entity {
         public const string NameProperty = "Name";
         public const string EmailProperty = "Email";

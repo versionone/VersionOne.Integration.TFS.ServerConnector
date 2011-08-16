@@ -3,7 +3,7 @@ using System.Diagnostics;
 using VersionOne.SDK.APIClient;
 
 
-namespace VersionOne.ServerConnector {
+namespace VersionOne.ServerConnector.Entities {
     [DebuggerDisplay("{TypeName} {Name}, Id={Id}, Number={Number}")]
     public class Story : PrimaryWorkitem {
         public const string BenefitsProperty = "Benefits";

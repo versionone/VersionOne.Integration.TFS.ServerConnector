@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.ServerConnector {
+namespace VersionOne.ServerConnector.Entities {
     public class FeatureGroup : Workitem {
 
         public IList<Workitem> Children {

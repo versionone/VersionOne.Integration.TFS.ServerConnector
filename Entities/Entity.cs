@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.ServerConnector {
+namespace VersionOne.ServerConnector.Entities {
+    [DebuggerDisplay("{TypeName} {Name}, Id={Id}")]
     public class Entity {
         internal readonly Asset Asset;
 
