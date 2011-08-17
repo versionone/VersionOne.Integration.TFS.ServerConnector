@@ -4,9 +4,7 @@ using VersionOne.SDK.APIClient;
 namespace VersionOne.ServerConnector.Entities {
     public class FeatureGroup : Workitem {
 
-        public IList<Workitem> Children {
-            get; protected set;
-        }
+        public IList<Workitem> Children {get; protected set;}
 
         protected FeatureGroup() { }
         public FeatureGroup(Asset asset) : base(asset) { }
