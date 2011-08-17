@@ -5,16 +5,13 @@ using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
     [DebuggerDisplay("{TypeName} {Name}, Id={Id}")]
-    public class Entity {
-        internal readonly Asset Asset;
-
+    public class Entity : BaseEntity {
         public string Id { get; protected set; }
         public string TypeName { get; protected set; }
 
         protected IDictionary<string, PropertyValues> ListValues { get; set; }
 
-        internal Entity(Asset asset) {
-            Asset = asset;
+        internal Entity(Asset asset) : base(asset) {
             Id = asset.Oid.ToString();
             TypeName = asset.AssetType.Token;
         }
@@ -41,21 +38,6 @@ namespace VersionOne.ServerConnector.Entities {
             if (valueData != null) {
                 SetProperty(fieldName, valueData.Oid);
             }
-        }
-
-        protected virtual T GetProperty<T>(string name) {
-            var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
-            return (T)Asset.GetAttribute(attributeDefinition).Value;
-        }
-
-        protected virtual IList<T> GetProperties<T>(string name) {
-            var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
-            return Asset.GetAttribute(attributeDefinition).ValuesList.Cast<T>().ToList();
-        }
-
-        protected virtual void SetProperty<T>(string name, T value) {
-            var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
-            Asset.SetAttributeValue(attributeDefinition, value);
         }
     }
 }

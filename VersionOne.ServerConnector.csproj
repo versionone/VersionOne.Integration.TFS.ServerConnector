@@ -53,7 +53,9 @@
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
     <Compile Include="AttributeInfo.cs" />
+    <Compile Include="Entities\BaseEntity.cs" />
     <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\FieldInfo.cs" />
     <Compile Include="Filters\Filter.cs" />
     <Compile Include="Filters\FilterActions.cs" />
     <Compile Include="Filters\FilterValue.cs" />

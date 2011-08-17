@@ -16,7 +16,8 @@ namespace VersionOne.ServerConnector {
         public const string StoryType = "Story";
         public const string PrimaryWorkitemType = "PrimaryWorkitem";
         public const string MemberType = "Member";
-        private const string LinkType = "Link";
+        public const string LinkType = "Link";
+        public const string AttributeDefinitionType = "AttributeDefinition";
 
         private const string OwnersAttribute = "Owners";
         private const string AssetStateAttribute = "AssetState";
@@ -30,9 +31,11 @@ namespace VersionOne.ServerConnector {
         private const string AssetAttribute = "Asset";
         private const string UrlAttribute = "URL";
         private const string OnMenuAttribute = "OnMenu";
+        private const string InactiveAttribute = "Inactive";
 
         private IServices services;
         private IMetaModel metaModel;
+        private ILocalizer localizer;
         private readonly ILogger logger;
         private readonly XmlElement configuration;
         
@@ -50,6 +53,7 @@ namespace VersionOne.ServerConnector {
             connector.Validate();
             services = connector.Services;
             metaModel = connector.MetaModel;
+            localizer = connector.Loc;
             ListPropertyValues = GetListPropertyValues();
         }
 
@@ -74,10 +78,10 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
             stateTerm.NotEqual(AssetState.Closed);
 
-            return GetWorkitems(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
+            return RetrieveData(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
         }
 
-        //TODO we can remove this method used filter
+        //TODO we can remove this method using filter
         public IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId) {
             var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
 
@@ -88,7 +92,7 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
             stateTerm.Equal(AssetState.Closed);
 
-            return GetWorkitems(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
+            return RetrieveData(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
         }
 
         public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId, Filter filters, Filter childrenFilters) {
@@ -107,7 +111,7 @@ namespace VersionOne.ServerConnector {
                 terms.And(customTerm);
             } 
 
-            return GetWorkitems(FeatureGroupType, terms).Select(asset => new FeatureGroup(asset, ListPropertyValues, GetFeatureGroupStoryChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters).Cast<Workitem>().ToList(), GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList))).ToList();
+            return RetrieveData(FeatureGroupType, terms).Select(asset => new FeatureGroup(asset, ListPropertyValues, GetFeatureGroupStoryChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters).Cast<Workitem>().ToList(), GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList))).ToList();
         }
 
         public IList<Member> GetMembersByIds(IList oids) {
@@ -122,14 +126,37 @@ namespace VersionOne.ServerConnector {
                 term.Equal(oid);
                 terms.Or(term);
             }
-            var members = GetWorkitems(MemberType, terms).Select(asset => new Member(asset)).ToList();
+            var members = RetrieveData(MemberType, terms).Select(asset => new Member(asset)).ToList();
             return members;
         }
 
-        private AssetList GetWorkitems(string workitemTypeName, IFilterTerm filter) {
+        public IList<FieldInfo> GetFieldsList(string type) {
+            var attrType = metaModel.GetAssetType(AttributeDefinitionType);
+            var assetType = metaModel.GetAssetType(type);
+            
+            var termType = new FilterTerm(attrType.GetAttributeDefinition("Asset.AssetTypesMeAndDown.Name"));
+            termType.Equal(type);
+            IAttributeDefinition inactiveDef;
+            FilterTerm termState = null;
+            if (assetType.TryGetAttributeDefinition(InactiveAttribute, out inactiveDef)) {
+                termState = new FilterTerm(inactiveDef);
+                termState.Equal("False");
+            }
+            return RetrieveData(AttributeDefinitionType, new AndFilterTerm(termType, termState)).
+                Select(x =>new FieldInfo(x, GetLocalizeString(assetType.DisplayName))).ToList();
+        }
+
+        public PropertyValues GetValuesForType(string typeName) {
+            if (!ListPropertyValues.ContainsKey(typeName)) {
+                ListPropertyValues.Add(typeName, QueryPropertyOidValues(typeName));
+            }           
+            return ListPropertyValues[typeName];
+        }
+
+        private AssetList RetrieveData(string workitemTypeName, IFilterTerm filter) {
             try {
                 var workitemType = metaModel.GetAssetType(workitemTypeName);
-                var query = new Query(workitemType) { Filter = filter };
+                var query = new Query(workitemType) { Filter = filter};
 
                 AddSelection(query, workitemTypeName, workitemType);
                 return services.Retrieve(query).Assets;
@@ -137,7 +164,11 @@ namespace VersionOne.ServerConnector {
             } catch (Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
-        }       
+        }
+
+        private string GetLocalizeString(string resourceString) {
+            return localizer.Resolve(resourceString);
+        }
 
         // TODO remove this from library code
         public virtual IList<string> GetAssetTypes() {
@@ -260,7 +291,7 @@ namespace VersionOne.ServerConnector {
             if (customTerm.HasTerms) {
                 terms.And(customTerm);
             }
-            return GetWorkitems(StoryType, terms).
+            return RetrieveData(StoryType, terms).
                     Select(asset => new Story(asset, ListPropertyValues)).ToList();
         }
 
@@ -370,8 +401,8 @@ namespace VersionOne.ServerConnector {
 
             var query = new Query(assetType);
             query.Selection.Add(nameDef);
-            
-            if(assetType.TryGetAttributeDefinition("Inactive", out inactiveDef)) {
+
+            if (assetType.TryGetAttributeDefinition(InactiveAttribute, out inactiveDef)) {
                 var filter = new FilterTerm(inactiveDef);
                 filter.Equal("False");
                 query.Filter = filter;
