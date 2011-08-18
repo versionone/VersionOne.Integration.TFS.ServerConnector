@@ -5,8 +5,7 @@ using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
     [DebuggerDisplay("{TypeName} {Name}, Id={Id}, Number={Number}")]
-    // TODO decide on hierarchy
-    public class Workitem :Entity {
+    public class Workitem : Entity {
         public const string AssetTypeProperty = "AssetType";
         public const string NumberProperty = "Number";
         public const string StatusProperty = "Status.Name";
@@ -59,7 +58,7 @@ namespace VersionOne.ServerConnector.Entities {
             }
         }
 
-        public IList<Member> Owners { get; protected internal set; }
+        public IList<Member> Owners { get; protected set; }
 
         internal Workitem(Asset asset, IDictionary<string, PropertyValues> listValues, IList<Member> owners) 
             : this(asset, listValues) {
@@ -70,8 +69,7 @@ namespace VersionOne.ServerConnector.Entities {
             ListValues = listValues;
         }
 
-        internal Workitem(Asset asset) : base(asset) {
-        }
+        private Workitem(Asset asset) : base(asset) {}
 
         protected Workitem() { }
     }
