@@ -142,8 +142,7 @@ namespace VersionOne.ServerConnector {
                 termState = new FilterTerm(inactiveDef);
                 termState.Equal("False");
             }
-            return RetrieveData(AttributeDefinitionType, new AndFilterTerm(termType, termState)).
-                Select(x =>new FieldInfo(x, GetLocalizeString(assetType.DisplayName))).ToList();
+            return RetrieveData(AttributeDefinitionType, new AndFilterTerm(termType, termState)).Select(x =>new FieldInfo(x)).ToList();
         }
 
         public PropertyValues GetValuesForType(string typeName) {

@@ -8,10 +8,7 @@ namespace VersionOne.ServerConnector.Entities {
         public const string NameProperty = "Name";
         public const string AttributeTypeProperty = "AttributeType";
 
-        private readonly string displayName;
-
-        internal FieldInfo(Asset asset, string displayName) : base(asset) {
-            this.displayName = displayName;
+        internal FieldInfo(Asset asset) : base(asset) {
         }        
 
         public string Name {
@@ -32,11 +29,6 @@ namespace VersionOne.ServerConnector.Entities {
 
         public bool IsRequired {
             get { return GetProperty<bool>(IsRequiredProperty); }
-        }
-
-        //TODO atm this field contains incorrect value
-        public string DisplayName {
-            get { return displayName; }
         }
     }
 }
