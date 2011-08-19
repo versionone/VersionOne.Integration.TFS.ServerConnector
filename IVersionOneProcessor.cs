@@ -14,13 +14,10 @@ namespace VersionOne.ServerConnector {
         void CloseWorkitem(PrimaryWorkitem workitem);
         void UpdateProject(string projectId, string link, string linkTitle);
         string GetWorkitemLink(PrimaryWorkitem workitem);
-        IList<string> GetAssetTypes();
         void SetWorkitemStatus(PrimaryWorkitem workitem, string statusId);
         KeyValuePair<string, string> CreateWorkitemStatus(string statusName);
         IList<KeyValuePair<string, string>> GetWorkitemStatuses();
         IList<KeyValuePair<string, string>> GetWorkitemPriorities();
-        PropertyValues GetValuesForType(string typeName);
-        IList<FieldInfo> GetFieldsList(string type);
         
         bool ProjectExists(string projectId);
         bool TypeExists(string typeName);

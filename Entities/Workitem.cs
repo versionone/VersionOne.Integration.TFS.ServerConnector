@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {

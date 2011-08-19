@@ -5,6 +5,9 @@ namespace VersionOne.ServerConnector.Entities {
         internal readonly Oid Oid;
         private readonly string name;
 
+        public string Name { get { return name; } }
+        public string Token { get { return Oid.Token; } }
+
         public ValueId() : this(Oid.Null, string.Empty) { }
 
         internal ValueId(Oid oid, string name) {

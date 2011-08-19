@@ -14,6 +14,7 @@ namespace VersionOne.ServerConnector {
     public class VersionOneProcessor : IVersionOneProcessor {
         public const string FeatureGroupType = "Theme";
         public const string StoryType = "Story";
+        public const string DefectType = "Defect";
         public const string PrimaryWorkitemType = "PrimaryWorkitem";
         public const string MemberType = "Member";
         public const string LinkType = "Link";
@@ -27,25 +28,26 @@ namespace VersionOne.ServerConnector {
         private const string StatusAttribute = "Status";
         private const string ParentAndUpAttribute = "ParentAndUp";
         private const string AssetTypeAttribute = "AssetType";
-        private const string NameAttribute = "Name";
         private const string AssetAttribute = "Asset";
         private const string UrlAttribute = "URL";
         private const string OnMenuAttribute = "OnMenu";
-        private const string InactiveAttribute = "Inactive";
 
         private IServices services;
         private IMetaModel metaModel;
-        private ILocalizer localizer;
         private readonly ILogger logger;
         private readonly XmlElement configuration;
-        
-        private readonly LinkedList<AttributeInfo> attributesToQuery = new LinkedList<AttributeInfo>();
 
-        public IDictionary<string, PropertyValues> ListPropertyValues { get; private set; }
+        private readonly IQueryBuilder queryBuilder;
+
+        public IDictionary<string, PropertyValues> ListPropertyValues {
+            get { return queryBuilder.ListPropertyValues; }
+        }
 
         public VersionOneProcessor(XmlElement config, ILogger logger) {
             configuration = config;
             this.logger = logger;
+
+            queryBuilder = new QueryBuilder();
         }
 
         private void Connect() {
@@ -53,8 +55,8 @@ namespace VersionOne.ServerConnector {
             connector.Validate();
             services = connector.Services;
             metaModel = connector.MetaModel;
-            localizer = connector.Loc;
-            ListPropertyValues = GetListPropertyValues();
+
+            queryBuilder.Setup(services, metaModel);
         }
 
         public bool ValidateConnection() {
@@ -78,7 +80,7 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
             stateTerm.NotEqual(AssetState.Closed);
 
-            return RetrieveData(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
+            return queryBuilder.Query(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
         }
 
         //TODO we can remove this method using filter
@@ -92,7 +94,7 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
             stateTerm.Equal(AssetState.Closed);
 
-            return RetrieveData(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
+            return queryBuilder.Query(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
         }
 
         public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId, Filter filters, Filter childrenFilters) {
@@ -107,71 +109,35 @@ namespace VersionOne.ServerConnector {
 
             var terms = new AndFilterTerm(scopeTerm, assetTypeTerm);
             var customTerm = filters.GetFilter(featureGroupType);
+            
             if (customTerm.HasTerms) {
                 terms.And(customTerm);
             } 
 
-            return RetrieveData(FeatureGroupType, terms).Select(asset => new FeatureGroup(asset, ListPropertyValues, GetFeatureGroupStoryChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters).Cast<Workitem>().ToList(), GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList))).ToList();
+            return queryBuilder.Query(FeatureGroupType, terms)
+                .Select(asset => new FeatureGroup(
+                    asset, ListPropertyValues, 
+                    GetFeatureGroupStoryChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters).Cast<Workitem>().ToList(), 
+                    GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList)))
+                .ToList();
         }
 
-        public IList<Member> GetMembersByIds(IList oids) {
+        private IList<Member> GetMembersByIds(IList oids) {
             if (oids.Count == 0) {
                 return new List<Member>();
             }
             var memberType = metaModel.GetAssetType(MemberType);
 
             var terms = new OrFilterTerm();
+            
             foreach(var oid in oids) {
                 var term = new FilterTerm(memberType.GetAttributeDefinition(IdAttribute));
                 term.Equal(oid);
                 terms.Or(term);
             }
-            var members = RetrieveData(MemberType, terms).Select(asset => new Member(asset)).ToList();
-            return members;
-        }
-
-        public IList<FieldInfo> GetFieldsList(string type) {
-            var attrType = metaModel.GetAssetType(AttributeDefinitionType);
-            var assetType = metaModel.GetAssetType(type);
             
-            var termType = new FilterTerm(attrType.GetAttributeDefinition("Asset.AssetTypesMeAndDown.Name"));
-            termType.Equal(type);
-            IAttributeDefinition inactiveDef;
-            FilterTerm termState = null;
-            if (assetType.TryGetAttributeDefinition(InactiveAttribute, out inactiveDef)) {
-                termState = new FilterTerm(inactiveDef);
-                termState.Equal("False");
-            }
-            return RetrieveData(AttributeDefinitionType, new AndFilterTerm(termType, termState)).Select(x =>new FieldInfo(x)).ToList();
-        }
-
-        public PropertyValues GetValuesForType(string typeName) {
-            if (!ListPropertyValues.ContainsKey(typeName)) {
-                ListPropertyValues.Add(typeName, QueryPropertyOidValues(typeName));
-            }           
-            return ListPropertyValues[typeName];
-        }
-
-        private AssetList RetrieveData(string workitemTypeName, IFilterTerm filter) {
-            try {
-                var workitemType = metaModel.GetAssetType(workitemTypeName);
-                var query = new Query(workitemType) { Filter = filter};
-
-                AddSelection(query, workitemTypeName, workitemType);
-                return services.Retrieve(query).Assets;
-
-            } catch (Exception ex) {
-                throw new VersionOneException(ex.Message);
-            }
-        }
-
-        private string GetLocalizeString(string resourceString) {
-            return localizer.Resolve(resourceString);
-        }
-
-        // TODO remove this from library code
-        public virtual IList<string> GetAssetTypes() {
-            return new[] { "Story", "Defect" };
+            var members = queryBuilder.Query(MemberType, terms).Select(asset => new Member(asset)).ToList();
+            return members;
         }
 
         public void SaveWorkitems(IEnumerable<Workitem> workitems) {
@@ -196,7 +162,8 @@ namespace VersionOne.ServerConnector {
 
         public IList<KeyValuePair<string, string>> GetWorkitemStatuses() {
             try {
-                return QueryPropertyValues("StoryStatus");
+                return queryBuilder.QueryPropertyValues("StoryStatus")
+                    .Select(item => new KeyValuePair<string, string>(item.Name, item.Token)).ToList();
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -244,7 +211,8 @@ namespace VersionOne.ServerConnector {
 
         public IList<KeyValuePair<string, string>> GetWorkitemPriorities() {
             try {
-                return QueryPropertyValues("WorkitemPriority");
+                return queryBuilder.QueryPropertyValues("WorkitemPriority")
+                    .Select(item => new KeyValuePair<string, string>(item.Name, item.Token)).ToList();
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -274,7 +242,7 @@ namespace VersionOne.ServerConnector {
         }
 
         public void AddProperty(string attr, string prefix, bool isList) {
-            attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList));
+            queryBuilder.AddProperty(attr, prefix, isList);
         }
 
         private IList<Story> GetFeatureGroupStoryChildren(string featureGroupParentToken, Filter filter) {
@@ -287,11 +255,12 @@ namespace VersionOne.ServerConnector {
 
             var terms = new AndFilterTerm(parentTerm, typeTerm);
             var customTerm = filter.GetFilter(workitemType);
+            
             if (customTerm.HasTerms) {
                 terms.And(customTerm);
             }
-            return RetrieveData(StoryType, terms).
-                    Select(asset => new Story(asset, ListPropertyValues)).ToList();
+            
+            return queryBuilder.Query(StoryType, terms).Select(asset => new Story(asset, ListPropertyValues)).ToList();
         }
 
         private Asset GetProjectById(string projectId) {
@@ -310,7 +279,7 @@ namespace VersionOne.ServerConnector {
         private Asset GetLinkByTitle(Oid assetOid, string linkTitle) {
             var linkType = metaModel.GetAssetType(LinkType);
 
-            var nameTerm = new FilterTerm(linkType.GetAttributeDefinition(NameAttribute));
+            var nameTerm = new FilterTerm(linkType.GetAttributeDefinition(Entity.NameAttribute));
             nameTerm.Equal(linkTitle);
 
             var assetTerm = new FilterTerm(linkType.GetAttributeDefinition(AssetAttribute));
@@ -321,10 +290,7 @@ namespace VersionOne.ServerConnector {
 
             if(result.Any()) {
                 logger.Log(LogMessage.SeverityType.Info,
-                    string.Format(
-                        "No need to create link - it already exists. Updating link with title {0} for asset {1}",
-                        linkTitle,
-                        assetOid));
+                    string.Format("No need to create link - it already exists. Updating link with title {0} for asset {1}", linkTitle, assetOid));
 
                 return result.First();
             }
@@ -341,11 +307,10 @@ namespace VersionOne.ServerConnector {
 
             var linkAsset = GetLinkByTitle(asset.Oid, title);
             if (linkAsset == null) {
-                logger.Log(LogMessage.SeverityType.Info,
-                    string.Format("Creating new link with title {0} for asset {1}", title, asset.Oid));
+                logger.Log(LogMessage.SeverityType.Info, string.Format("Creating new link with title {0} for asset {1}", title, asset.Oid));
 
                 linkAsset = services.New(linkType, asset.Oid.Momentless);
-                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(NameAttribute), title);
+                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(Entity.NameAttribute), title);
                 linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(OnMenuAttribute), onMenu);
             }
 
@@ -364,114 +329,6 @@ namespace VersionOne.ServerConnector {
             } catch (Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
-        }
-
-        /// <summary>
-        /// Get available property values. Note that value names may not be unique, so we cannot use IDictionary as return type.
-        /// </summary>
-        /// <param name="propertyName">Property name, ex. PrimaryWorkitem.Status</param>
-        private IList<KeyValuePair<string, string>> QueryPropertyValues(string propertyName) {
-            IAttributeDefinition nameDef;
-            var query = GetPropertyValuesQuery(propertyName, out nameDef);
-
-            return services.Retrieve(query).Assets
-                .Select(asset => new KeyValuePair<string, string>((string) asset.GetAttribute(nameDef).Value, asset.Oid.ToString()))
-                .ToList();
-        }
-
-        private PropertyValues QueryPropertyOidValues(string propertyName) {
-            var res = new PropertyValues();
-            IAttributeDefinition nameDef;
-            var query = GetPropertyValuesQuery(propertyName, out nameDef);
-
-            foreach (var asset in services.Retrieve(query).Assets) {
-                var name = asset.GetAttribute(nameDef).Value as string;
-                res.Add(new ValueId(asset.Oid, name));
-            }
-
-            return res;
-        }
-
-        private Query GetPropertyValuesQuery(string propertyName, out IAttributeDefinition nameDef) {
-            var assetType = metaModel.GetAssetType(propertyName);
-            nameDef = assetType.GetAttributeDefinition(NameAttribute);
-
-            IAttributeDefinition inactiveDef;
-
-            var query = new Query(assetType);
-            query.Selection.Add(nameDef);
-
-            if (assetType.TryGetAttributeDefinition(InactiveAttribute, out inactiveDef)) {
-                var filter = new FilterTerm(inactiveDef);
-                filter.Equal("False");
-                query.Filter = filter;
-            }
-
-            query.OrderBy.MajorSort(assetType.DefaultOrderBy, OrderBy.Order.Ascending);
-            return query;
-        }
-
-        private void AddSelection(Query query, string typePrefix, IAssetType type) {
-            foreach (var attrInfo in attributesToQuery) {
-                if(attrInfo.Prefix != typePrefix) {
-                    continue;
-                }
-                var def = type.GetAttributeDefinition(attrInfo.Attr);
-                query.Selection.Add(def);
-            }
-        }
-
-        private Dictionary<string, PropertyValues> GetListPropertyValues() {
-            var res = new Dictionary<string, PropertyValues>(attributesToQuery.Count);
-            
-            foreach (var attrInfo in attributesToQuery) {
-                if (!attrInfo.IsList) {
-                    continue;
-                }
-
-                var propertyAlias = attrInfo.Attr;
-                if (!attrInfo.Attr.StartsWith("Custom_")) {
-                    propertyAlias = attrInfo.Prefix + propertyAlias;
-                }
-                if(res.ContainsKey(propertyAlias)) {
-                    continue;
-                }
-                var propertyName = ResolvePropertyKey(propertyAlias);
-
-                PropertyValues values;
-                if (res.ContainsKey(propertyName)) {
-                    values = res[propertyName];
-                } else {
-                    values = QueryPropertyOidValues(propertyName);
-                    res.Add(propertyName, values);
-                }
-
-                if (!res.ContainsKey(propertyAlias)) {
-                    res.Add(propertyAlias, values);
-                }
-            }
-            return res;
-        }
-
-        private static string ResolvePropertyKey(string propertyAlias) {
-            switch (propertyAlias) {
-                case "DefectStatus":
-                    return "StoryStatus";
-                case "DefectSource":
-                    return "StorySource";
-                case "ScopeBuildProjects":
-                    return "BuildProject";
-                case "TaskOwners":
-                case "StoryOwners":
-                case "DefectOwners":
-                case "TestOwners":
-                case "ThemeOwners":
-                    return "Member";
-                case "PrimaryWorkitemPriority":                      
-                    return "WorkitemPriority";
-            }
-
-            return propertyAlias;
         }
     }
 }

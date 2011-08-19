@@ -17,16 +17,9 @@ namespace VersionOne.ServerConnector.Entities {
             return (T)Asset.GetAttribute(attributeDefinition).Value;
         }
 
-        protected virtual IList<T> GetProperties<T>(string name) {
-            var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
-            return Asset.GetAttribute(attributeDefinition).ValuesList.Cast<T>().ToList();
-        }
-
         protected virtual void SetProperty<T>(string name, T value) {
             var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
             Asset.SetAttributeValue(attributeDefinition, value);
         }
     }
-
-
 }

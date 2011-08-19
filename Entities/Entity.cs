@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
     [DebuggerDisplay("{TypeName} {Name}, Id={Id}")]
     public class Entity : BaseEntity {
+        public const string NameAttribute = "Name";
+        public const string InactiveAttribute = "Inactive";
+
         public string Id { get; protected set; }
         public string TypeName { get; protected set; }
 
