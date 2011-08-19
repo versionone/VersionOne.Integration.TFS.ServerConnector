@@ -39,7 +39,7 @@ namespace VersionOne.ServerConnector.Filters {
             return this;
         }
 
-        internal GroupFilterTerm GetFilter(IAssetType type) {
+        public GroupFilterTerm GetFilter(IAssetType type) {
             var terms = new List<IFilterTerm>();
 
             foreach (var value in values) {
