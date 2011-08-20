@@ -1,9 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
-    public class BaseEntity {
+    public abstract class BaseEntity {
         internal readonly Asset Asset;
 
         internal BaseEntity(Asset asset) {
@@ -12,7 +10,7 @@ namespace VersionOne.ServerConnector.Entities {
 
         protected BaseEntity() { }
 
-        protected virtual T GetProperty<T>(string name) {
+        protected internal virtual T GetProperty<T>(string name) {
             var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
             return (T)Asset.GetAttribute(attributeDefinition).Value;
         }

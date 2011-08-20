@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Filters {
@@ -8,6 +10,10 @@ namespace VersionOne.ServerConnector.Filters {
         public readonly FilterActions Operation;
 
         private readonly IList<FilterValue> values;
+
+        public ReadOnlyCollection<FilterValue> Values {
+            get { return values.ToList().AsReadOnly(); }
+        }
 
         private Filter(string name, FilterActions operation) : this(name, operation, new List<FilterValue>()) { }
 

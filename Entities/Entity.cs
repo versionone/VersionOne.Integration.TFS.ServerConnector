@@ -4,14 +4,14 @@ using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
     [DebuggerDisplay("{TypeName} {Name}, Id={Id}")]
-    public class Entity : BaseEntity {
+    public abstract class Entity : BaseEntity {
         public const string NameAttribute = "Name";
         public const string InactiveAttribute = "Inactive";
 
         public string Id { get; protected set; }
         public string TypeName { get; protected set; }
 
-        protected IDictionary<string, PropertyValues> ListValues { get; set; }
+        protected internal IDictionary<string, PropertyValues> ListValues { get; set; }
 
         internal Entity(Asset asset) : base(asset) {
             Id = asset.Oid.ToString();
