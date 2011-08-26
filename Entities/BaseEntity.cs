@@ -12,7 +12,7 @@ namespace VersionOne.ServerConnector.Entities {
 
         protected internal virtual T GetProperty<T>(string name) {
             var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
-            return (T)Asset.GetAttribute(attributeDefinition).Value;
+            return (T) (Asset.GetAttribute(attributeDefinition) != null ? Asset.GetAttribute(attributeDefinition).Value : null);
         }
 
         protected virtual void SetProperty<T>(string name, T value) {

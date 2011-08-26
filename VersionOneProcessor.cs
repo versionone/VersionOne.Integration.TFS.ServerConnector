@@ -245,6 +245,10 @@ namespace VersionOne.ServerConnector {
             queryBuilder.AddProperty(attr, prefix, isList);
         }
 
+        public void AddOptionalProperty(string attr, string prefix) {
+            queryBuilder.AddOptionalProperty(attr, prefix);
+        }
+
         private IList<Story> GetFeatureGroupStoryChildren(string featureGroupParentToken, Filter filter) {
             var workitemType = metaModel.GetAssetType(StoryType);
             

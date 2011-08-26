@@ -18,7 +18,16 @@ namespace VersionOne.ServerConnector {
         }
 
         public void AddProperty(string attr, string prefix, bool isList) {
-            attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList));
+            attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList, false));
+        }
+
+        /// <summary>
+        /// Add not list property which can be doesn't exist at start.
+        /// </summary>
+        /// <param name="attr">Attribute name</param>
+        /// <param name="prefix">attribute type</param>
+        public void AddOptionalProperty(string attr, string prefix) {
+            attributesToQuery.AddLast(new AttributeInfo(attr, prefix, false, true));
         }
 
         public AssetList Query(string workitemTypeName, IFilterTerm filter) {
@@ -38,8 +47,17 @@ namespace VersionOne.ServerConnector {
                 if(attrInfo.Prefix != typePrefix) {
                     continue;
                 }
-
-                var def = type.GetAttributeDefinition(attrInfo.Attr);
+                IAttributeDefinition def;
+                // this was made for not to miss incorrect fields
+                if (attrInfo.IsOptional) {
+                    try {
+                        def = type.GetAttributeDefinition(attrInfo.Attr);                        
+                    } catch {
+                        continue;
+                    }
+                } else {
+                    def = type.GetAttributeDefinition(attrInfo.Attr);
+                }                
                 query.Selection.Add(def);
             }
         }

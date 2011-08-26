@@ -41,5 +41,13 @@ namespace VersionOne.ServerConnector.Entities {
                 SetProperty(fieldName, valueData.Oid);
             }
         }
+
+        public void SetCustomNumericValue(string fieldName, double value) {
+            SetProperty(fieldName, value);
+        }
+
+        public double? GetCustomNumericValue(string fieldName) {
+            return GetProperty<double?>(fieldName);
+        }
     }
 }
