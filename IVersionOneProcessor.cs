@@ -18,6 +18,8 @@ namespace VersionOne.ServerConnector {
         KeyValuePair<string, string> CreateWorkitemStatus(string statusName);
         IList<KeyValuePair<string, string>> GetWorkitemStatuses();
         IList<KeyValuePair<string, string>> GetWorkitemPriorities();
+
+        PropertyValues GetAvailableListValues(string typeToken, string fieldName);
         
         bool ProjectExists(string projectId);
         bool TypeExists(string typeName);

@@ -209,6 +209,22 @@ namespace VersionOne.ServerConnector {
             return string.Format("{0}assetdetail.v1?oid={1}", configuration["ApplicationUrl"].InnerText, workitem.Id);
         }
 
+        public PropertyValues GetAvailableListValues(string typeToken, string fieldName) {
+            try {
+                var type = metaModel.GetAssetType(typeToken);
+                var attributeDefinition = type.GetAttributeDefinition(fieldName);
+                
+                if(attributeDefinition.AttributeType != AttributeType.Relation) {
+                    throw new VersionOneException("Not a Relation field");
+                }
+
+                var listTypeToken = attributeDefinition.RelatedAsset.Token;
+                return queryBuilder.QueryPropertyValues(listTypeToken);
+            } catch(MetaException) {
+                throw new VersionOneException("Invalid type or field name");
+            }
+        }
+
         public IList<KeyValuePair<string, string>> GetWorkitemPriorities() {
             try {
                 return queryBuilder.QueryPropertyValues("WorkitemPriority")
