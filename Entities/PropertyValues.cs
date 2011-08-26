@@ -28,7 +28,11 @@ namespace VersionOne.ServerConnector.Entities {
         }
 
         public virtual ValueId Find(string token) {
-            return dictionary.Where(id => token.Equals(id.Key.Momentless.Token)).Select(id => id.Value).FirstOrDefault();
+            return dictionary.Where(pair => token.Equals(pair.Key.Momentless.Token)).Select(pair => pair.Value).FirstOrDefault();
+        }
+
+        public virtual ValueId FindByName(string name) {
+            return dictionary.Where(pair => string.Equals(pair.Value.Name, name)).Select(pair => pair.Value).FirstOrDefault();
         }
 
         internal void Add(ValueId value) {
