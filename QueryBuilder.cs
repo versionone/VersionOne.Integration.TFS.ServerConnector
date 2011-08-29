@@ -47,17 +47,19 @@ namespace VersionOne.ServerConnector {
                 if(attrInfo.Prefix != typePrefix) {
                     continue;
                 }
+                
                 IAttributeDefinition def;
                 // this was made for not to miss incorrect fields
                 if (attrInfo.IsOptional) {
                     try {
                         def = type.GetAttributeDefinition(attrInfo.Attr);                        
-                    } catch {
+                    } catch(MetaException) {
                         continue;
                     }
                 } else {
                     def = type.GetAttributeDefinition(attrInfo.Attr);
                 }                
+
                 query.Selection.Add(def);
             }
         }
@@ -71,19 +73,22 @@ namespace VersionOne.ServerConnector {
                 }
 
                 var propertyAlias = attrInfo.Attr;
+                
                 if(!attrInfo.Attr.StartsWith("Custom_")) {
                     propertyAlias = attrInfo.Prefix + propertyAlias;
                 }
+                
                 if(res.ContainsKey(propertyAlias)) {
                     continue;
                 }
+                
                 var propertyName = ResolvePropertyKey(propertyAlias);
 
                 PropertyValues values;
+                
                 if(res.ContainsKey(propertyName)) {
                     values = res[propertyName];
-                }
-                else {
+                } else {
                     values = QueryPropertyValues(propertyName);
                     res.Add(propertyName, values);
                 }
