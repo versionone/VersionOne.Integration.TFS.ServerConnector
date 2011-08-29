@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
@@ -10,6 +11,10 @@ namespace VersionOne.ServerConnector.Entities {
         internal FeatureGroup(Asset asset, IDictionary<string, PropertyValues> listValues, IList<Workitem> children, IList<Member> owners)
                 : base(asset, listValues, owners) {
             Children = children;
+        }
+
+        public override bool HasChanged() {
+            return Asset.HasChanged || Children.Any(x => x.HasChanged());
         }
     }
 }

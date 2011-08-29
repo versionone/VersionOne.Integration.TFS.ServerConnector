@@ -10,7 +10,7 @@ namespace VersionOne.ServerConnector.Entities {
 
         public ValueId() : this(Oid.Null, string.Empty) { }
 
-        internal ValueId(Oid oid, string name) {
+        protected internal ValueId(Oid oid, string name) {
             Oid = oid.Momentless;
             this.name = name;
         }

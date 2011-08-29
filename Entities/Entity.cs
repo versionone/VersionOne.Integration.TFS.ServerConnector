@@ -20,6 +20,10 @@ namespace VersionOne.ServerConnector.Entities {
 
         protected Entity() { }
 
+        public virtual bool HasChanged() {
+            return Asset.HasChanged;
+        }
+
         public string GetCustomFieldValue(string fieldName) {
             var fullFieldName = fieldName;
 
@@ -32,7 +36,7 @@ namespace VersionOne.ServerConnector.Entities {
                 return null;
             }
             return value != null ? value.ToString() : null;
-        }        
+        }
 
         public void SetCustomListValue(string fieldName, string type, string value) {
             var valueData = ListValues[type].Find(value);
