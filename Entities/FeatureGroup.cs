@@ -5,11 +5,15 @@ using VersionOne.SDK.APIClient;
 namespace VersionOne.ServerConnector.Entities {
     public class FeatureGroup : Workitem {
         public IList<Workitem> Children {get; protected set;}
+        
+        public override string TypeToken {
+            get { return VersionOneProcessor.FeatureGroupType; }
+        }
 
         protected FeatureGroup() { }
 
-        internal FeatureGroup(Asset asset, IDictionary<string, PropertyValues> listValues, IList<Workitem> children, IList<Member> owners)
-                : base(asset, listValues, owners) {
+        protected internal FeatureGroup(Asset asset, IDictionary<string, PropertyValues> listValues, IList<Workitem> children, IList<Member> owners, IEntityFieldTypeResolver typeResolver)
+                : base(asset, listValues, owners, typeResolver) {
             Children = children;
         }
 

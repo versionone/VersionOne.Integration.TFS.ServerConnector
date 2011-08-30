@@ -4,6 +4,8 @@ namespace VersionOne.ServerConnector.Entities {
     public abstract class BaseEntity {
         internal readonly Asset Asset;
 
+        public virtual string TypeToken { get { return Asset.AssetType.Token; } }
+
         internal BaseEntity(Asset asset) {
             Asset = asset;
         }

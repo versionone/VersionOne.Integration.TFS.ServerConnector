@@ -6,14 +6,11 @@ namespace VersionOne.ServerConnector {
     // TODO refactor APIClient types
     internal interface IQueryBuilder {
         IDictionary<string, PropertyValues> ListPropertyValues { get; }
+        IEntityFieldTypeResolver TypeResolver { get; }
 
         void Setup(IServices services, IMetaModel metaModel);
         void AddProperty(string attr, string prefix, bool isList);
-        /// <summary>
-        /// Add not list property which can be doesn't exist at start.
-        /// </summary>
-        /// <param name="attr">Attribute name</param>
-        /// <param name="prefix">attribute type</param>
+        void AddListProperty(string fieldName, string typeToken);
         void AddOptionalProperty(string attr, string prefix);
 
         PropertyValues QueryPropertyValues(string propertyName);

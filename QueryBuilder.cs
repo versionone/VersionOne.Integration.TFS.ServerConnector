@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using VersionOne.SDK.APIClient;
 using VersionOne.ServerConnector.Entities;
 
@@ -9,11 +10,15 @@ namespace VersionOne.ServerConnector {
         private IMetaModel metaModel;
         
         private readonly LinkedList<AttributeInfo> attributesToQuery = new LinkedList<AttributeInfo>();
+        private readonly EntityFieldTypeResolver typeResolver = new EntityFieldTypeResolver();
+        
         public IDictionary<string, PropertyValues> ListPropertyValues { get; private set; }
+        public IEntityFieldTypeResolver TypeResolver { get { return typeResolver; } }
 
         public void Setup(IServices services, IMetaModel metaModel) {
             this.services = services;
             this.metaModel = metaModel;
+            TypeResolver.Reset();
             ListPropertyValues = GetListPropertyValues();
         }
 
@@ -21,11 +26,15 @@ namespace VersionOne.ServerConnector {
             attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList, false));
         }
 
+        public void AddListProperty(string fieldName, string typeToken) {
+            typeResolver.AddMapping(typeToken, fieldName, null);
+        }
+
         /// <summary>
         /// Add not list property which can be doesn't exist at start.
         /// </summary>
         /// <param name="attr">Attribute name</param>
-        /// <param name="prefix">attribute type</param>
+        /// <param name="prefix">Prefix, usually matching attribute type</param>
         public void AddOptionalProperty(string attr, string prefix) {
             attributesToQuery.AddLast(new AttributeInfo(attr, prefix, false, true));
         }
@@ -49,7 +58,7 @@ namespace VersionOne.ServerConnector {
                 }
                 
                 IAttributeDefinition def;
-                // this was made for not to miss incorrect fields
+                
                 if (attrInfo.IsOptional) {
                     try {
                         def = type.GetAttributeDefinition(attrInfo.Attr);                        
@@ -65,6 +74,8 @@ namespace VersionOne.ServerConnector {
         }
 
         private IDictionary<string, PropertyValues> GetListPropertyValues() {
+            ProcessUnresolvedTypeMappings();
+
             var res = new Dictionary<string, PropertyValues>(attributesToQuery.Count);
 
             foreach(var attrInfo in attributesToQuery) {
@@ -74,7 +85,7 @@ namespace VersionOne.ServerConnector {
 
                 var propertyAlias = attrInfo.Attr;
                 
-                if(!attrInfo.Attr.StartsWith("Custom_")) {
+                if(!attrInfo.Attr.StartsWith(Entity.CustomPrefix)) {
                     propertyAlias = attrInfo.Prefix + propertyAlias;
                 }
                 
@@ -99,6 +110,30 @@ namespace VersionOne.ServerConnector {
             }
 
             return res;
+        }
+
+        private void ProcessUnresolvedTypeMappings() {
+            foreach(var fieldMapping in typeResolver.FieldMappings.ToList()) {
+                if(fieldMapping.Value == null) {
+                    var attributeParts = fieldMapping.Key.Split('.');
+                    var typeName = attributeParts[0];
+                    var fieldName = attributeParts[1];
+                    var resolvedType = GetFieldType(typeName, fieldName);
+                    typeResolver.FieldMappings[fieldMapping.Key] = resolvedType;
+                    AddProperty(resolvedType, string.Empty, true);
+                }
+            }
+        }
+
+        private string GetFieldType(string typeToken, string fieldName) {
+            var type = metaModel.GetAssetType(typeToken);
+            var attributeDefinition = type.GetAttributeDefinition(fieldName);
+                
+            if(attributeDefinition.AttributeType != AttributeType.Relation) {
+                throw new VersionOneException("Not a Relation field");
+            }
+
+            return attributeDefinition.RelatedAsset.Token;
         }
 
         public PropertyValues QueryPropertyValues(string propertyName) {

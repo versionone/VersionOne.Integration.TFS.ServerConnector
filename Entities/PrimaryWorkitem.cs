@@ -15,7 +15,11 @@ namespace VersionOne.ServerConnector.Entities {
             }
         }
 
-        internal PrimaryWorkitem(Asset asset, IDictionary<string, PropertyValues> listValues) : base(asset, listValues) { }
+        public override string TypeToken {
+            get { return VersionOneProcessor.PrimaryWorkitemType; }
+        }
+
+        internal PrimaryWorkitem(Asset asset, IDictionary<string, PropertyValues> listValues, IEntityFieldTypeResolver typeResolver) : base(asset, listValues, typeResolver) { }
 
         protected PrimaryWorkitem() { }
     }

@@ -59,16 +59,16 @@ namespace VersionOne.ServerConnector.Entities {
 
         public IList<Member> Owners { get; protected set; }
 
-        internal Workitem(Asset asset, IDictionary<string, PropertyValues> listValues, IList<Member> owners) 
-            : this(asset, listValues) {
+        internal Workitem(Asset asset, IDictionary<string, PropertyValues> listValues, IList<Member> owners, IEntityFieldTypeResolver typeResolver) 
+                : this(asset, listValues, typeResolver) {
             Owners = owners;
         }
 
-        internal Workitem(Asset asset, IDictionary<string, PropertyValues> listValues) : this(asset) {
+        internal Workitem(Asset asset, IDictionary<string, PropertyValues> listValues, IEntityFieldTypeResolver typeResolver) : this(asset, typeResolver) {
             ListValues = listValues;
         }
 
-        private Workitem(Asset asset) : base(asset) {}
+        private Workitem(Asset asset, IEntityFieldTypeResolver typeResolver) : base(asset, typeResolver) {}
 
         protected Workitem() { }
     }

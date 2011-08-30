@@ -22,13 +22,11 @@ namespace VersionOne.ServerConnector {
         PropertyValues GetAvailableListValues(string typeToken, string fieldName);
         
         bool ProjectExists(string projectId);
-        bool TypeExists(string typeName);
         bool AttributeExists(string typeName, string attributeName);
         
         void AddProperty(string attr, string prefix, bool isList);
+        void AddListProperty(string fieldName, string typeToken);
         void AddOptionalProperty(string attr, string prefix);
         void AddLinkToWorkitem(Workitem workitem, string link, string title, bool onMenu);
-
-        IDictionary<string, PropertyValues> ListPropertyValues { get; }
     }
 }

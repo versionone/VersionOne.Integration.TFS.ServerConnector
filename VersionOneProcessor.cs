@@ -80,7 +80,9 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
             stateTerm.NotEqual(AssetState.Closed);
 
-            return queryBuilder.Query(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
+            return queryBuilder
+                .Query(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm))
+                .Select(asset => new PrimaryWorkitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
         //TODO we can remove this method using filter
@@ -94,7 +96,8 @@ namespace VersionOne.ServerConnector {
             var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
             stateTerm.Equal(AssetState.Closed);
 
-            return queryBuilder.Query(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm)).Select(asset => new PrimaryWorkitem(asset, ListPropertyValues)).ToList();
+            return queryBuilder.Query(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm))
+                .Select(asset => new PrimaryWorkitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
         public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId, Filter filters, Filter childrenFilters) {
@@ -118,7 +121,8 @@ namespace VersionOne.ServerConnector {
                 .Select(asset => new FeatureGroup(
                     asset, ListPropertyValues, 
                     GetFeatureGroupStoryChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters).Cast<Workitem>().ToList(), 
-                    GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList)))
+                    GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList),
+                    queryBuilder.TypeResolver))
                 .ToList();
         }
 
@@ -261,6 +265,10 @@ namespace VersionOne.ServerConnector {
             queryBuilder.AddProperty(attr, prefix, isList);
         }
 
+        public void AddListProperty(string fieldName, string typeToken) {
+            queryBuilder.AddListProperty(fieldName, typeToken);
+        }
+
         public void AddOptionalProperty(string attr, string prefix) {
             queryBuilder.AddOptionalProperty(attr, prefix);
         }
@@ -280,7 +288,8 @@ namespace VersionOne.ServerConnector {
                 terms.And(customTerm);
             }
             
-            return queryBuilder.Query(StoryType, terms).Select(asset => new Story(asset, ListPropertyValues)).ToList();
+            return queryBuilder.Query(StoryType, terms)
+                .Select(asset => new Story(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
         private Asset GetProjectById(string projectId) {

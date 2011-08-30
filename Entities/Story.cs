@@ -7,9 +7,11 @@ namespace VersionOne.ServerConnector.Entities {
     public class Story : PrimaryWorkitem {
         public const string BenefitsProperty = "Benefits";
 
-        internal Story(Asset asset, IDictionary<string, PropertyValues> listValues)
-            : base(asset, listValues) {
+        public override string TypeToken {
+            get { return VersionOneProcessor.StoryType; }
         }
+
+        protected internal Story(Asset asset, IDictionary<string, PropertyValues> listValues, IEntityFieldTypeResolver typeResolver) : base(asset, listValues, typeResolver) { }
 
         protected Story() { }
 
