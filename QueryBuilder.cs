@@ -55,20 +55,16 @@ namespace VersionOne.ServerConnector {
             foreach (var attrInfo in attributesToQuery) {
                 if(attrInfo.Prefix != typePrefix) {
                     continue;
-                }
-                
+                }                
                 IAttributeDefinition def;
                 
                 if (attrInfo.IsOptional) {
-                    try {
-                        def = type.GetAttributeDefinition(attrInfo.Attr);                        
-                    } catch(MetaException) {
+                    if (!type.TryGetAttributeDefinition(attrInfo.Attr, out def)) {
                         continue;
                     }
                 } else {
                     def = type.GetAttributeDefinition(attrInfo.Attr);
-                }                
-
+                }
                 query.Selection.Add(def);
             }
         }
