@@ -31,10 +31,13 @@ namespace VersionOne.ServerConnector {
         private const string AssetAttribute = "Asset";
         private const string UrlAttribute = "URL";
         private const string OnMenuAttribute = "OnMenu";
+        private const string ChangeDateUTCAttribute = "ChangeDateUTC";
+        private const string SourceNameAttribute = "Source.Name";
+        private const string NameAttribute = "Name";
 
         private IServices services;
         private IMetaModel metaModel;
-        private readonly ILogger logger;
+        private readonly ILogger logger; 
         private readonly XmlElement configuration;
 
         private readonly IQueryBuilder queryBuilder;
@@ -113,9 +116,9 @@ namespace VersionOne.ServerConnector {
             var terms = new AndFilterTerm(scopeTerm, assetTypeTerm);
             var customTerm = filters.GetFilter(featureGroupType);
             
-            if (customTerm.HasTerms) {
+            if(customTerm.HasTerms) {
                 terms.And(customTerm);
-            } 
+            }
 
             return queryBuilder.Query(FeatureGroupType, terms)
                 .Select(asset => new FeatureGroup(
@@ -125,7 +128,6 @@ namespace VersionOne.ServerConnector {
                     queryBuilder.TypeResolver))
                 .ToList();
         }
-
         private IList<Member> GetMembersByIds(IList oids) {
             if (oids.Count == 0) {
                 return new List<Member>();
@@ -358,6 +360,242 @@ namespace VersionOne.ServerConnector {
             } catch (Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
+        }
+
+        //TODO refactor
+        public IList<WorkitemFromExternalSystem> GetWorkitemsClosedSinceBySourceId(string sourceId, DateTime closedSince, string externalIdFieldName, string lastCheckedDefectId, Filter filters, out DateTime dateLastChange, out string lastChangedIDLocal) {
+            var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
+            
+            var storyType = metaModel.GetAssetType(StoryType);
+            var storyTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetTypeAttribute));
+            storyTerm.Equal(storyType);
+
+            var defectType = metaModel.GetAssetType(DefectType);
+            var defectTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetTypeAttribute));
+            defectTerm.Equal(defectType);
+
+            var sourceTerm = new FilterTerm(workitemType.GetAttributeDefinition(SourceNameAttribute));
+            sourceTerm.Equal(sourceId);
+            
+            var assetStateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
+            assetStateTerm.Equal(AssetState.Closed);
+
+            AndFilterTerm terms;
+
+            if(closedSince != DateTime.MinValue) {
+                var changeDateTerm = new FilterTerm(workitemType.GetAttributeDefinition(ChangeDateUTCAttribute));
+                changeDateTerm.GreaterOrEqual(closedSince);
+                terms = new AndFilterTerm(sourceTerm, assetStateTerm, changeDateTerm);
+            } else {
+                terms = new AndFilterTerm(sourceTerm, assetStateTerm);
+            }
+
+            var orTerm = new OrFilterTerm(storyTerm, defectTerm);
+            terms.And(orTerm);
+
+            var customTerm = filters.GetFilter(workitemType);
+
+            if(customTerm.HasTerms) {
+                terms.And(customTerm);
+            }
+
+            var workitems = queryBuilder.Query(PrimaryWorkitemType, terms).Select(asset => new Workitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
+
+            // Return results
+            var changeDateUTC = DateTime.MinValue;
+            dateLastChange = closedSince;
+            lastChangedIDLocal = lastCheckedDefectId;
+
+            IList<WorkitemFromExternalSystem> results = new List<WorkitemFromExternalSystem>();
+
+            foreach(var asset in workitems) {
+                var id = asset.Number;
+                var date = asset.GetProperty<string>(ChangeDateUTCAttribute);
+                DateTime.TryParse(date, out changeDateUTC);
+
+                logger.Log(LogMessage.SeverityType.Debug, string.Format("Processing V1 Defect {0} closed at {1}", id, date));
+
+
+                if(lastCheckedDefectId.Equals(id)) {
+                    logger.Log(LogMessage.SeverityType.Debug, "\tSkipped because this ID was processed last time");
+                    continue;
+                }
+
+                if(closedSince.CompareTo(changeDateUTC) == 0) {
+                    logger.Log(LogMessage.SeverityType.Debug, "\tSkipped because the ChangeDate is equal the date/time we last checked for changes");
+                    continue;
+                }
+
+                if((dateLastChange == DateTime.MinValue && changeDateUTC != DateTime.MinValue) || changeDateUTC.CompareTo(dateLastChange) > 0) {
+                    logger.Log(LogMessage.SeverityType.Debug, "\tCaused an update to LastChangeID and dateLastChanged");
+                    dateLastChange = changeDateUTC;
+                    lastChangedIDLocal = id;
+                }
+
+                results.Add(new WorkitemFromExternalSystem(asset.Asset, ListPropertyValues, externalIdFieldName, queryBuilder.TypeResolver));
+            }
+
+            return results;
+        }
+
+        //TODO refactor
+        public Workitem CreateWorkitem(string title, string description, string projectId, string projectName, string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners, string urlTitle, string url) {
+            if(string.IsNullOrEmpty(title))
+                throw new ArgumentException("Empty title");
+
+            Oid projectOid;
+
+            if(!string.IsNullOrEmpty(projectId)) {
+                projectOid = Oid.FromToken(projectId, metaModel);
+            } else if(!string.IsNullOrEmpty(projectName)) {
+                var project = GetProjectByName(projectName);
+                projectOid = project != null ? project.Oid.Momentless : Oid.Null;
+            } else {
+                var project = GetRootProject();
+                projectOid = project != null ? project.Oid.Momentless : Oid.Null;
+            }
+
+            if(projectOid == Oid.Null) {
+                throw new ArgumentException("Can't find proper project");
+            }
+
+            var source = GetSource(externalSystemName);
+
+            if(source == null) {
+                throw new ArgumentException("Can't find proper source");
+            }
+
+            var sourceOid = source.Oid.Momentless;
+
+            //TODO create proper asset type - story or defect
+            var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
+            var newWorkitem = services.New(workitemType, Oid.Null);
+
+            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Name"), title);
+            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Scope"), projectOid);
+            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Description"), description);
+            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Source"), sourceOid);
+            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition(externalFieldName), externalId);
+
+            foreach(var ownerOid in GetOwnerOids(owners)) {
+                newWorkitem.AddAttributeValue(workitemType.GetAttributeDefinition("Owners"), ownerOid);
+            }
+
+            if(!string.IsNullOrEmpty(priorityId)) {
+                newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Priority"), Oid.FromToken(priorityId, metaModel));
+            }
+
+            services.Save(newWorkitem);
+
+            if(!string.IsNullOrEmpty(url)) {
+                var linkType = metaModel.GetAssetType("Link");
+                var newlink = services.New(linkType, newWorkitem.Oid.Momentless);
+                newlink.SetAttributeValue(linkType.GetAttributeDefinition("Name"), !string.IsNullOrEmpty(urlTitle) ? urlTitle : url);
+                newlink.SetAttributeValue(linkType.GetAttributeDefinition("URL"), url);
+                newlink.SetAttributeValue(linkType.GetAttributeDefinition("OnMenu"), true);
+                services.Save(newlink);
+            }
+
+            return new Workitem(newWorkitem, ListPropertyValues, queryBuilder.TypeResolver);
+        }
+
+        //TODO refactor
+        public bool CheckForDuplicate(string externalSystemName, string externalFieldName, string externalId, Filter filters) {
+            //todo how to get only Defects and Stories?
+            var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
+
+            var sourceTerm = new FilterTerm(workitemType.GetAttributeDefinition(SourceNameAttribute));
+            sourceTerm.Equal(externalSystemName);
+
+            var externalIdTerm = new FilterTerm(workitemType.GetAttributeDefinition(externalFieldName));
+            externalIdTerm.Equal(externalId);
+
+            var terms = new AndFilterTerm(sourceTerm, externalIdTerm);
+            var result = queryBuilder.Query(PrimaryWorkitemType, terms).ToList();
+
+            return (result.Count > 0);
+        }
+
+        //TODO refactor
+        private Asset GetProjectByName(string projectName) {
+            var scopeType = metaModel.GetAssetType(ScopeAttribute);
+            var scopeName = scopeType.GetAttributeDefinition(NameAttribute);
+
+            var scopeNameTerm = new FilterTerm(scopeName);
+            scopeNameTerm.Equal(projectName);
+
+            var scopeState = scopeType.GetAttributeDefinition(AssetStateAttribute);
+            var scopeStateTerm = new FilterTerm(scopeState);
+            scopeStateTerm.NotEqual(AssetState.Closed);
+
+            var query = new Query(scopeType);
+            query.Selection.Add(scopeName);
+            var terms  = new AndFilterTerm(scopeNameTerm, scopeStateTerm);
+
+            var result = queryBuilder.Query(ScopeAttribute, terms);
+
+            return result.FirstOrDefault();
+        }
+
+        //TODO refactor
+        private Asset GetRootProject() {
+            var scopeType = metaModel.GetAssetType(ScopeAttribute);
+            var scopeName = scopeType.GetAttributeDefinition(NameAttribute);
+
+            var scopeState = scopeType.GetAttributeDefinition(AssetStateAttribute);
+            var scopeStateTerm = new FilterTerm(scopeState);
+            scopeStateTerm.NotEqual(AssetState.Closed);
+
+            var scopeQuery = new Query(scopeType, scopeType.GetAttributeDefinition(ParentAttribute));
+            scopeQuery.Filter = scopeStateTerm;
+            scopeQuery.Selection.Add(scopeName);
+
+            var nameQueryResult = services.Retrieve(scopeQuery);
+
+            return nameQueryResult.Assets.FirstOrDefault();
+        }
+
+        //TODO refactor
+        private Asset GetSource(string sourceName) {
+            var storySource = metaModel.GetAssetType("StorySource");
+
+            var term = new FilterTerm(storySource.GetAttributeDefinition("Name"));
+            term.Equal(sourceName);
+
+            var sourceQuery = new Query(storySource) {Filter = term};
+            var sources = services.Retrieve(sourceQuery).Assets;
+
+            return sources.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Attempts to match owners of the workitem in the external system to users in VersionOne.
+        /// </summary>
+        /// <param name="ownerNames">Comma seperated list of usernames.</param>
+        /// <returns>Oids of matching users in VersionOne.</returns>
+        //TODO refactor
+        private IEnumerable<Oid> GetOwnerOids(string ownerNames) {
+            var result = new List<Oid>();
+
+            if(!string.IsNullOrEmpty(ownerNames)) {
+                var memberType = metaModel.GetAssetType("Member");
+                var ownerQuery = new Query(memberType);
+
+                var terms = new List<IFilterTerm>();
+
+                foreach(var ownerName in ownerNames.Split(',')) {
+                    var term = new FilterTerm(memberType.GetAttributeDefinition("Username"));
+                    term.Equal(ownerName);
+                    terms.Add(term);
+                }
+
+                ownerQuery.Filter = new AndFilterTerm(terms.ToArray());
+
+                var matches = services.Retrieve(ownerQuery).Assets;
+                result.AddRange(matches.Select(owner => owner.Oid));
+            }
+
+            return result.ToArray();
         }
     }
 }

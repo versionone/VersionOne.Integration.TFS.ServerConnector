@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using VersionOne.ServerConnector.Entities;
 using VersionOne.ServerConnector.Filters;
 
@@ -28,5 +29,11 @@ namespace VersionOne.ServerConnector {
         void AddListProperty(string fieldName, string typeToken);
         void AddOptionalProperty(string attr, string prefix);
         void AddLinkToWorkitem(Workitem workitem, string link, string title, bool onMenu);
+
+        IList<WorkitemFromExternalSystem> GetWorkitemsClosedSinceBySourceId(string sourceId, DateTime closedSince, string externalIdFieldName, string lastCheckedDefectId, Filter filters,
+            out DateTime dateLastChange, out string lastChangedIDLocal);
+
+        bool CheckForDuplicate(string externalSystemName, string externalFieldName, string externalId, Filter filters);
+        Workitem CreateWorkitem(string title, string description, string projectId, string projectName, string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners, string urlTitle, string url);
     }
 }
