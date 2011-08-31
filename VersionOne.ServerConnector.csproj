@@ -73,6 +73,10 @@
     <Compile Include="Entities\Story.cs" />
     <Compile Include="Entities\ValueId.cs" />
     <Compile Include="QueryBuilder.cs" />
+    <Compile Include="StartupValidation\BaseValidator.cs" />
+    <Compile Include="StartupValidation\V1ConnectionValidator.cs" />
+    <Compile Include="StartupValidation\V1CustomListFieldValidator.cs" />
+    <Compile Include="StartupValidation\V1ProjectValidator.cs" />
     <Compile Include="VersionOneException.cs" />
     <Compile Include="VersionOneProcessor.cs" />
     <Compile Include="Entities\Workitem.cs" />
