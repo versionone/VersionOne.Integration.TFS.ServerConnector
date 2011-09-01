@@ -77,6 +77,8 @@
     <Compile Include="StartupValidation\V1ConnectionValidator.cs" />
     <Compile Include="StartupValidation\V1CustomListFieldValidator.cs" />
     <Compile Include="StartupValidation\V1ProjectValidator.cs" />
+    <Compile Include="StartupValidation\V1PrioritiesValidator.cs" />
+    <Compile Include="StartupValidation\V1ProjectsValidator.cs" />
     <Compile Include="VersionOneException.cs" />
     <Compile Include="VersionOneProcessor.cs" />
     <Compile Include="Entities\Workitem.cs" />
