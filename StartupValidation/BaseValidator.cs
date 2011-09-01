@@ -3,7 +3,7 @@ using VersionOne.ServiceHost.Core.Logging;
 using VersionOne.ServiceHost.Core.StartupValidation;
 
 namespace VersionOne.ServerConnector.StartupValidation {
-    public abstract class BaseValidator : IValidator {
+    public abstract class BaseValidator : ISimpleValidator {
         protected readonly ILogger Logger;
         protected readonly IVersionOneProcessor V1Processor;
 
