@@ -2,10 +2,10 @@
 using VersionOne.ServiceHost.Core.Logging;
 using VersionOne.ServiceHost.Core.Configuration;
 namespace VersionOne.ServerConnector.StartupValidation {
-    public class VersionOneProjectsValidator : BaseValidator {
+    public class V1ProjectsValidator : BaseValidator {
         private readonly ICollection<MappingInfo> v1Projects;
 
-        public VersionOneProjectsValidator(ICollection<MappingInfo> v1Projects) {
+        public V1ProjectsValidator(ICollection<MappingInfo> v1Projects) {
             this.v1Projects = v1Projects;
         }
 

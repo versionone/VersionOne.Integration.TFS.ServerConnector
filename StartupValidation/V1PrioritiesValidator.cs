@@ -4,10 +4,10 @@ using VersionOne.ServiceHost.Core.Configuration;
 using VersionOne.ServiceHost.Core.Logging;
 
 namespace VersionOne.ServerConnector.StartupValidation {
-    public class VersionOnePrioritiesValidator : BaseValidator {
+    public class V1PrioritiesValidator : BaseValidator {
         private readonly ICollection<MappingInfo> priorities;
 
-        public VersionOnePrioritiesValidator(ICollection<MappingInfo> priorities) {
+        public V1PrioritiesValidator(ICollection<MappingInfo> priorities) {
             this.priorities = priorities;
         }
 
@@ -23,7 +23,7 @@ namespace VersionOne.ServerConnector.StartupValidation {
                 }
             }
 
-            Logger.Log(LogMessage.SeverityType.Info, "All priorities are checked");
+            Logger.Log(LogMessage.SeverityType.Info, "VersionOne priorities are checked");
             return result;
         }
 
