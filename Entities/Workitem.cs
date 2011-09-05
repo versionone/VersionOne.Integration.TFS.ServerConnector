@@ -18,6 +18,7 @@ namespace VersionOne.ServerConnector.Entities {
         public const string OrderProperty = "Order";
         public const string ReferenceProperty = "Reference";
         public const string OwnersProperty = "Owners";
+        public const string ChangeDateUTCProperty= "ChangeDateUTC";
 
         public const string PriorityList = "WorkitemPriority";
 

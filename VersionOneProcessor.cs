@@ -400,7 +400,6 @@ namespace VersionOne.ServerConnector {
             var workitems = queryBuilder.Query(PrimaryWorkitemType, terms).Select(asset => new Workitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
 
             // Return results
-            var changeDateUTC = DateTime.MinValue;
             dateLastChange = closedSince;
             lastChangedIDLocal = lastCheckedDefectId;
 
@@ -408,11 +407,9 @@ namespace VersionOne.ServerConnector {
 
             foreach(var asset in workitems) {
                 var id = asset.Number;
-                var date = asset.GetProperty<string>(ChangeDateUTCAttribute);
-                DateTime.TryParse(date, out changeDateUTC);
+                var changeDateUTC = asset.GetProperty<DateTime>(ChangeDateUTCAttribute);
 
-                logger.Log(LogMessage.SeverityType.Debug, string.Format("Processing V1 Defect {0} closed at {1}", id, date));
-
+                logger.Log(LogMessage.SeverityType.Debug, string.Format("Processing V1 Defect {0} closed at {1}", id, changeDateUTC));
 
                 if(lastCheckedDefectId.Equals(id)) {
                     logger.Log(LogMessage.SeverityType.Debug, "\tSkipped because this ID was processed last time");
