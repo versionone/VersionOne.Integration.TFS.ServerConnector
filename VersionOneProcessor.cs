@@ -366,13 +366,11 @@ namespace VersionOne.ServerConnector {
         public IList<WorkitemFromExternalSystem> GetWorkitemsClosedSinceBySourceId(string sourceId, DateTime closedSince, string externalIdFieldName, string lastCheckedDefectId, Filter filters, out DateTime dateLastChange, out string lastChangedIDLocal) {
             var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
             
-            var storyType = metaModel.GetAssetType(StoryType);
             var storyTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetTypeAttribute));
-            storyTerm.Equal(storyType);
+            storyTerm.Equal(StoryType);
 
-            var defectType = metaModel.GetAssetType(DefectType);
             var defectTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetTypeAttribute));
-            defectTerm.Equal(defectType);
+            defectTerm.Equal(DefectType);
 
             var sourceTerm = new FilterTerm(workitemType.GetAttributeDefinition(SourceNameAttribute));
             sourceTerm.Equal(sourceId);
@@ -439,7 +437,7 @@ namespace VersionOne.ServerConnector {
         }
 
         //TODO refactor
-        public Workitem CreateWorkitem(string title, string description, string projectId, string projectName, string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners, string urlTitle, string url) {
+        public Workitem CreateWorkitem(string assetType, string title, string description, string projectId, string projectName, string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners, string urlTitle, string url) {
             if(string.IsNullOrEmpty(title))
                 throw new ArgumentException("Empty title");
 
@@ -466,9 +464,7 @@ namespace VersionOne.ServerConnector {
             }
 
             var sourceOid = source.Oid.Momentless;
-
-            //TODO create proper asset type - story or defect
-            var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
+            var workitemType = metaModel.GetAssetType(assetType);
             var newWorkitem = services.New(workitemType, Oid.Null);
 
             newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Name"), title);
@@ -501,7 +497,6 @@ namespace VersionOne.ServerConnector {
 
         //TODO refactor
         public bool CheckForDuplicate(string externalSystemName, string externalFieldName, string externalId, Filter filters) {
-            //todo how to get only Defects and Stories?
             var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
 
             var sourceTerm = new FilterTerm(workitemType.GetAttributeDefinition(SourceNameAttribute));
@@ -511,6 +506,16 @@ namespace VersionOne.ServerConnector {
             externalIdTerm.Equal(externalId);
 
             var terms = new AndFilterTerm(sourceTerm, externalIdTerm);
+
+            var storyTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetTypeAttribute));
+            storyTerm.Equal(StoryType);
+
+            var defectTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetTypeAttribute));
+            defectTerm.Equal(DefectType);
+            
+            var orTerm = new OrFilterTerm(storyTerm, defectTerm);
+            terms.And(orTerm);
+
             var result = queryBuilder.Query(PrimaryWorkitemType, terms).ToList();
 
             return (result.Count > 0);

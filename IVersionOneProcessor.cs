@@ -34,6 +34,6 @@ namespace VersionOne.ServerConnector {
             out DateTime dateLastChange, out string lastChangedIDLocal);
 
         bool CheckForDuplicate(string externalSystemName, string externalFieldName, string externalId, Filter filters);
-        Workitem CreateWorkitem(string title, string description, string projectId, string projectName, string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners, string urlTitle, string url);
+        Workitem CreateWorkitem(string assetType, string title, string description, string projectId, string projectName, string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners, string urlTitle, string url);
     }
 }
