@@ -382,7 +382,7 @@ namespace VersionOne.ServerConnector {
 
             if(closedSince != DateTime.MinValue) {
                 var changeDateTerm = new FilterTerm(workitemType.GetAttributeDefinition(ChangeDateUTCAttribute));
-                changeDateTerm.GreaterOrEqual(closedSince);
+                changeDateTerm.Greater(closedSince);
                 terms = new AndFilterTerm(sourceTerm, assetStateTerm, changeDateTerm);
             } else {
                 terms = new AndFilterTerm(sourceTerm, assetStateTerm);
