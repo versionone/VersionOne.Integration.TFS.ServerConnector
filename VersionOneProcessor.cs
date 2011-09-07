@@ -446,6 +446,7 @@ namespace VersionOne.ServerConnector {
                 var project = GetProjectByName(projectName);
                 projectOid = project != null ? project.Oid.Momentless : Oid.Null;
             } else {
+                logger.Log(LogMessage.SeverityType.Info, string.Format("Could not assign to project with ID '{0}'.  Used first accessible project instead.", projectId));
                 var project = GetRootProject();
                 projectOid = project != null ? project.Oid.Momentless : Oid.Null;
             }
