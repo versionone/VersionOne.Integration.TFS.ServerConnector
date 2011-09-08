@@ -18,7 +18,7 @@ namespace VersionOne.ServerConnector.Entities {
         protected IEntityFieldTypeResolver TypeResolver;
 
         internal Entity(Asset asset, IEntityFieldTypeResolver typeResolver) : base(asset) {
-            Id = asset.Oid.ToString();
+            Id = asset.Oid.Momentless.ToString();
             TypeName = asset.AssetType.Token;
             TypeResolver = typeResolver;
         }

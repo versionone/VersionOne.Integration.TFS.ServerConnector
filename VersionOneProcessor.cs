@@ -211,7 +211,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        public string GetWorkitemLink(PrimaryWorkitem workitem) {
+        public string GetWorkitemLink(Workitem workitem) {
             return string.Format("{0}assetdetail.v1?oid={1}", configuration["ApplicationUrl"].InnerText, workitem.Id);
         }
 
