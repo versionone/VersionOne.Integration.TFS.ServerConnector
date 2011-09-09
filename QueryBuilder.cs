@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using VersionOne.SDK.APIClient;
 using VersionOne.ServerConnector.Entities;
+using VersionOne.ServerConnector.Filters;
 
 namespace VersionOne.ServerConnector {
     internal class QueryBuilder : IQueryBuilder {
@@ -49,6 +50,10 @@ namespace VersionOne.ServerConnector {
             } catch (Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
+        }
+
+        public AssetList Query(string workitemTypeName, IFilter filter) {
+            return Query(workitemTypeName, filter.GetFilter(metaModel.GetAssetType(workitemTypeName)));
         }
 
         private void AddSelection(Query query, string typePrefix, IAssetType type) {

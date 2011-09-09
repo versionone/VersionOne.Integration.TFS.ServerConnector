@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 using VersionOne.ServerConnector.Entities;
+using VersionOne.ServerConnector.Filters;
 
 namespace VersionOne.ServerConnector {
     // TODO refactor APIClient types
@@ -15,5 +16,6 @@ namespace VersionOne.ServerConnector {
 
         PropertyValues QueryPropertyValues(string propertyName);
         AssetList Query(string typeToken, IFilterTerm filter);
+        AssetList Query(string typeToken, IFilter filter);
     }
 }

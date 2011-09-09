@@ -35,6 +35,19 @@ namespace VersionOne.ServerConnector.Filters {
             return new Filter(null, FilterActions.Or);
         }
 
+        public static IFilter Equal(string fieldName, object value) {
+            return And(fieldName).Equal(value);
+        }
+
+        public static IFilter NotEqual(string fieldName, object value) {
+            return And(fieldName).NotEqual(value);
+        }
+
+        public static IFilter Closed(bool isClosed) {
+            var filter = And(VersionOneProcessor.AssetStateAttribute);
+            return isClosed ? filter.Equal(AssetState.Closed) : filter.NotEqual(AssetState.Closed);
+        }
+
         public Filter Equal(object value) {
             values.Add(new FilterValue(value, FilterValuesActions.Equal));
             return this;

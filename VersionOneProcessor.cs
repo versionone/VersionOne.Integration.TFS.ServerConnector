@@ -21,7 +21,7 @@ namespace VersionOne.ServerConnector {
         public const string AttributeDefinitionType = "AttributeDefinition";
 
         private const string OwnersAttribute = "Owners";
-        private const string AssetStateAttribute = "AssetState";
+        public const string AssetStateAttribute = "AssetState";
         private const string ScopeAttribute = "Scope";
         private const string ParentAttribute = "Parent";
         private const string IdAttribute = "ID";
@@ -42,7 +42,7 @@ namespace VersionOne.ServerConnector {
 
         private readonly IQueryBuilder queryBuilder;
 
-        public IDictionary<string, PropertyValues> ListPropertyValues {
+        private IDictionary<string, PropertyValues> ListPropertyValues {
             get { return queryBuilder.ListPropertyValues; }
         }
 
@@ -74,32 +74,20 @@ namespace VersionOne.ServerConnector {
         }
 
         public IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId) {
-            var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
-
             var projectOid = Oid.FromToken(projectId, metaModel);
-            var scopeTerm = new FilterTerm(workitemType.GetAttributeDefinition(ScopeAttribute));
-            scopeTerm.Equal(projectOid);
-
-            var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
-            stateTerm.NotEqual(AssetState.Closed);
+            var filter = GroupFilter.And(Filter.Closed(false), Filter.Equal(ScopeAttribute, projectOid));
 
             return queryBuilder
-                .Query(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm))
+                .Query(PrimaryWorkitemType, filter)
                 .Select(asset => new PrimaryWorkitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
-        //TODO we can remove this method using filter
         public IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId) {
-            var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
-
             var projectOid = Oid.FromToken(projectId, metaModel);
-            var scopeTerm = new FilterTerm(workitemType.GetAttributeDefinition(ScopeAttribute));
-            scopeTerm.Equal(projectOid);
+            var filter = GroupFilter.And(Filter.Closed(true), Filter.Equal(ScopeAttribute, projectOid));
 
-            var stateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
-            stateTerm.Equal(AssetState.Closed);
-
-            return queryBuilder.Query(PrimaryWorkitemType, new AndFilterTerm(scopeTerm, stateTerm))
+            return queryBuilder
+                .Query(PrimaryWorkitemType, filter)
                 .Select(asset => new PrimaryWorkitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
@@ -108,16 +96,9 @@ namespace VersionOne.ServerConnector {
             var ownersDefinition = featureGroupType.GetAttributeDefinition(OwnersAttribute);
 
             var projectOid = Oid.FromToken(projectId, metaModel);
-            var scopeTerm = new FilterTerm(featureGroupType.GetAttributeDefinition(ScopeAttribute));
-            scopeTerm.Equal(projectOid);
-            var assetTypeTerm = new FilterTerm(featureGroupType.GetAttributeDefinition(ParentAttribute));
-            assetTypeTerm.Equal(string.Empty);
+            var filter = GroupFilter.And(Filter.Equal(ScopeAttribute, projectOid), Filter.Equal(ParentAttribute, string.Empty), filters);
 
-            var terms = new AndFilterTerm(scopeTerm, assetTypeTerm);
-            var customTerm = filters.GetFilter(featureGroupType);
-            terms.And(customTerm);
-
-            return queryBuilder.Query(FeatureGroupType, terms)
+            return queryBuilder.Query(FeatureGroupType, filter)
                 .Select(asset => new FeatureGroup(
                     asset, ListPropertyValues, 
                     GetFeatureGroupStoryChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters).Cast<Workitem>().ToList(), 
@@ -164,10 +145,9 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        public IList<KeyValuePair<string, string>> GetWorkitemStatuses() {
+        public IList<ValueId> GetWorkitemStatuses() {
             try {
-                return queryBuilder.QueryPropertyValues("StoryStatus")
-                    .Select(item => new KeyValuePair<string, string>(item.Name, item.Token)).ToList();
+                return queryBuilder.QueryPropertyValues("StoryStatus").ToList();
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -230,11 +210,9 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        // TODO change return type to ListValue
-        public IList<KeyValuePair<string, string>> GetWorkitemPriorities() {
+        public IList<ValueId> GetWorkitemPriorities() {
             try {
-                return queryBuilder.QueryPropertyValues("WorkitemPriority")
-                    .Select(item => new KeyValuePair<string, string>(item.Name, item.Token)).ToList();
+                return queryBuilder.QueryPropertyValues("WorkitemPriority").ToList();
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -535,8 +513,7 @@ namespace VersionOne.ServerConnector {
             var scopeStateTerm = new FilterTerm(scopeState);
             scopeStateTerm.NotEqual(AssetState.Closed);
 
-            var scopeQuery = new Query(scopeType, scopeType.GetAttributeDefinition(ParentAttribute));
-            scopeQuery.Filter = scopeStateTerm;
+            var scopeQuery = new Query(scopeType, scopeType.GetAttributeDefinition(ParentAttribute)) { Filter = scopeStateTerm };
             scopeQuery.Selection.Add(scopeName);
 
             var nameQueryResult = services.Retrieve(scopeQuery);

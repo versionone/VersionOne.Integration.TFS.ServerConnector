@@ -17,8 +17,8 @@ namespace VersionOne.ServerConnector {
         string GetWorkitemLink(Workitem workitem);
         void SetWorkitemStatus(PrimaryWorkitem workitem, string statusId);
         KeyValuePair<string, string> CreateWorkitemStatus(string statusName);
-        IList<KeyValuePair<string, string>> GetWorkitemStatuses();
-        IList<KeyValuePair<string, string>> GetWorkitemPriorities();
+        IList<ValueId> GetWorkitemStatuses();
+        IList<ValueId> GetWorkitemPriorities();
 
         PropertyValues GetAvailableListValues(string typeToken, string fieldName);
         
@@ -31,7 +31,7 @@ namespace VersionOne.ServerConnector {
         void AddLinkToWorkitem(Workitem workitem, string link, string title, bool onMenu);
 
         IList<WorkitemFromExternalSystem> GetWorkitemsClosedSinceBySourceId(string sourceId, DateTime closedSince, string externalIdFieldName, string lastCheckedDefectId, Filter filters,
-            out DateTime dateLastChange, out string lastChangedIDLocal);
+            out DateTime dateLastChange, out string lastChangedIdLocal);
 
         bool CheckForDuplicate(string externalSystemName, string externalFieldName, string externalId, Filter filters);
         Workitem CreateWorkitem(string assetType, string title, string description, string projectId, string projectName, string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners, string urlTitle, string url);
