@@ -65,6 +65,8 @@
     <Compile Include="Entities\Member.cs" />
     <Compile Include="Entities\PropertyValues.cs" />
     <Compile Include="Entities\FeatureGroup.cs" />
+    <Compile Include="Filters\GroupFilter.cs" />
+    <Compile Include="Filters\IFilter.cs" />
     <Compile Include="IEntityFieldTypeResolver.cs" />
     <Compile Include="IQueryBuilder.cs" />
     <Compile Include="IVersionOneProcessor.cs" />

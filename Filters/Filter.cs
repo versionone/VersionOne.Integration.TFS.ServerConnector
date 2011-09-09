@@ -5,7 +5,7 @@ using System.Linq;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Filters {
-    public class Filter {
+    public class Filter : IFilter {
         public readonly string Name;
         public readonly FilterActions Operation;
 
