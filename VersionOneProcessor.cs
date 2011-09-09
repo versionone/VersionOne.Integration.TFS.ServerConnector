@@ -31,7 +31,7 @@ namespace VersionOne.ServerConnector {
         private const string AssetAttribute = "Asset";
         private const string UrlAttribute = "URL";
         private const string OnMenuAttribute = "OnMenu";
-        private const string ChangeDateUTCAttribute = "ChangeDateUTC";
+        private const string ChangeDateUtcAttribute = "ChangeDateUTC";
         private const string SourceNameAttribute = "Source.Name";
         private const string NameAttribute = "Name";
 
@@ -115,10 +115,7 @@ namespace VersionOne.ServerConnector {
 
             var terms = new AndFilterTerm(scopeTerm, assetTypeTerm);
             var customTerm = filters.GetFilter(featureGroupType);
-            
-            if(customTerm.HasTerms) {
-                terms.And(customTerm);
-            }
+            terms.And(customTerm);
 
             return queryBuilder.Query(FeatureGroupType, terms)
                 .Select(asset => new FeatureGroup(
@@ -128,6 +125,7 @@ namespace VersionOne.ServerConnector {
                     queryBuilder.TypeResolver))
                 .ToList();
         }
+
         private IList<Member> GetMembersByIds(IList oids) {
             if (oids.Count == 0) {
                 return new List<Member>();
@@ -187,6 +185,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
+        // TODO change return type to ListValue
         public KeyValuePair<string, string> CreateWorkitemStatus(string statusName) {
             try {
                 var primaryWorkitemStatusType = metaModel.GetAssetType("StoryStatus");
@@ -231,6 +230,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
+        // TODO change return type to ListValue
         public IList<KeyValuePair<string, string>> GetWorkitemPriorities() {
             try {
                 return queryBuilder.QueryPropertyValues("WorkitemPriority")
@@ -242,15 +242,6 @@ namespace VersionOne.ServerConnector {
 
         public bool ProjectExists(string projectId) {
             return GetProjectById(projectId) != null;
-        }
-
-        public bool TypeExists(string typeName) {
-            try {
-                var type = metaModel.GetAssetType(typeName);
-                return type != null;
-            } catch(MetaException) {
-                return false;
-            }
         }
 
         public bool AttributeExists(string typeName, string attributeName) {
@@ -275,6 +266,7 @@ namespace VersionOne.ServerConnector {
             queryBuilder.AddOptionalProperty(attr, prefix);
         }
 
+        // TODO check and remove Feature Group type condition, it looks redundant
         private IList<Story> GetFeatureGroupStoryChildren(string featureGroupParentToken, Filter filter) {
             var workitemType = metaModel.GetAssetType(StoryType);
             
@@ -284,11 +276,8 @@ namespace VersionOne.ServerConnector {
             typeTerm.NotEqual(FeatureGroupType);
 
             var terms = new AndFilterTerm(parentTerm, typeTerm);
-            var customTerm = filter.GetFilter(workitemType);
-            
-            if (customTerm.HasTerms) {
-                terms.And(customTerm);
-            }
+            var customTerm = filter.GetFilter(workitemType);            
+            terms.And(customTerm);
             
             return queryBuilder.Query(StoryType, terms)
                 .Select(asset => new Story(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
@@ -363,7 +352,7 @@ namespace VersionOne.ServerConnector {
         }
 
         //TODO refactor
-        public IList<WorkitemFromExternalSystem> GetWorkitemsClosedSinceBySourceId(string sourceId, DateTime closedSince, string externalIdFieldName, string lastCheckedDefectId, Filter filters, out DateTime dateLastChange, out string lastChangedIDLocal) {
+        public IList<WorkitemFromExternalSystem> GetWorkitemsClosedSinceBySourceId(string sourceId, DateTime closedSince, string externalIdFieldName, string lastCheckedDefectId, Filter filters, out DateTime dateLastChange, out string lastChangedIdLocal) {
             var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
             
             var storyTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetTypeAttribute));
@@ -381,7 +370,7 @@ namespace VersionOne.ServerConnector {
             AndFilterTerm terms;
 
             if(closedSince != DateTime.MinValue) {
-                var changeDateTerm = new FilterTerm(workitemType.GetAttributeDefinition(ChangeDateUTCAttribute));
+                var changeDateTerm = new FilterTerm(workitemType.GetAttributeDefinition(ChangeDateUtcAttribute));
                 changeDateTerm.Greater(closedSince);
                 terms = new AndFilterTerm(sourceTerm, assetStateTerm, changeDateTerm);
             } else {
@@ -392,39 +381,36 @@ namespace VersionOne.ServerConnector {
             terms.And(orTerm);
 
             var customTerm = filters.GetFilter(workitemType);
-
-            if(customTerm.HasTerms) {
-                terms.And(customTerm);
-            }
+            terms.And(customTerm);
 
             var workitems = queryBuilder.Query(PrimaryWorkitemType, terms).Select(asset => new Workitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
 
             // Return results
             dateLastChange = closedSince;
-            lastChangedIDLocal = lastCheckedDefectId;
+            lastChangedIdLocal = lastCheckedDefectId;
 
             IList<WorkitemFromExternalSystem> results = new List<WorkitemFromExternalSystem>();
 
             foreach(var asset in workitems) {
                 var id = asset.Number;
-                var changeDateUTC = asset.GetProperty<DateTime>(ChangeDateUTCAttribute);
+                var changeDateUtc = asset.GetProperty<DateTime>(ChangeDateUtcAttribute);
 
-                logger.Log(LogMessage.SeverityType.Debug, string.Format("Processing V1 Defect {0} closed at {1}", id, changeDateUTC));
+                logger.Log(LogMessage.SeverityType.Debug, string.Format("Processing V1 Defect {0} closed at {1}", id, changeDateUtc));
 
                 if(lastCheckedDefectId.Equals(id)) {
                     logger.Log(LogMessage.SeverityType.Debug, "\tSkipped because this ID was processed last time");
                     continue;
                 }
 
-                if(closedSince.CompareTo(changeDateUTC) == 0) {
+                if(closedSince.CompareTo(changeDateUtc) == 0) {
                     logger.Log(LogMessage.SeverityType.Debug, "\tSkipped because the ChangeDate is equal the date/time we last checked for changes");
                     continue;
                 }
 
-                if((dateLastChange == DateTime.MinValue && changeDateUTC != DateTime.MinValue) || changeDateUTC.CompareTo(dateLastChange) > 0) {
+                if((dateLastChange == DateTime.MinValue && changeDateUtc != DateTime.MinValue) || changeDateUtc.CompareTo(dateLastChange) > 0) {
                     logger.Log(LogMessage.SeverityType.Debug, "\tCaused an update to LastChangeID and dateLastChanged");
-                    dateLastChange = changeDateUTC;
-                    lastChangedIDLocal = id;
+                    dateLastChange = changeDateUtc;
+                    lastChangedIdLocal = id;
                 }
 
                 results.Add(new WorkitemFromExternalSystem(asset.Asset, ListPropertyValues, externalIdFieldName, queryBuilder.TypeResolver));
