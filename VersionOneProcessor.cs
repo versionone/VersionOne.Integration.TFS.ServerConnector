@@ -20,7 +20,7 @@ namespace VersionOne.ServerConnector {
         public const string LinkType = "Link";
         public const string AttributeDefinitionType = "AttributeDefinition";
 
-        private const string OwnersAttribute = "Owners";
+        public const string OwnersAttribute = "Owners";
         public const string AssetStateAttribute = "AssetState";
         private const string ScopeAttribute = "Scope";
         private const string ParentAttribute = "Parent";
