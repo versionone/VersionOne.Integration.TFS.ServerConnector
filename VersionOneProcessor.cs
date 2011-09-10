@@ -241,7 +241,9 @@ namespace VersionOne.ServerConnector {
         }
 
         public void AddOptionalProperty(string attr, string prefix) {
-            queryBuilder.AddOptionalProperty(attr, prefix);
+            if (!string.IsNullOrEmpty(attr)) {
+                queryBuilder.AddOptionalProperty(attr, prefix);
+            }
         }
 
         // TODO check and remove Feature Group type condition, it looks redundant
