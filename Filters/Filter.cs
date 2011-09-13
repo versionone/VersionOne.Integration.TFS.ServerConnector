@@ -68,7 +68,7 @@ namespace VersionOne.ServerConnector.Filters {
         }
 
         public static Filter OfTypes(params string[] types) {
-            var filter = And(VersionOneProcessor.AssetTypeAttribute);
+            var filter = Or(VersionOneProcessor.AssetTypeAttribute);
             
             foreach(var type in types) {
                 filter.Equal(type);
