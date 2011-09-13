@@ -152,14 +152,14 @@ namespace VersionOne.ServerConnector {
 
         private Query GetPropertyValuesQuery(string propertyName, out IAttributeDefinition nameDef) {
             var assetType = metaModel.GetAssetType(propertyName);
-            nameDef = assetType.GetAttributeDefinition(Entity.NameAttribute);
+            nameDef = assetType.GetAttributeDefinition(Entity.NameProperty);
 
             IAttributeDefinition inactiveDef;
 
             var query = new Query(assetType);
             query.Selection.Add(nameDef);
 
-            if (assetType.TryGetAttributeDefinition(Entity.InactiveAttribute, out inactiveDef)) {
+            if (assetType.TryGetAttributeDefinition(Entity.InactiveProperty, out inactiveDef)) {
                 var filter = new FilterTerm(inactiveDef);
                 filter.Equal("False");
                 query.Filter = filter;

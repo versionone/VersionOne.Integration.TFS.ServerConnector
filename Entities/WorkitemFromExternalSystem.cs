@@ -1,18 +1,14 @@
-﻿using System.Collections.Generic;
-using VersionOne.SDK.APIClient;
-
-namespace VersionOne.ServerConnector.Entities {
+﻿namespace VersionOne.ServerConnector.Entities {
     public class WorkitemFromExternalSystem : Workitem {
         private readonly string externalIdFieldName;
 
-        internal WorkitemFromExternalSystem(Asset asset, IDictionary<string, PropertyValues> listValues, string externalIdFieldName, IEntityFieldTypeResolver typeResolver)
-            : base(asset, listValues, typeResolver) {
+        public WorkitemFromExternalSystem(Workitem item, string externalIdFieldName)
+            : base(item.Asset, item.ListValues, item.TypeResolver) {
             this.externalIdFieldName = externalIdFieldName;
         }
 
         public string ExternalId {
             get { return GetProperty<string>(externalIdFieldName); }
-
         }
     }
 }

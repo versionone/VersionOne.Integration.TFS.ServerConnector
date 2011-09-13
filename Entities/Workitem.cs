@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using VersionOne.SDK.APIClient;
 
@@ -13,14 +14,10 @@ namespace VersionOne.ServerConnector.Entities {
         public const string ParentNameProperty = "Parent.Name";
         public const string TeamNameProperty = "Team.Name";
         public const string SprintNameProperty = "Timebox.Name";
-        public const string NameProperty = "Name";
         public const string DescriptionProperty = "Description";
         public const string OrderProperty = "Order";
         public const string ReferenceProperty = "Reference";
         public const string OwnersProperty = "Owners";
-        public const string ChangeDateUTCProperty= "ChangeDateUTC";
-
-        public const string PriorityList = "WorkitemPriority";
 
         public string Number { get { return GetProperty<string>(NumberProperty); } }
         public string Status { get { return GetProperty<string>(StatusProperty); } }
@@ -45,13 +42,18 @@ namespace VersionOne.ServerConnector.Entities {
             set { SetProperty(EstimateProperty, value);}
         }
 
+        public DateTime ChangeDateUtc {
+            get { return GetProperty<DateTime>(ChangeDateUtcProperty); }
+            set { SetProperty(ChangeDateUtcProperty, value); }
+        }
+        
         public string PriorityToken {
             get {
                 var oid = GetProperty<Oid>(PriorityProperty);
                 return oid.IsNull ? null : oid.Momentless.Token;
             }
             set {
-                var priority = ListValues[PriorityList].Find(value);
+                var priority = ListValues[VersionOneProcessor.WorkitemPriorityType].Find(value);
                 if (priority != null) {
                     SetProperty(PriorityProperty, priority.Oid);
                 }

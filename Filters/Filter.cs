@@ -48,6 +48,15 @@ namespace VersionOne.ServerConnector.Filters {
             return isClosed ? filter.Equal(AssetState.Closed) : filter.NotEqual(AssetState.Closed);
         }
 
+        public static IFilter Greater(string fieldName, object value) {
+            return And(fieldName).Greater(value);
+        }
+
+        public Filter Greater(object value) {
+            values.Add(new FilterValue(value, FilterValuesActions.Greater));
+            return this;
+        }
+        
         public Filter Equal(object value) {
             values.Add(new FilterValue(value, FilterValuesActions.Equal));
             return this;
@@ -56,6 +65,16 @@ namespace VersionOne.ServerConnector.Filters {
         public Filter NotEqual(object value) {
             values.Add(new FilterValue(value, FilterValuesActions.NotEqual));
             return this;
+        }
+
+        public static Filter OfTypes(params string[] types) {
+            var filter = And(VersionOneProcessor.AssetTypeAttribute);
+            
+            foreach(var type in types) {
+                filter.Equal(type);
+            }
+
+            return filter;
         }
 
         public GroupFilterTerm GetFilter(IAssetType type) {
@@ -70,6 +89,9 @@ namespace VersionOne.ServerConnector.Filters {
                         break;
                     case FilterValuesActions.NotEqual:
                         term.NotEqual(value.Value);
+                        break;
+                    case FilterValuesActions.Greater:
+                        term.Greater(value.Value);
                         break;
                     default:
                         throw new NotSupportedException();

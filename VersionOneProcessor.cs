@@ -11,6 +11,7 @@ using System.Collections;
 namespace VersionOne.ServerConnector {
     // TODO extract hardcoded strings to constants
     // TODO this one is getting huge - it should be split
+    // TODO change attribute to prorety in field names
     public class VersionOneProcessor : IVersionOneProcessor {
         public const string FeatureGroupType = "Theme";
         public const string StoryType = "Story";
@@ -19,20 +20,20 @@ namespace VersionOne.ServerConnector {
         public const string MemberType = "Member";
         public const string LinkType = "Link";
         public const string AttributeDefinitionType = "AttributeDefinition";
-
         public const string OwnersAttribute = "Owners";
         public const string AssetStateAttribute = "AssetState";
+        public const string AssetTypeAttribute = "AssetType";
+        public const string SourceNameAttribute = "Source.Name";
+        public const string WorkitemPriorityType = "WorkitemPriority";
+
         private const string ScopeAttribute = "Scope";
         private const string ParentAttribute = "Parent";
         private const string IdAttribute = "ID";
         private const string StatusAttribute = "Status";
         private const string ParentAndUpAttribute = "ParentAndUp";
-        private const string AssetTypeAttribute = "AssetType";
         private const string AssetAttribute = "Asset";
         private const string UrlAttribute = "URL";
         private const string OnMenuAttribute = "OnMenu";
-        private const string ChangeDateUtcAttribute = "ChangeDateUTC";
-        private const string SourceNameAttribute = "Source.Name";
         private const string NameAttribute = "Name";
 
         private IServices services;
@@ -279,7 +280,7 @@ namespace VersionOne.ServerConnector {
         private Asset GetLinkByTitle(Oid assetOid, string linkTitle) {
             var linkType = metaModel.GetAssetType(LinkType);
 
-            var nameTerm = new FilterTerm(linkType.GetAttributeDefinition(Entity.NameAttribute));
+            var nameTerm = new FilterTerm(linkType.GetAttributeDefinition(Entity.NameProperty));
             nameTerm.Equal(linkTitle);
 
             var assetTerm = new FilterTerm(linkType.GetAttributeDefinition(AssetAttribute));
@@ -310,7 +311,7 @@ namespace VersionOne.ServerConnector {
                 logger.Log(LogMessage.SeverityType.Info, string.Format("Creating new link with title {0} for asset {1}", title, asset.Oid));
 
                 linkAsset = services.New(linkType, asset.Oid.Momentless);
-                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(Entity.NameAttribute), title);
+                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(Entity.NameProperty), title);
                 linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(OnMenuAttribute), onMenu);
             }
 
@@ -331,72 +332,11 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        //TODO refactor
-        public IList<WorkitemFromExternalSystem> GetWorkitemsClosedSinceBySourceId(string sourceId, DateTime closedSince, string externalIdFieldName, string lastCheckedDefectId, Filter filters, out DateTime dateLastChange, out string lastChangedIdLocal) {
+        public IList<Workitem> GetWorkitems(IFilter filter) {
             var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
-            
-            var storyTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetTypeAttribute));
-            storyTerm.Equal(StoryType);
+            var terms = filter.GetFilter(workitemType);
 
-            var defectTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetTypeAttribute));
-            defectTerm.Equal(DefectType);
-
-            var sourceTerm = new FilterTerm(workitemType.GetAttributeDefinition(SourceNameAttribute));
-            sourceTerm.Equal(sourceId);
-            
-            var assetStateTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetStateAttribute));
-            assetStateTerm.Equal(AssetState.Closed);
-
-            AndFilterTerm terms;
-
-            if(closedSince != DateTime.MinValue) {
-                var changeDateTerm = new FilterTerm(workitemType.GetAttributeDefinition(ChangeDateUtcAttribute));
-                changeDateTerm.Greater(closedSince);
-                terms = new AndFilterTerm(sourceTerm, assetStateTerm, changeDateTerm);
-            } else {
-                terms = new AndFilterTerm(sourceTerm, assetStateTerm);
-            }
-
-            var orTerm = new OrFilterTerm(storyTerm, defectTerm);
-            terms.And(orTerm);
-
-            var customTerm = filters.GetFilter(workitemType);
-            terms.And(customTerm);
-
-            var workitems = queryBuilder.Query(PrimaryWorkitemType, terms).Select(asset => new Workitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
-
-            // Return results
-            dateLastChange = closedSince;
-            lastChangedIdLocal = lastCheckedDefectId;
-
-            IList<WorkitemFromExternalSystem> results = new List<WorkitemFromExternalSystem>();
-
-            foreach(var asset in workitems) {
-                var id = asset.Number;
-                var changeDateUtc = asset.GetProperty<DateTime>(ChangeDateUtcAttribute);
-
-                logger.Log(LogMessage.SeverityType.Debug, string.Format("Processing V1 Defect {0} closed at {1}", id, changeDateUtc));
-
-                if(lastCheckedDefectId.Equals(id)) {
-                    logger.Log(LogMessage.SeverityType.Debug, "\tSkipped because this ID was processed last time");
-                    continue;
-                }
-
-                if(closedSince.CompareTo(changeDateUtc) == 0) {
-                    logger.Log(LogMessage.SeverityType.Debug, "\tSkipped because the ChangeDate is equal the date/time we last checked for changes");
-                    continue;
-                }
-
-                if((dateLastChange == DateTime.MinValue && changeDateUtc != DateTime.MinValue) || changeDateUtc.CompareTo(dateLastChange) > 0) {
-                    logger.Log(LogMessage.SeverityType.Debug, "\tCaused an update to LastChangeID and dateLastChanged");
-                    dateLastChange = changeDateUtc;
-                    lastChangedIdLocal = id;
-                }
-
-                results.Add(new WorkitemFromExternalSystem(asset.Asset, ListPropertyValues, externalIdFieldName, queryBuilder.TypeResolver));
-            }
-
-            return results;
+            return queryBuilder.Query(PrimaryWorkitemType, terms).Select(asset => new Workitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
         //TODO refactor

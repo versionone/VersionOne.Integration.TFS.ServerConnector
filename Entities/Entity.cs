@@ -6,16 +6,16 @@ namespace VersionOne.ServerConnector.Entities {
     [DebuggerDisplay("{TypeName} {Name}, Id={Id}")]
     // TODO resolve TypeName and TypeToken clashes, if any
     public abstract class Entity : BaseEntity {
-        public const string NameAttribute = "Name";
-        public const string InactiveAttribute = "Inactive";
-
+        public const string NameProperty = "Name";
+        public const string InactiveProperty = "Inactive";
         public const string CustomPrefix = "Custom_";
+        public const string ChangeDateUtcProperty = "ChangeDateUTC";
 
         public string Id { get; protected set; }
         public string TypeName { get; protected set; }
 
-        protected IDictionary<string, PropertyValues> ListValues { get; set; }
-        protected IEntityFieldTypeResolver TypeResolver;
+        protected internal IDictionary<string, PropertyValues> ListValues { get; set; }
+        protected internal IEntityFieldTypeResolver TypeResolver;
 
         internal Entity(Asset asset, IEntityFieldTypeResolver typeResolver) : base(asset) {
             Id = asset.Oid.Momentless.ToString();
