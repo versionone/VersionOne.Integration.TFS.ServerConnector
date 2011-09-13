@@ -23,7 +23,10 @@ namespace VersionOne.ServerConnector {
         public const string OwnersAttribute = "Owners";
         public const string AssetStateAttribute = "AssetState";
         public const string AssetTypeAttribute = "AssetType";
+
         public const string WorkitemPriorityType = "WorkitemPriority";
+        public const string WorkitemSourceType = "StorySource";
+        public const string WorkitemStatusType = "StoryStatus";
 
         private const string ParentAttribute = "Parent";
         private const string IdAttribute = "ID";
@@ -144,7 +147,7 @@ namespace VersionOne.ServerConnector {
 
         public IList<ValueId> GetWorkitemStatuses() {
             try {
-                return queryBuilder.QueryPropertyValues("StoryStatus").ToList();
+                return queryBuilder.QueryPropertyValues(WorkitemStatusType).ToList();
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -162,15 +165,14 @@ namespace VersionOne.ServerConnector {
             }
         }
 
-        // TODO change return type to ListValue
-        public KeyValuePair<string, string> CreateWorkitemStatus(string statusName) {
+        public ValueId CreateWorkitemStatus(string statusName) {
             try {
-                var primaryWorkitemStatusType = metaModel.GetAssetType("StoryStatus");
+                var primaryWorkitemStatusType = metaModel.GetAssetType(WorkitemStatusType);
                 var status = new Asset(primaryWorkitemStatusType);
                 status.SetAttributeValue(primaryWorkitemStatusType.NameAttribute, statusName);
                 services.Save(status);
 
-                return new KeyValuePair<string, string>(statusName, status.Oid.ToString());
+                return new ValueId(status.Oid.Momentless, statusName);
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -209,7 +211,7 @@ namespace VersionOne.ServerConnector {
 
         public IList<ValueId> GetWorkitemPriorities() {
             try {
-                return queryBuilder.QueryPropertyValues("WorkitemPriority").ToList();
+                return queryBuilder.QueryPropertyValues(WorkitemPriorityType).ToList();
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -357,7 +359,8 @@ namespace VersionOne.ServerConnector {
                 throw new ArgumentException("Can't find proper project");
             }
 
-            var source = GetSource(externalSystemName);
+            var sourceValues = queryBuilder.QueryPropertyValues(WorkitemSourceType);
+            var source = sourceValues.Where(item => string.Equals(item.Name, externalSystemName)).FirstOrDefault();
 
             if(source == null) {
                 throw new ArgumentException("Can't find proper source");
@@ -431,19 +434,6 @@ namespace VersionOne.ServerConnector {
             var nameQueryResult = services.Retrieve(scopeQuery);
 
             return nameQueryResult.Assets.FirstOrDefault();
-        }
-
-        //TODO refactor
-        private Asset GetSource(string sourceName) {
-            var storySource = metaModel.GetAssetType("StorySource");
-
-            var term = new FilterTerm(storySource.GetAttributeDefinition("Name"));
-            term.Equal(sourceName);
-
-            var sourceQuery = new Query(storySource) {Filter = term};
-            var sources = services.Retrieve(sourceQuery).Assets;
-
-            return sources.FirstOrDefault();
         }
 
         /// <summary>
