@@ -30,9 +30,8 @@ namespace VersionOne.ServerConnector {
         void AddOptionalProperty(string attr, string prefix);
         void AddLinkToWorkitem(Workitem workitem, string link, string title, bool onMenu);
 
-        IList<Workitem> GetWorkitems(IFilter filter);
+        IList<Workitem> GetPrimaryWorkitems(IFilter filter);
 
-        bool CheckForDuplicate(string externalSystemName, string externalFieldName, string externalId, Filter filters);
         Workitem CreateWorkitem(string assetType, string title, string description, string projectId, string projectName, string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners, string urlTitle, string url);
     }
 }

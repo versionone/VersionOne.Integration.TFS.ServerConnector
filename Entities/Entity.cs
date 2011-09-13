@@ -10,6 +10,9 @@ namespace VersionOne.ServerConnector.Entities {
         public const string InactiveProperty = "Inactive";
         public const string CustomPrefix = "Custom_";
         public const string ChangeDateUtcProperty = "ChangeDateUTC";
+        public const string SourceNameProperty = "Source.Name";
+        public const string ScopeProperty = "Scope";
+        public const string StatusProperty = "Status";
 
         public string Id { get; protected set; }
         public string TypeName { get; protected set; }
