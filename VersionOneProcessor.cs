@@ -73,6 +73,7 @@ namespace VersionOne.ServerConnector {
             return true;
         }
 
+        // TODO use GetPrimaryWorkitems()
         public IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId) {
             var projectOid = Oid.FromToken(projectId, metaModel);
             var filter = GroupFilter.And(Filter.Closed(false), Filter.Equal(Entity.ScopeProperty, projectOid));
@@ -82,6 +83,7 @@ namespace VersionOne.ServerConnector {
                 .Select(asset => new PrimaryWorkitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
+        // TODO use GetPrimaryWorkitems()
         public IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId) {
             var projectOid = Oid.FromToken(projectId, metaModel);
             var filter = GroupFilter.And(Filter.Closed(true), Filter.Equal(Entity.ScopeProperty, projectOid));
@@ -111,6 +113,7 @@ namespace VersionOne.ServerConnector {
             if (oids.Count == 0) {
                 return new List<Member>();
             }
+
             var memberType = metaModel.GetAssetType(MemberType);
 
             var terms = new OrFilterTerm();
@@ -126,12 +129,11 @@ namespace VersionOne.ServerConnector {
         }
 
         public void SaveWorkitems(IEnumerable<Workitem> workitems) {
-            var assetList = new AssetList();
-
-            if(workitems == null) {
+            if(workitems == null || workitems.Count() == 0) {
                 return;
             }
 
+            var assetList = new AssetList();
             assetList.AddRange(workitems.Select(workitem => workitem.Asset));
             services.Save(assetList);
         }
@@ -153,6 +155,7 @@ namespace VersionOne.ServerConnector {
             }
         }
         
+        // TODO move to entity?
         public void SetWorkitemStatus(PrimaryWorkitem workitem, string statusId) {
             try {
                 var primaryWorkitemType = metaModel.GetAssetType(PrimaryWorkitemType);
@@ -178,6 +181,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
+        // TODO refactor
         public void UpdateProject(string projectId, string link, string linkTitle) {
             try {
                 if(!string.IsNullOrEmpty(link)) {
@@ -217,6 +221,7 @@ namespace VersionOne.ServerConnector {
             }
         }
 
+        // TODO get rid of it
         public bool ProjectExists(string projectId) {
             return GetProjectById(projectId) != null;
         }
@@ -262,6 +267,7 @@ namespace VersionOne.ServerConnector {
                 .Select(asset => new Story(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
+        // TODO use filters
         private Asset GetProjectById(string projectId) {
             var scopeType = metaModel.GetAssetType(Entity.ScopeProperty);
             var scopeState = scopeType.GetAttributeDefinition(AssetStateAttribute);
@@ -275,6 +281,7 @@ namespace VersionOne.ServerConnector {
             return result.Assets.FirstOrDefault();
         }
 
+        // TODO use filters
         private Asset GetLinkByTitle(Oid assetOid, string linkTitle) {
             var linkType = metaModel.GetAssetType(LinkType);
 
