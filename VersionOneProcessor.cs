@@ -28,7 +28,6 @@ namespace VersionOne.ServerConnector {
         public const string WorkitemSourceType = "StorySource";
         public const string WorkitemStatusType = "StoryStatus";
 
-        private const string ParentAttribute = "Parent";
         private const string IdAttribute = "ID";
         private const string ParentAndUpAttribute = "ParentAndUp";
         private const string AssetAttribute = "Asset";
@@ -91,17 +90,14 @@ namespace VersionOne.ServerConnector {
                 .Select(asset => new PrimaryWorkitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
-        public IList<FeatureGroup> GetFeatureGroupsByProjectId(string projectId, Filter filters, Filter childrenFilters) {
+        public IList<FeatureGroup> GetFeatureGroups(IFilter filter, IFilter childrenFilter) {
             var featureGroupType = metaModel.GetAssetType(FeatureGroupType);
             var ownersDefinition = featureGroupType.GetAttributeDefinition(OwnersAttribute);
-
-            var projectOid = Oid.FromToken(projectId, metaModel);
-            var filter = GroupFilter.And(Filter.Equal(Entity.ScopeProperty, projectOid), Filter.Equal(ParentAttribute, string.Empty), filters);
 
             return queryBuilder.Query(FeatureGroupType, filter)
                 .Select(asset => new FeatureGroup(
                     asset, ListPropertyValues, 
-                    GetFeatureGroupStoryChildren(asset.Oid.Momentless.Token.ToString(), childrenFilters).Cast<Workitem>().ToList(), 
+                    GetFeatureGroupStoryChildren(asset.Oid.Momentless.Token.ToString(), childrenFilter).Cast<Workitem>().ToList(), 
                     GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList),
                     queryBuilder.TypeResolver))
                 .ToList();
@@ -249,7 +245,7 @@ namespace VersionOne.ServerConnector {
         }
 
         // TODO check and remove Feature Group type condition, it looks redundant
-        private IList<Story> GetFeatureGroupStoryChildren(string featureGroupParentToken, Filter filter) {
+        private IEnumerable<Story> GetFeatureGroupStoryChildren(string featureGroupParentToken, IFilter filter) {
             var workitemType = metaModel.GetAssetType(StoryType);
             
             var parentTerm = new FilterTerm(workitemType.GetAttributeDefinition(ParentAndUpAttribute));
@@ -419,7 +415,7 @@ namespace VersionOne.ServerConnector {
             var scopeStateTerm = new FilterTerm(scopeState);
             scopeStateTerm.NotEqual(AssetState.Closed);
 
-            var scopeQuery = new Query(scopeType, scopeType.GetAttributeDefinition(ParentAttribute)) { Filter = scopeStateTerm };
+            var scopeQuery = new Query(scopeType, scopeType.GetAttributeDefinition(Entity.ParentProperty)) { Filter = scopeStateTerm };
             scopeQuery.Selection.Add(scopeName);
 
             var nameQueryResult = services.Retrieve(scopeQuery);

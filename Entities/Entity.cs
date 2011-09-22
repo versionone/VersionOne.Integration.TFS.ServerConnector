@@ -12,7 +12,9 @@ namespace VersionOne.ServerConnector.Entities {
         public const string ChangeDateUtcProperty = "ChangeDateUTC";
         public const string SourceNameProperty = "Source.Name";
         public const string ScopeProperty = "Scope";
+        public const string ScopeParentAndUpProperty = "Scope.ParentMeAndUp";
         public const string StatusProperty = "Status";
+        public const string ParentProperty = "Parent";
 
         public string Id { get; protected set; }
         public string TypeName { get; protected set; }
