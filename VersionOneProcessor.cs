@@ -32,8 +32,6 @@ namespace VersionOne.ServerConnector {
         private const string IdAttribute = "ID";
         private const string ParentAndUpAttribute = "ParentAndUp";
         private const string AssetAttribute = "Asset";
-        private const string UrlAttribute = "URL";
-        private const string OnMenuAttribute = "OnMenu";
 
         private IServices services;
         private IMetaModel metaModel;
@@ -182,11 +180,11 @@ namespace VersionOne.ServerConnector {
         }
 
         // TODO refactor
-        public void UpdateProject(string projectId, string link, string linkTitle) {
+        public void UpdateProject(string projectId, Link link) {
             try {
-                if(!string.IsNullOrEmpty(link)) {
+                if(!string.IsNullOrEmpty(link.Url)) {
                     var projectAsset = GetProjectById(projectId);
-                    AddLinkToAsset(projectAsset, link, linkTitle, true);
+                    AddLinkToAsset(projectAsset, link);
                 }
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
@@ -281,56 +279,42 @@ namespace VersionOne.ServerConnector {
             return result.Assets.FirstOrDefault();
         }
 
-        // TODO use filters
-        private Asset GetLinkByTitle(Oid assetOid, string linkTitle) {
-            var linkType = metaModel.GetAssetType(LinkType);
+        private List<Link> GetAssetLinks(Oid assetOid, IFilter filter) {
+            var fullFilter = GroupFilter.And(filter, Filter.Equal(AssetAttribute, assetOid.Momentless));
 
-            var nameTerm = new FilterTerm(linkType.GetAttributeDefinition(Entity.NameProperty));
-            nameTerm.Equal(linkTitle);
-
-            var assetTerm = new FilterTerm(linkType.GetAttributeDefinition(AssetAttribute));
-            assetTerm.Equal(assetOid);
-
-            var query = new Query(linkType) {Filter = new AndFilterTerm(nameTerm, assetTerm)};
-            var result = services.Retrieve(query).Assets;
-
-            if(result.Any()) {
-                logger.Log(LogMessage.SeverityType.Info,
-                    string.Format("No need to create link - it already exists. Updating link with title {0} for asset {1}", linkTitle, assetOid));
-
-                return result.First();
-            }
-
-            return null;
+            return queryBuilder.Query(LinkType, fullFilter).Select(x => new Link(x)).ToList();
         }
 
-        private void AddLinkToAsset(Asset asset, string link, string title, bool onMenu) {
+        public List<Link> GetWorkitemLinks(Workitem workitem, IFilter filter) {
+            return GetAssetLinks(Oid.FromToken(workitem.Id, metaModel), filter);
+        }
+
+        private void AddLinkToAsset(Asset asset, Link link) {
             if (asset == null) {
                 return;
             }
 
             var linkType = metaModel.GetAssetType(LinkType);
 
-            var linkAsset = GetLinkByTitle(asset.Oid, title);
-            if (linkAsset == null) {
-                logger.Log(LogMessage.SeverityType.Info, string.Format("Creating new link with title {0} for asset {1}", title, asset.Oid));
-
-                linkAsset = services.New(linkType, asset.Oid.Momentless);
-                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(Entity.NameProperty), title);
-                linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(OnMenuAttribute), onMenu);
+            var existedLinks = GetAssetLinks(asset.Oid, Filter.Equal(Link.UrlProperty, link.Url));
+            if(existedLinks.Count > 0) {
+                return;
             }
+            logger.Log(LogMessage.SeverityType.Info, string.Format("Creating new link with title {0} for asset {1}", link.Title, asset.Oid));
 
-            linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(UrlAttribute), link);
+            var linkAsset = services.New(linkType, asset.Oid.Momentless);
+            linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(Entity.NameProperty), link.Title);
+            linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(Link.OnMenuProperty), link.OnMenu);
+            linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(Link.UrlProperty), link.Url);
 
             services.Save(linkAsset);
-
-            logger.Log(LogMessage.SeverityType.Info, string.Format("{0} link saved", title));
+            logger.Log(LogMessage.SeverityType.Info, string.Format("{0} link saved", link.Title));
         }
 
-        public void AddLinkToWorkitem(Workitem workitem, string link, string title, bool onMenu) {            
+        public void AddLinkToWorkitem(Workitem workitem, Link link) {            
             try {
-                if (!string.IsNullOrEmpty(link)) {
-                    AddLinkToAsset(workitem.Asset, link, title, onMenu);
+                if (!string.IsNullOrEmpty(link.Url)) {
+                    AddLinkToAsset(workitem.Asset, link);
                 }
             } catch (Exception ex) {
                 throw new VersionOneException(ex.Message);

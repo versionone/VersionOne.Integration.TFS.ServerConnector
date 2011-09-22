@@ -13,7 +13,7 @@ namespace VersionOne.ServerConnector {
         
         void SaveWorkitems(IEnumerable<Workitem> workitems);
         void CloseWorkitem(PrimaryWorkitem workitem);
-        void UpdateProject(string projectId, string link, string linkTitle);
+        void UpdateProject(string projectId, Link link);
         string GetWorkitemLink(Workitem workitem);
         void SetWorkitemStatus(PrimaryWorkitem workitem, string statusId);
         ValueId CreateWorkitemStatus(string statusName);
@@ -28,7 +28,7 @@ namespace VersionOne.ServerConnector {
         void AddProperty(string attr, string prefix, bool isList);
         void AddListProperty(string fieldName, string typeToken);
         void AddOptionalProperty(string attr, string prefix);
-        void AddLinkToWorkitem(Workitem workitem, string link, string title, bool onMenu);
+        void AddLinkToWorkitem(Workitem workitem, Link link);
 
         IList<Workitem> GetPrimaryWorkitems(IFilter filter);
 
