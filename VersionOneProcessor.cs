@@ -182,7 +182,7 @@ namespace VersionOne.ServerConnector {
         // TODO refactor
         public void UpdateProject(string projectId, Link link) {
             try {
-                if(!string.IsNullOrEmpty(link.Url)) {
+                if(link != null && !string.IsNullOrEmpty(link.Url)) {
                     var projectAsset = GetProjectById(projectId);
                     AddLinkToAsset(projectAsset, link);
                 }
