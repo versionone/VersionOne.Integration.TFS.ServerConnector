@@ -37,7 +37,7 @@ namespace VersionOne.ServerConnector {
         private readonly ILogger logger; 
         private readonly XmlElement configuration;
 
-        private readonly IQueryBuilder queryBuilder;
+        private IQueryBuilder queryBuilder;
 
         private IDictionary<string, PropertyValues> ListPropertyValues {
             get { return queryBuilder.ListPropertyValues; }
@@ -57,6 +57,12 @@ namespace VersionOne.ServerConnector {
             metaModel = connector.MetaModel;
 
             queryBuilder.Setup(services, metaModel);
+        }
+
+        internal void Connect(IServices testServices, IMetaModel testMetaData, IQueryBuilder testQueryBuilder) {
+            services = testServices;
+            metaModel = testMetaData;
+            queryBuilder = testQueryBuilder;
         }
 
         public bool ValidateConnection() {
@@ -275,14 +281,14 @@ namespace VersionOne.ServerConnector {
             return result.Assets.FirstOrDefault();
         }
 
-        private List<Link> GetAssetLinks(Oid assetOid, IFilter filter) {
+        private List<Asset> GetAssetLinks(Oid assetOid, IFilter filter) {
             var fullFilter = GroupFilter.And(filter, Filter.Equal(AssetAttribute, assetOid.Momentless));
 
-            return queryBuilder.Query(LinkType, fullFilter).Select(x => new Link(x)).ToList();
+            return queryBuilder.Query(LinkType, fullFilter);
         }
 
         public List<Link> GetWorkitemLinks(Workitem workitem, IFilter filter) {
-            return GetAssetLinks(Oid.FromToken(workitem.Id, metaModel), filter);
+            return GetAssetLinks(Oid.FromToken(workitem.Id, metaModel), filter).Select(x => new Link(x)).ToList();
         }
 
         private void AddLinkToAsset(Asset asset, Link link) {
@@ -293,9 +299,12 @@ namespace VersionOne.ServerConnector {
             var linkType = metaModel.GetAssetType(LinkType);
 
             var existedLinks = GetAssetLinks(asset.Oid, Filter.Equal(Link.UrlProperty, link.Url));
+
             if(existedLinks.Count > 0) {
+                logger.Log(LogMessage.SeverityType.Debug, string.Format("No need to create link - it already exists."));
                 return;
             }
+
             logger.Log(LogMessage.SeverityType.Info, string.Format("Creating new link with title {0} for asset {1}", link.Title, asset.Oid));
 
             var linkAsset = services.New(linkType, asset.Oid.Momentless);
@@ -309,7 +318,7 @@ namespace VersionOne.ServerConnector {
 
         public void AddLinkToWorkitem(Workitem workitem, Link link) {            
             try {
-                if (!string.IsNullOrEmpty(link.Url)) {
+                if (link != null && !string.IsNullOrEmpty(link.Url)) {
                     AddLinkToAsset(workitem.Asset, link);
                 }
             } catch (Exception ex) {
