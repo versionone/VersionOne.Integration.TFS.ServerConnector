@@ -24,6 +24,10 @@ namespace VersionOne.ServerConnector {
         public const string AssetStateAttribute = "AssetState";
         public const string AssetTypeAttribute = "AssetType";
 
+        public const string DeleteOperation = "Delete";
+        public const string InactivateOperation = "Inactivate";
+        public const string ReactivateOperation = "Reactivate";
+
         public const string WorkitemPriorityType = "WorkitemPriority";
         public const string WorkitemSourceType = "StorySource";
         public const string WorkitemStatusType = "StoryStatus";
@@ -140,7 +144,7 @@ namespace VersionOne.ServerConnector {
 
         public void CloseWorkitem(PrimaryWorkitem workitem) {
             try {
-                var closeOperation = workitem.Asset.AssetType.GetOperation("Inactivate");
+                var closeOperation = workitem.Asset.AssetType.GetOperation(InactivateOperation);
                 services.ExecuteOperation(closeOperation, workitem.Asset.Oid);
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
