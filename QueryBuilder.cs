@@ -6,7 +6,7 @@ using VersionOne.ServerConnector.Entities;
 using VersionOne.ServerConnector.Filters;
 
 namespace VersionOne.ServerConnector {
-    internal class QueryBuilder : IQueryBuilder {
+    public class QueryBuilder : IQueryBuilder {
         private IServices services;
         private IMetaModel metaModel;
         

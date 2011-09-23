@@ -5,7 +5,7 @@ using VersionOne.ServerConnector.Filters;
 
 namespace VersionOne.ServerConnector {
     // TODO refactor APIClient types
-    internal interface IQueryBuilder {
+    public interface IQueryBuilder {
         IDictionary<string, PropertyValues> ListPropertyValues { get; }
         IEntityFieldTypeResolver TypeResolver { get; }
 

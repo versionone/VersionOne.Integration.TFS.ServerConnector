@@ -19,8 +19,8 @@ namespace VersionOne.ServerConnector.Entities {
             get { return VersionOneProcessor.PrimaryWorkitemType; }
         }
 
-        internal PrimaryWorkitem(Asset asset, IDictionary<string, PropertyValues> listValues, IEntityFieldTypeResolver typeResolver) : base(asset, listValues, typeResolver) { }
+        internal protected PrimaryWorkitem(Asset asset, IDictionary<string, PropertyValues> listValues, IEntityFieldTypeResolver typeResolver) : base(asset, listValues, typeResolver) { }
 
-        protected PrimaryWorkitem() { }
+        internal protected PrimaryWorkitem() { }
     }
 }

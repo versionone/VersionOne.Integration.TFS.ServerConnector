@@ -59,7 +59,7 @@ namespace VersionOne.ServerConnector {
             queryBuilder.Setup(services, metaModel);
         }
 
-        internal void Connect(IServices testServices, IMetaModel testMetaData, IQueryBuilder testQueryBuilder) {
+        protected internal void Connect(IServices testServices, IMetaModel testMetaData, IQueryBuilder testQueryBuilder) {
             services = testServices;
             metaModel = testMetaData;
             queryBuilder = testQueryBuilder;
