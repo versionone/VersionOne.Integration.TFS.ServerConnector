@@ -15,6 +15,7 @@ namespace VersionOne.ServerConnector.Entities {
         public const string ParentAndUpProperty = "ParentAndUp";
         public const string ScopeParentAndUpProperty = "Scope.ParentMeAndUp";
         public const string StatusProperty = "Status";
+        public const string StatusNameProperty = "Status.Name";
         public const string ParentProperty = "Parent";
 
         public string Id { get; protected set; }
