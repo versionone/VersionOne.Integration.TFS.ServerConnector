@@ -11,7 +11,7 @@ using System.Collections;
 namespace VersionOne.ServerConnector {
     // TODO extract hardcoded strings to constants
     // TODO this one is getting huge - it should be split
-    // TODO change attribute to prorety in field names
+    // TODO change attribute to property in field names and move them to entity classes
     public class VersionOneProcessor : IVersionOneProcessor {
         public const string FeatureGroupType = "Theme";
         public const string StoryType = "Story";
@@ -20,6 +20,7 @@ namespace VersionOne.ServerConnector {
         public const string MemberType = "Member";
         public const string LinkType = "Link";
         public const string AttributeDefinitionType = "AttributeDefinition";
+        
         public const string OwnersAttribute = "Owners";
         public const string AssetStateAttribute = "AssetState";
         public const string AssetTypeAttribute = "AssetType";
@@ -99,6 +100,7 @@ namespace VersionOne.ServerConnector {
                 .Select(asset => new PrimaryWorkitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
+        // TODO make this Story-agnostic. In case of criteria based ex. on Story-only custom fields current filter approach won't let an easy solution.
         public IList<FeatureGroup> GetFeatureGroups(IFilter filter, IFilter childrenFilter) {
             var featureGroupType = metaModel.GetAssetType(FeatureGroupType);
             var ownersDefinition = featureGroupType.GetAttributeDefinition(OwnersAttribute);
@@ -106,7 +108,7 @@ namespace VersionOne.ServerConnector {
             return queryBuilder.Query(FeatureGroupType, filter)
                 .Select(asset => new FeatureGroup(
                     asset, ListPropertyValues, 
-                    GetPrimaryWorkitems(GroupFilter.And(Filter.Equal(Entity.ParentAndUpProperty, asset.Oid.Momentless.Token.ToString()), childrenFilter)), 
+                    GetWorkitems(StoryType, GroupFilter.And(Filter.Equal(Entity.ParentAndUpProperty, asset.Oid.Momentless.Token.ToString()), childrenFilter)), 
                     GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList),
                     queryBuilder.TypeResolver))
                 .ToList();
@@ -314,16 +316,21 @@ namespace VersionOne.ServerConnector {
         }
 
         public IList<Workitem> GetPrimaryWorkitems(IFilter filter) {
-            var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
+            return GetWorkitems(PrimaryWorkitemType, filter);
+        }
+
+        private IList<Workitem> GetWorkitems(string type, IFilter filter) {
+            var workitemType = metaModel.GetAssetType(type);
             var terms = filter.GetFilter(workitemType);
 
-            return queryBuilder.Query(PrimaryWorkitemType, terms).Select(asset => new Workitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
+            return queryBuilder.Query(type, terms).Select(asset => Workitem.Create(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
         //TODO refactor
         public Workitem CreateWorkitem(string assetType, string title, string description, string projectId, string projectName, string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners, string urlTitle, string url) {
-            if(string.IsNullOrEmpty(title))
+            if(string.IsNullOrEmpty(title)) {
                 throw new ArgumentException("Empty title");
+            }
 
             Oid projectOid;
 
@@ -378,7 +385,7 @@ namespace VersionOne.ServerConnector {
                 services.Save(newlink);
             }
 
-            return new Workitem(newWorkitem, ListPropertyValues, queryBuilder.TypeResolver);
+            return Workitem.Create(newWorkitem, ListPropertyValues, queryBuilder.TypeResolver);
         }
 
         //TODO refactor

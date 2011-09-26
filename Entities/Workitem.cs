@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
-    [DebuggerDisplay("{TypeName} {Name}, Id={Id}, Number={Number}")]
-    public class Workitem : Entity {
+    public abstract class Workitem : Entity {
         public const string AssetTypeProperty = "AssetType";
         public const string NumberProperty = "Number";
-        public const string StatusProperty = "Status.Name";
         public const string EstimateProperty = "Estimate";
         public const string PriorityProperty = "Priority";
         public const string ParentNameProperty = "Parent.Name";
@@ -74,5 +71,16 @@ namespace VersionOne.ServerConnector.Entities {
         private Workitem(Asset asset, IEntityFieldTypeResolver typeResolver) : base(asset, typeResolver) {}
 
         protected Workitem() { }
+
+        internal static Workitem Create(Asset asset, IDictionary<string, PropertyValues> listPropertyValues, IEntityFieldTypeResolver typeResolver) {
+            switch(asset.AssetType.Token) {
+                case VersionOneProcessor.StoryType:
+                    return new Story(asset, listPropertyValues, typeResolver);
+                case VersionOneProcessor.DefectType:
+                    return new Defect(asset, listPropertyValues, typeResolver);
+                default:
+                    throw new NotSupportedException("Type " + asset.AssetType.Token + " is not supported in factory method");
+            }
+        }
     }
 }
