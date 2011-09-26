@@ -33,7 +33,6 @@ namespace VersionOne.ServerConnector {
         public const string WorkitemStatusType = "StoryStatus";
 
         private const string IdAttribute = "ID";
-        private const string ParentAndUpAttribute = "ParentAndUp";
         private const string AssetAttribute = "Asset";
 
         private IServices services;
@@ -107,12 +106,13 @@ namespace VersionOne.ServerConnector {
             return queryBuilder.Query(FeatureGroupType, filter)
                 .Select(asset => new FeatureGroup(
                     asset, ListPropertyValues, 
-                    GetFeatureGroupStoryChildren(asset.Oid.Momentless.Token.ToString(), childrenFilter).Cast<Workitem>().ToList(), 
+                    GetPrimaryWorkitems(GroupFilter.And(Filter.Equal(Entity.ParentAndUpProperty, asset.Oid.Momentless.Token.ToString()), childrenFilter)), 
                     GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList),
                     queryBuilder.TypeResolver))
                 .ToList();
         }
 
+        // TODO avoid ancient non generic collections
         private IList<Member> GetMembersByIds(IList oids) {
             if (oids.Count == 0) {
                 return new List<Member>();
@@ -132,8 +132,8 @@ namespace VersionOne.ServerConnector {
             return members;
         }
 
-        public void SaveWorkitems(IEnumerable<Workitem> workitems) {
-            if(workitems == null || workitems.Count() == 0) {
+        public void SaveWorkitems(ICollection<Workitem> workitems) {
+            if(workitems == null || workitems.Count == 0) {
                 return;
             }
 
@@ -252,23 +252,6 @@ namespace VersionOne.ServerConnector {
             if (!string.IsNullOrEmpty(attr)) {
                 queryBuilder.AddOptionalProperty(attr, prefix);
             }
-        }
-
-        // TODO check and remove Feature Group type condition, it looks redundant
-        private IEnumerable<Story> GetFeatureGroupStoryChildren(string featureGroupParentToken, IFilter filter) {
-            var workitemType = metaModel.GetAssetType(StoryType);
-            
-            var parentTerm = new FilterTerm(workitemType.GetAttributeDefinition(ParentAndUpAttribute));
-            parentTerm.Equal(featureGroupParentToken);
-            var typeTerm = new FilterTerm(workitemType.GetAttributeDefinition(AssetTypeAttribute));
-            typeTerm.NotEqual(FeatureGroupType);
-
-            var terms = new AndFilterTerm(parentTerm, typeTerm);
-            var customTerm = filter.GetFilter(workitemType);            
-            terms.And(customTerm);
-            
-            return queryBuilder.Query(StoryType, terms)
-                .Select(asset => new Story(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
         }
 
         // TODO use filters
