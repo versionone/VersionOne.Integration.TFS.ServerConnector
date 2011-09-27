@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ninject;
 using VersionOne.SDK.APIClient;
 using VersionOne.ServerConnector.Entities;
 using VersionOne.ServerConnector.Filters;
@@ -47,6 +48,7 @@ namespace VersionOne.ServerConnector {
             get { return queryBuilder.ListPropertyValues; }
         }
 
+        [Inject]
         public VersionOneProcessor(XmlElement config, ILogger logger) {
             configuration = config;
             this.logger = logger;
