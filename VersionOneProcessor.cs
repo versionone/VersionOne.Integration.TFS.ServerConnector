@@ -387,7 +387,9 @@ namespace VersionOne.ServerConnector {
                 services.Save(newlink);
             }
 
-            return Workitem.Create(newWorkitem, ListPropertyValues, queryBuilder.TypeResolver);
+            //TODO refactor
+            //NOTE Save doesn't return all the needed data, therefore we need another query
+            return GetWorkitems(newWorkitem.AssetType.Token, Filter.Equal("ID", newWorkitem.Oid.Momentless.Token)).FirstOrDefault();
         }
 
         //TODO refactor

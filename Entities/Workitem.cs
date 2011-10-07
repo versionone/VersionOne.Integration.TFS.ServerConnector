@@ -59,6 +59,10 @@ namespace VersionOne.ServerConnector.Entities {
 
         public IList<Member> Owners { get; protected set; }
 
+        public KeyValuePair<string, string> Project {
+            get { return new KeyValuePair<string, string>(GetProperty<Oid>(ScopeProperty).Momentless.ToString(), GetProperty<string>(ScopeNameProperty)); }
+        }
+
         internal Workitem(Asset asset, IDictionary<string, PropertyValues> listValues, IList<Member> owners, IEntityFieldTypeResolver typeResolver) 
                 : this(asset, listValues, typeResolver) {
             Owners = owners;
