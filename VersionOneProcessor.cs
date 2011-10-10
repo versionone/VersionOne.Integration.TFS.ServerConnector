@@ -62,7 +62,7 @@ namespace VersionOne.ServerConnector {
             services = connector.Services;
             metaModel = connector.MetaModel;
 
-            queryBuilder.Setup(services, metaModel);
+            queryBuilder.Setup(services, metaModel, connector.Loc);
         }
 
         protected internal void Connect(IServices testServices, IMetaModel testMetaData, IQueryBuilder testQueryBuilder) {
@@ -141,15 +141,29 @@ namespace VersionOne.ServerConnector {
                 return;
             }
 
-            var assetList = new AssetList();
-            assetList.AddRange(workitems.Select(workitem => workitem.Asset));
-            services.Save(assetList);
+            foreach(var workitem in workitems) {
+                try {
+                    services.Save(workitem.Asset);
+                } catch(V1Exception ex) {
+                    logger.Log(LogMessage.SeverityType.Error, string.Format(queryBuilder.Localize(GetMessageFromException(ex)) + " '{0}' {2} ({1}).", workitem.Name, workitem.Number, workitem.TypeName));
+                } catch (Exception ex) {
+                    logger.Log(LogMessage.SeverityType.Error, "Internal error: " + ex.Message);
+                }
+            }
+        }
+
+        private static string GetMessageFromException(V1Exception exception) {
+            var message = exception.Message;
+
+            return message.Split(':')[0];
         }
 
         public void CloseWorkitem(PrimaryWorkitem workitem) {
             try {
                 var closeOperation = workitem.Asset.AssetType.GetOperation(InactivateOperation);
                 services.ExecuteOperation(closeOperation, workitem.Asset.Oid);
+            } catch (V1Exception ex) {
+                throw new VersionOneException(queryBuilder.Localize(ex.Message));
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -158,6 +172,8 @@ namespace VersionOne.ServerConnector {
         public IList<ValueId> GetWorkitemStatuses() {
             try {
                 return queryBuilder.QueryPropertyValues(WorkitemStatusType).ToList();
+            } catch (V1Exception ex) {
+                throw new VersionOneException(queryBuilder.Localize(ex.Message));
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -171,6 +187,8 @@ namespace VersionOne.ServerConnector {
 
                 workitem.Asset.SetAttributeValue(statusAttributeDefinition, Oid.FromToken(statusId, metaModel));
                 services.Save(workitem.Asset);
+            } catch (V1Exception ex) {
+                throw new VersionOneException(queryBuilder.Localize(ex.Message));
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -184,6 +202,8 @@ namespace VersionOne.ServerConnector {
                 services.Save(status);
 
                 return new ValueId(status.Oid.Momentless, statusName);
+            } catch (V1Exception ex) {
+                throw new VersionOneException(queryBuilder.Localize(ex.Message));
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -196,6 +216,8 @@ namespace VersionOne.ServerConnector {
                     var projectAsset = GetProjectById(projectId);
                     AddLinkToAsset(projectAsset, link);
                 }
+            } catch (V1Exception ex) {
+                throw new VersionOneException(queryBuilder.Localize(ex.Message));
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -224,6 +246,8 @@ namespace VersionOne.ServerConnector {
         public IList<ValueId> GetWorkitemPriorities() {
             try {
                 return queryBuilder.QueryPropertyValues(WorkitemPriorityType).ToList();
+            } catch (V1Exception ex) {
+                throw new VersionOneException(queryBuilder.Localize(ex.Message));
             } catch(Exception ex) {
                 throw new VersionOneException(ex.Message);
             }
@@ -312,6 +336,8 @@ namespace VersionOne.ServerConnector {
                 if (link != null && !string.IsNullOrEmpty(link.Url)) {
                     AddLinkToAsset(workitem.Asset, link);
                 }
+            } catch (V1Exception ex) {
+                throw new VersionOneException(queryBuilder.Localize(ex.Message));
             } catch (Exception ex) {
                 throw new VersionOneException(ex.Message);
             }

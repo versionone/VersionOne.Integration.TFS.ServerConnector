@@ -9,6 +9,7 @@ namespace VersionOne.ServerConnector {
     public class QueryBuilder : IQueryBuilder {
         private IServices services;
         private IMetaModel metaModel;
+        private ILocalizer localizer;
         
         private readonly LinkedList<AttributeInfo> attributesToQuery = new LinkedList<AttributeInfo>();
         private readonly EntityFieldTypeResolver typeResolver = new EntityFieldTypeResolver();
@@ -16,9 +17,10 @@ namespace VersionOne.ServerConnector {
         public IDictionary<string, PropertyValues> ListPropertyValues { get; private set; }
         public IEntityFieldTypeResolver TypeResolver { get { return typeResolver; } }
 
-        public void Setup(IServices services, IMetaModel metaModel) {
+        public void Setup(IServices services, IMetaModel metaModel, ILocalizer localizer) {
             this.services = services;
             this.metaModel = metaModel;
+            this.localizer = localizer;
             TypeResolver.Reset();
             ListPropertyValues = GetListPropertyValues();
         }
@@ -148,6 +150,10 @@ namespace VersionOne.ServerConnector {
             }
 
             return res;
+        }
+
+        public string Localize(string text) {
+            return text == null ? "" : localizer.Resolve(text);
         }
 
         private Query GetPropertyValuesQuery(string propertyName, out IAttributeDefinition nameDef) {
