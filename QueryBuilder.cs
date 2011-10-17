@@ -25,10 +25,12 @@ namespace VersionOne.ServerConnector {
             ListPropertyValues = GetListPropertyValues();
         }
 
+        //TODO why we can't add property(if it's list) to typeResolver?
         public void AddProperty(string attr, string prefix, bool isList) {
             attributesToQuery.AddLast(new AttributeInfo(attr, prefix, isList, false));
         }
 
+        //TODO why we can't add property also to attributesToQuery collection?
         public void AddListProperty(string fieldName, string typeToken) {
             typeResolver.AddMapping(typeToken, fieldName, null);
         }
@@ -178,6 +180,7 @@ namespace VersionOne.ServerConnector {
         private static string ResolvePropertyKey(string propertyAlias) {
             switch (propertyAlias) {
                 case "DefectStatus":
+                case "PrimaryWorkitemStatus":
                     return "StoryStatus";
                 case "DefectSource":
                     return "StorySource";
