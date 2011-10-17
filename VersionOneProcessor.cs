@@ -178,21 +178,6 @@ namespace VersionOne.ServerConnector {
                 throw new VersionOneException(ex.Message);
             }
         }
-        
-        // TODO move to entity?
-        public void SetWorkitemStatus(PrimaryWorkitem workitem, string statusId) {
-            try {
-                var primaryWorkitemType = metaModel.GetAssetType(PrimaryWorkitemType);
-                var statusAttributeDefinition = primaryWorkitemType.GetAttributeDefinition(Entity.StatusProperty);
-
-                workitem.Asset.SetAttributeValue(statusAttributeDefinition, Oid.FromToken(statusId, metaModel));
-                services.Save(workitem.Asset);
-            } catch (V1Exception ex) {
-                throw new VersionOneException(queryBuilder.Localize(ex.Message));
-            } catch(Exception ex) {
-                throw new VersionOneException(ex.Message);
-            }
-        }
 
         public ValueId CreateWorkitemStatus(string statusName) {
             try {

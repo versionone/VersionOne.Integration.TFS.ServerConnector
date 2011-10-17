@@ -17,7 +17,6 @@ namespace VersionOne.ServerConnector.Entities {
         public const string OwnersProperty = "Owners";
 
         public string Number { get { return GetProperty<string>(NumberProperty); } }
-        public string Status { get { return GetProperty<string>(StatusNameProperty); } }
         
         public string Name {
             get { return GetProperty<string>(NameProperty); }

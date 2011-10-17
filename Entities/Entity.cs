@@ -48,11 +48,15 @@ namespace VersionOne.ServerConnector.Entities {
             return value != null ? value.ToString() : null;
         }
 
-        public ValueId GetCustomListValue(string fieldName) {
-            fieldName = NormalizeCustomFieldName(fieldName);
+        public ValueId GetListValue(string fieldName) {
             var value = GetProperty<Oid>(fieldName);
             var type = TypeResolver.Resolve(TypeToken, fieldName);
-            return ListValues[type].Find(value.Token);
+            return ListValues[type].Find(value.Token);            
+        }
+
+        public ValueId GetCustomListValue(string fieldName) {
+            fieldName = NormalizeCustomFieldName(fieldName);
+            return GetListValue(fieldName);
         }
 
         public void SetCustomListValue(string fieldName, string value) {
