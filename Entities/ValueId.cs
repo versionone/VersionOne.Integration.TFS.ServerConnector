@@ -20,7 +20,7 @@ namespace VersionOne.ServerConnector.Entities {
         }
 
         public override bool Equals(object obj) {
-            if(obj == null || obj.GetType() != typeof(ValueId)) {
+            if (obj == null || (obj.GetType() != typeof(ValueId) && obj.GetType().Name != "TestValueId")) {
                 return false;
             }
 
