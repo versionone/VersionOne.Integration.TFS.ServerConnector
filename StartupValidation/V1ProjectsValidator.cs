@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using VersionOne.ServiceHost.Core.Logging;
 using VersionOne.ServiceHost.Core.Configuration;
 namespace VersionOne.ServerConnector.StartupValidation {
@@ -13,11 +14,9 @@ namespace VersionOne.ServerConnector.StartupValidation {
             Logger.Log(LogMessage.SeverityType.Info, "Checking VersionOne projects");
             var result = true;
 
-            foreach (var project in v1Projects) {
-                if (!V1Processor.ProjectExists(project.Id)) {
-                    Logger.Log(LogMessage.SeverityType.Error, string.Format("Project with '{0}' id doesn't exist in VersionOne", project.Id));
-                    result = false;
-                }
+            foreach(var project in v1Projects.Where(project => !V1Processor.ProjectExists(project.Id))) {
+                Logger.Log(LogMessage.SeverityType.Error, string.Format("Project with '{0}' id doesn't exist in VersionOne", project.Id));
+                result = false;
             }
 
             Logger.Log(LogMessage.SeverityType.Info, "All projects are checked");
