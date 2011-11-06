@@ -7,7 +7,6 @@ namespace VersionOne.ServerConnector.StartupValidation {
         protected readonly ILogger Logger;
         protected readonly IVersionOneProcessor V1Processor;
 
-
         protected  BaseValidator() {
             Logger = ComponentRepository.Instance.Resolve<ILogger>();
             V1Processor = ComponentRepository.Instance.Resolve<IVersionOneProcessor>();
