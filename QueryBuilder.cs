@@ -61,10 +61,7 @@ namespace VersionOne.ServerConnector {
         }
 
         private void AddSelection(Query query, string typePrefix, IAssetType type) {
-            foreach (var attrInfo in attributesToQuery) {
-                if(attrInfo.Prefix != typePrefix) {
-                    continue;
-                }                
+            foreach (var attrInfo in attributesToQuery.Where(attrInfo => attrInfo.Prefix == typePrefix)) {
                 IAttributeDefinition def;
                 
                 if (attrInfo.IsOptional) {
@@ -74,6 +71,7 @@ namespace VersionOne.ServerConnector {
                 } else {
                     def = type.GetAttributeDefinition(attrInfo.Attr);
                 }
+
                 query.Selection.Add(def);
             }
         }
