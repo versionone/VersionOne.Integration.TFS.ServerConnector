@@ -21,6 +21,9 @@ namespace VersionOne.ServerConnector {
         public const string MemberType = "Member";
         public const string LinkType = "Link";
         public const string AttributeDefinitionType = "AttributeDefinition";
+
+        public const string SystemAdminRoleName = "Role.Name'System Admin";
+        public const string SystemAdminRoleId = "Role:1";
         
         public const string OwnersAttribute = "Owners";
         public const string AssetStateAttribute = "AssetState";
@@ -84,6 +87,14 @@ namespace VersionOne.ServerConnector {
 
             return true;
         }
+
+        public Member GetLoggedInMember() {
+            return GetMembers(Filter.Empty()).Where(item => item.Asset.Oid.Token.Equals(services.LoggedIn)).FirstOrDefault();
+        }
+
+        public ICollection<Member> GetMembers(IFilter filter) {
+            return queryBuilder.Query(MemberType, filter).Select(item => new Member(item)).ToList();
+        } 
 
         // TODO use GetPrimaryWorkitems()
         public IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId) {

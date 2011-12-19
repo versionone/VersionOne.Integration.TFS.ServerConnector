@@ -2,10 +2,11 @@
 
 namespace VersionOne.ServerConnector.Entities {
     public class Member : Entity {
-        public const string NameProperty = "Name";
         public const string EmailProperty = "Email";
+        public const string DefaultRoleNameProperty = "DefaultRole.Name";
 
-        public Member(){}
+        public Member() { }
+
         public Member(Asset asset) : base(asset, null) {}
 
         public string Name {
@@ -16,6 +17,10 @@ namespace VersionOne.ServerConnector.Entities {
         public string Email {
             get { return GetProperty<string>(EmailProperty); }
             set { SetProperty(EmailProperty, value); }
+        }
+
+        public string DefaultRole {
+            get { return GetProperty<string>(DefaultRoleNameProperty); }
         }
     }
 }

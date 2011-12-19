@@ -5,6 +5,9 @@ using VersionOne.ServerConnector.Filters;
 namespace VersionOne.ServerConnector {
     public interface IVersionOneProcessor {
         bool ValidateConnection();
+
+        Member GetLoggedInMember();
+        ICollection<Member> GetMembers(IFilter filter);
         
         IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId);
         IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId);
