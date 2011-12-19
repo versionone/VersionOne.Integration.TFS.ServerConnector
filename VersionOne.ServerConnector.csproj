@@ -80,6 +80,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entities\Story.cs" />
     <Compile Include="Entities\ValueId.cs" />
+    <Compile Include="ProxySettings.cs" />
     <Compile Include="QueryBuilder.cs" />
     <Compile Include="StartupValidation\BaseValidator.cs" />
     <Compile Include="StartupValidation\V1ConnectionValidator.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="VersionOneException.cs" />
     <Compile Include="VersionOneProcessor.cs" />
     <Compile Include="Entities\Workitem.cs" />
+    <Compile Include="VersionOneSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VersionOne.ServiceHost.Core\VersionOne.ServiceHost.Core.csproj">

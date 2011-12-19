@@ -49,6 +49,9 @@ namespace VersionOne.ServerConnector {
         }
 
         [Inject]
+        public VersionOneProcessor(VersionOneSettings settings, ILogger logger) : this(settings.ToXmlElement(), logger) { }
+
+        [Inject]
         public VersionOneProcessor(XmlElement config, ILogger logger) {
             configuration = config;
             this.logger = logger;
