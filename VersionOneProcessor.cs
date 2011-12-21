@@ -55,12 +55,18 @@ namespace VersionOne.ServerConnector {
         public VersionOneProcessor(VersionOneSettings settings, ILogger logger) : this(settings.ToXmlElement(), logger) { }
 
         [Inject]
+        public VersionOneProcessor(VersionOneSettings settings) : this(settings, null) { }
+
+        [Inject]
         public VersionOneProcessor(XmlElement config, ILogger logger) {
             configuration = config;
             this.logger = logger;
 
             queryBuilder = new QueryBuilder();
         }
+
+        [Inject]
+        public VersionOneProcessor(XmlElement config) : this(config, null) { }
 
         private void Connect() {
             var connector = new V1Central(configuration);
@@ -81,7 +87,7 @@ namespace VersionOne.ServerConnector {
             try {
                 Connect();                
             } catch(Exception ex) {
-                logger.Log(LogMessage.SeverityType.Error, "Connection is not valid. " + ex.Message);
+                logger.MaybeLog(LogMessage.SeverityType.Error, "Connection is not valid. " + ex.Message);
                 return false;
             }
 
@@ -159,9 +165,9 @@ namespace VersionOne.ServerConnector {
                 try {
                     services.Save(workitem.Asset);
                 } catch(V1Exception ex) {
-                    logger.Log(LogMessage.SeverityType.Error, string.Format(queryBuilder.Localize(GetMessageFromException(ex)) + " '{0}' {2} ({1}).", workitem.Name, workitem.Number, workitem.TypeName));
+                    logger.MaybeLog(LogMessage.SeverityType.Error, string.Format(queryBuilder.Localize(GetMessageFromException(ex)) + " '{0}' {2} ({1}).", workitem.Name, workitem.Number, workitem.TypeName));
                 } catch (Exception ex) {
-                    logger.Log(LogMessage.SeverityType.Error, "Internal error: " + ex.Message);
+                    logger.MaybeLog(LogMessage.SeverityType.Error, "Internal error: " + ex.Message);
                 }
             }
         }
@@ -315,11 +321,11 @@ namespace VersionOne.ServerConnector {
             var existedLinks = GetAssetLinks(asset.Oid, Filter.Equal(Link.UrlProperty, link.Url));
 
             if(existedLinks.Count > 0) {
-                logger.Log(LogMessage.SeverityType.Debug, string.Format("No need to create link - it already exists."));
+                logger.MaybeLog(LogMessage.SeverityType.Debug, string.Format("No need to create link - it already exists."));
                 return;
             }
 
-            logger.Log(LogMessage.SeverityType.Info, string.Format("Creating new link with title {0} for asset {1}", link.Title, asset.Oid));
+            logger.MaybeLog(LogMessage.SeverityType.Info, string.Format("Creating new link with title {0} for asset {1}", link.Title, asset.Oid));
 
             var linkAsset = services.New(linkType, asset.Oid.Momentless);
             linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(Entity.NameProperty), link.Title);
@@ -327,7 +333,7 @@ namespace VersionOne.ServerConnector {
             linkAsset.SetAttributeValue(linkType.GetAttributeDefinition(Link.UrlProperty), link.Url);
 
             services.Save(linkAsset);
-            logger.Log(LogMessage.SeverityType.Info, string.Format("{0} link saved", link.Title));
+            logger.MaybeLog(LogMessage.SeverityType.Info, string.Format("{0} link saved", link.Title));
         }
 
         public void AddLinkToWorkitem(Workitem workitem, Link link) {            
@@ -367,7 +373,7 @@ namespace VersionOne.ServerConnector {
                 var project = GetProjectByName(projectName);
                 projectOid = project != null ? project.Oid.Momentless : Oid.Null;
             } else {
-                logger.Log(LogMessage.SeverityType.Info, string.Format("Could not assign to project with ID '{0}'.  Used first accessible project instead.", projectId));
+                logger.MaybeLog(LogMessage.SeverityType.Info, string.Format("Could not assign to project with ID '{0}'.  Used first accessible project instead.", projectId));
                 var project = GetRootProject();
                 projectOid = project != null ? project.Oid.Momentless : Oid.Null;
             }
