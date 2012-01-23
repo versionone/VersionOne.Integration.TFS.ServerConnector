@@ -33,6 +33,11 @@ namespace VersionOne.ServerConnector {
 
         IList<Workitem> GetPrimaryWorkitems(IFilter filter);
 
-        Workitem CreateWorkitem(string assetType, string title, string description, string projectId, string projectName, string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners, string urlTitle, string url);
+        Workitem CreateWorkitem(string assetType, string title, string description, string projectToken, 
+                                                        string externalFieldName, string externalId, string externalSystemName, string priorityId,
+                                                        string owners);
+
+        string GetProjectTokenByName(string projectName);
+        string GetRootProjectToken();
     }
 }

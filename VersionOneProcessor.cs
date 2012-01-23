@@ -311,6 +311,18 @@ namespace VersionOne.ServerConnector {
             return GetAssetLinks(Oid.FromToken(workitem.Id, metaModel), filter).Select(x => new Link(x)).ToList();
         }
 
+        public void AddLinkToWorkitem(Workitem workitem, Link link) {
+            try {
+                if (link != null && !string.IsNullOrEmpty(link.Url)) {
+                    AddLinkToAsset(workitem.Asset, link);
+                }
+            } catch (V1Exception ex) {
+                throw new VersionOneException(queryBuilder.Localize(ex.Message));
+            } catch (Exception ex) {
+                throw new VersionOneException(ex.Message);
+            }
+        }
+
         private void AddLinkToAsset(Asset asset, Link link) {
             if (asset == null) {
                 return;
@@ -336,18 +348,6 @@ namespace VersionOne.ServerConnector {
             logger.MaybeLog(LogMessage.SeverityType.Info, string.Format("{0} link saved", link.Title));
         }
 
-        public void AddLinkToWorkitem(Workitem workitem, Link link) {            
-            try {
-                if (link != null && !string.IsNullOrEmpty(link.Url)) {
-                    AddLinkToAsset(workitem.Asset, link);
-                }
-            } catch (V1Exception ex) {
-                throw new VersionOneException(queryBuilder.Localize(ex.Message));
-            } catch (Exception ex) {
-                throw new VersionOneException(ex.Message);
-            }
-        }
-
         public IList<Workitem> GetPrimaryWorkitems(IFilter filter) {
             return GetWorkitems(PrimaryWorkitemType, filter);
         }
@@ -360,35 +360,15 @@ namespace VersionOne.ServerConnector {
         }
 
         //TODO refactor
-        public Workitem CreateWorkitem(string assetType, string title, string description, string projectId, string projectName, string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners, string urlTitle, string url) {
+        public Workitem CreateWorkitem(string assetType, string title, string description, string projectToken, 
+                                       string externalFieldName, string externalId, string externalSystemName, 
+                                       string priorityId, string owners) {
             if(string.IsNullOrEmpty(title)) {
                 throw new ArgumentException("Empty title");
             }
 
-            Oid projectOid;
-
-            if(!string.IsNullOrEmpty(projectId)) {
-                projectOid = Oid.FromToken(projectId, metaModel);
-            } else if(!string.IsNullOrEmpty(projectName)) {
-                var project = GetProjectByName(projectName);
-                projectOid = project != null ? project.Oid.Momentless : Oid.Null;
-            } else {
-                logger.MaybeLog(LogMessage.SeverityType.Info, string.Format("Could not assign to project with ID '{0}'.  Used first accessible project instead.", projectId));
-                var project = GetRootProject();
-                projectOid = project != null ? project.Oid.Momentless : Oid.Null;
-            }
-
-            if(projectOid == Oid.Null) {
-                throw new ArgumentException("Can't find proper project");
-            }
-
-            var sourceValues = queryBuilder.QueryPropertyValues(WorkitemSourceType);
-            var source = sourceValues.Where(item => string.Equals(item.Name, externalSystemName)).FirstOrDefault();
-
-            if(source == null) {
-                throw new ArgumentException("Can't find proper source");
-            }
-
+            var projectOid = Oid.FromToken(projectToken, metaModel);
+            var source = GetSourceByName(externalSystemName);
             var sourceOid = source.Oid.Momentless;
             var workitemType = metaModel.GetAssetType(assetType);
             var newWorkitem = services.New(workitemType, Oid.Null);
@@ -409,21 +389,24 @@ namespace VersionOne.ServerConnector {
 
             services.Save(newWorkitem);
 
-            if(!string.IsNullOrEmpty(url)) {
-                var linkType = metaModel.GetAssetType("Link");
-                var newlink = services.New(linkType, newWorkitem.Oid.Momentless);
-                newlink.SetAttributeValue(linkType.GetAttributeDefinition("Name"), !string.IsNullOrEmpty(urlTitle) ? urlTitle : url);
-                newlink.SetAttributeValue(linkType.GetAttributeDefinition("URL"), url);
-                newlink.SetAttributeValue(linkType.GetAttributeDefinition("OnMenu"), true);
-                services.Save(newlink);
-            }
-
             //TODO refactor
             //NOTE Save doesn't return all the needed data, therefore we need another query
             return GetWorkitems(newWorkitem.AssetType.Token, Filter.Equal("ID", newWorkitem.Oid.Momentless.Token)).FirstOrDefault();
         }
 
+        private ValueId GetSourceByName(string externalSystemName) {
+            var sourceValues = queryBuilder.QueryPropertyValues(WorkitemSourceType);
+            var source = sourceValues.Where(item => string.Equals(item.Name, externalSystemName)).FirstOrDefault();
+
+            if(source == null) {
+                throw new ArgumentException("Can't find proper source");
+            }
+
+            return source;
+        }
+
         //TODO refactor
+        /*
         private Asset GetProjectByName(string projectName) {
             var scopeType = metaModel.GetAssetType(Entity.ScopeProperty);
             var scopeName = scopeType.GetAttributeDefinition(Entity.NameProperty);
@@ -442,6 +425,34 @@ namespace VersionOne.ServerConnector {
             var result = queryBuilder.Query(Entity.ScopeProperty, terms);
 
             return result.FirstOrDefault();
+        }*/
+
+        public string GetProjectTokenByName(string projectName) {
+            var project = GetProjectByName(projectName);
+            return project != null ? project.Oid.Momentless.Token : null;
+        }
+
+        private Asset GetProjectByName(string projectName) {
+            var scopeType = metaModel.GetAssetType(Entity.ScopeProperty);
+            var scopeName = scopeType.GetAttributeDefinition(Entity.NameProperty);
+
+            var filter = GroupFilter.And(
+                Filter.Equal(Entity.NameProperty, projectName),
+                Filter.Closed(false)
+                );
+
+            var query = new Query(scopeType);
+            query.Selection.Add(scopeName);
+
+            var result = queryBuilder.Query(Entity.ScopeProperty, filter);
+
+            return result.FirstOrDefault();
+        }
+
+        public string GetRootProjectToken() {
+            var project = GetRootProject();
+
+            return project == null ? null : project.Oid.Momentless.Token;
         }
 
         //TODO refactor
