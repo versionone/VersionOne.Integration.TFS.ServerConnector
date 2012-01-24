@@ -352,7 +352,7 @@ namespace VersionOne.ServerConnector {
             return GetWorkitems(PrimaryWorkitemType, filter);
         }
 
-        private IList<Workitem> GetWorkitems(string type, IFilter filter) {
+        public IList<Workitem> GetWorkitems(string type, IFilter filter) {
             var workitemType = metaModel.GetAssetType(type);
             var terms = filter.GetFilter(workitemType);
 

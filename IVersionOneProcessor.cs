@@ -31,6 +31,7 @@ namespace VersionOne.ServerConnector {
         void AddOptionalProperty(string attr, string prefix);
         void AddLinkToWorkitem(Workitem workitem, Link link);
 
+        IList<Workitem> GetWorkitems(string type, IFilter filter);
         IList<Workitem> GetPrimaryWorkitems(IFilter filter);
 
         Workitem CreateWorkitem(string assetType, string title, string description, string projectToken, 
