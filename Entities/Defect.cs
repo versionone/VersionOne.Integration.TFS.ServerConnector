@@ -4,7 +4,7 @@ using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
     [DebuggerDisplay("{TypeName} {Name}, Id={Id}, Number={Number}")]
-    public class Defect : Workitem {
+    public class Defect : PrimaryWorkitem {
         public override string TypeToken {
             get { return VersionOneProcessor.DefectType; }
         }

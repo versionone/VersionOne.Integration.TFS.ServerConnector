@@ -4,17 +4,15 @@ using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
     public abstract class Workitem : Entity {
-        public const string AssetTypeProperty = "AssetType";
+        public const string OwnersProperty = "Owners";
         public const string NumberProperty = "Number";
         public const string EstimateProperty = "Estimate";
         public const string PriorityProperty = "Priority";
-        public const string ParentNameProperty = "Parent.Name";
-        public const string TeamNameProperty = "Team.Name";
-        public const string SprintNameProperty = "Timebox.Name";
         public const string DescriptionProperty = "Description";
-        public const string OrderProperty = "Order";
         public const string ReferenceProperty = "Reference";
-        public const string OwnersProperty = "Owners";
+        public const string ChangeDateUtcProperty = "ChangeDateUTC";
+        public const string ScopeProperty = "Scope";
+        public const string AssetStateProperty = "AssetState";
 
         public string Number { get { return GetProperty<string>(NumberProperty); } }
         
@@ -41,6 +39,12 @@ namespace VersionOne.ServerConnector.Entities {
         public DateTime ChangeDateUtc {
             get { return GetProperty<DateTime>(ChangeDateUtcProperty); }
             set { SetProperty(ChangeDateUtcProperty, value); }
+        }
+
+        public bool IsClosed {
+            get {
+                return GetProperty<byte>(AssetStateProperty) == 128;
+            }
         }
         
         public string PriorityToken {
@@ -85,5 +89,7 @@ namespace VersionOne.ServerConnector.Entities {
                     throw new NotSupportedException("Type " + asset.AssetType.Token + " is not supported in factory method");
             }
         }
+
+        public const string ScopeNameProperty = "Scope.Name";
     }
 }

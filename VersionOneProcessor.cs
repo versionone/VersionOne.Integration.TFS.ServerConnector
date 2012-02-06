@@ -105,7 +105,7 @@ namespace VersionOne.ServerConnector {
         // TODO use GetPrimaryWorkitems()
         public IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId) {
             var projectOid = Oid.FromToken(projectId, metaModel);
-            var filter = GroupFilter.And(Filter.Closed(false), Filter.Equal(Entity.ScopeProperty, projectOid));
+            var filter = GroupFilter.And(Filter.Closed(false), Filter.Equal(Workitem.ScopeProperty, projectOid));
 
             return queryBuilder
                 .Query(PrimaryWorkitemType, filter)
@@ -115,7 +115,7 @@ namespace VersionOne.ServerConnector {
         // TODO use GetPrimaryWorkitems()
         public IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId) {
             var projectOid = Oid.FromToken(projectId, metaModel);
-            var filter = GroupFilter.And(Filter.Closed(true), Filter.Equal(Entity.ScopeProperty, projectOid));
+            var filter = GroupFilter.And(Filter.Closed(true), Filter.Equal(Workitem.ScopeProperty, projectOid));
 
             return queryBuilder
                 .Query(PrimaryWorkitemType, filter)
@@ -289,7 +289,7 @@ namespace VersionOne.ServerConnector {
 
         // TODO use filters
         private Asset GetProjectById(string projectId) {
-            var scopeType = metaModel.GetAssetType(Entity.ScopeProperty);
+            var scopeType = metaModel.GetAssetType(Workitem.ScopeProperty);
             var scopeState = scopeType.GetAttributeDefinition(AssetStateAttribute);
 
             var scopeStateTerm = new FilterTerm(scopeState);
@@ -433,7 +433,7 @@ namespace VersionOne.ServerConnector {
         }
 
         private Asset GetProjectByName(string projectName) {
-            var scopeType = metaModel.GetAssetType(Entity.ScopeProperty);
+            var scopeType = metaModel.GetAssetType(Workitem.ScopeProperty);
             var scopeName = scopeType.GetAttributeDefinition(Entity.NameProperty);
 
             var filter = GroupFilter.And(
@@ -444,7 +444,7 @@ namespace VersionOne.ServerConnector {
             var query = new Query(scopeType);
             query.Selection.Add(scopeName);
 
-            var result = queryBuilder.Query(Entity.ScopeProperty, filter);
+            var result = queryBuilder.Query(Workitem.ScopeProperty, filter);
 
             return result.FirstOrDefault();
         }
@@ -457,7 +457,7 @@ namespace VersionOne.ServerConnector {
 
         //TODO refactor
         private Asset GetRootProject() {
-            var scopeType = metaModel.GetAssetType(Entity.ScopeProperty);
+            var scopeType = metaModel.GetAssetType(Workitem.ScopeProperty);
             var scopeName = scopeType.GetAttributeDefinition(Entity.NameProperty);
 
             var scopeState = scopeType.GetAttributeDefinition(AssetStateAttribute);

@@ -1,18 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
-    public class PrimaryWorkitem : Workitem {
+    public class PrimaryWorkitem : Workitem {        
+        public const string StatusProperty = "Status";
+        public const string TeamNameProperty = "Team.Name";
+        public const string ParentNameProperty = "Parent.Name";
+        public const string SprintNameProperty = "Timebox.Name";
+        public const string OrderProperty = "Order";
 
+        public string FeatureGroupName {
+            get {
+                return GetProperty<string>(ParentNameProperty);
+            }
+        }
 
-        public string FeatureGroupName { get { return GetProperty<string>(ParentNameProperty); } }
-        public string Team { get { return GetProperty<string>(TeamNameProperty); } }
-        public string SprintName { get { return GetProperty<string>(SprintNameProperty); } }
+        public string Team {
+            get {
+                return GetProperty<string>(TeamNameProperty);
+            }
+        }
+
+        public string SprintName {
+            get {
+                return GetProperty<string>(SprintNameProperty);
+            }
+        }
 
         public int Order {
             get {
                 int order;
-                int.TryParse(GetProperty<Rank>(OrderProperty).ToString(), out order);
+                Int32.TryParse(GetProperty<Rank>(OrderProperty).ToString(), out order);
                 return order;
             }
         }

@@ -6,18 +6,21 @@ namespace VersionOne.ServerConnector.Entities {
     [DebuggerDisplay("{TypeName} {Name}, Id={Id}")]
     // TODO resolve TypeName and TypeToken clashes, if any
     public abstract class Entity : BaseEntity {
-        public const string NameProperty = "Name";
-        public const string InactiveProperty = "Inactive";
+        public const string NameProperty = "Name";        
         public const string CustomPrefix = "Custom_";
-        public const string ChangeDateUtcProperty = "ChangeDateUTC";
-        public const string SourceNameProperty = "Source.Name";
-        public const string ScopeProperty = "Scope";
-        public const string ScopeNameProperty = "Scope.Name";
-        public const string ParentAndUpProperty = "ParentAndUp";
-        public const string ScopeParentAndUpProperty = "Scope.ParentMeAndUp";
-        public const string StatusProperty = "Status";
+        public const string SourceNameProperty = "Source.Name";        
         public const string StatusNameProperty = "Status.Name";
+
+        //TODO decide where we need to keep these constants.
+        //using in V1Processor
         public const string ParentProperty = "Parent";
+        public const string ParentAndUpProperty = "ParentAndUp";
+
+        //using in QueryBuilder
+        public const string InactiveProperty = "Inactive";
+
+        //using in FilterHelper
+        public const string ScopeParentAndUpProperty = "Scope.ParentMeAndUp";
 
         public string Id { get; protected set; }
         public string TypeName { get; protected set; }
@@ -79,5 +82,7 @@ namespace VersionOne.ServerConnector.Entities {
         public double? GetCustomNumericValue(string fieldName) {
             return GetProperty<double?>(fieldName);
         }
+
+        public const string AssetTypeProperty = "AssetType";
     }
 }
