@@ -13,6 +13,7 @@ namespace VersionOne.ServerConnector.Entities {
         public const string ChangeDateUtcProperty = "ChangeDateUTC";
         public const string ScopeProperty = "Scope";
         public const string AssetStateProperty = "AssetState";
+        public const string IdProperty = "Id";
 
         public string Number { get { return GetProperty<string>(NumberProperty); } }
         
