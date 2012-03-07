@@ -79,6 +79,10 @@ namespace VersionOne.ServerConnector.Entities {
             SetProperty(fieldName, value);
         }
 
+        public void SetCustomStringValue(string fieldName, string value) {
+            SetProperty(fieldName, value);
+        }
+
         public double? GetCustomNumericValue(string fieldName) {
             return GetProperty<double?>(fieldName);
         }
