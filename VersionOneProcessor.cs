@@ -95,7 +95,7 @@ namespace VersionOne.ServerConnector {
         }
 
         public Member GetLoggedInMember() {
-            return GetMembers(Filter.Empty()).Where(item => item.Asset.Oid.Token.Equals(services.LoggedIn)).FirstOrDefault();
+            return GetMembers(Filter.Empty()).FirstOrDefault(item => item.Asset.Oid.Token.Equals(services.LoggedIn));
         }
 
         public ICollection<Member> GetMembers(IFilter filter) {
@@ -207,6 +207,21 @@ namespace VersionOne.ServerConnector {
                 services.Save(status);
 
                 return new ValueId(status.Oid.Momentless, statusName);
+            } catch (V1Exception ex) {
+                throw new VersionOneException(queryBuilder.Localize(ex.Message));
+            } catch(Exception ex) {
+                throw new VersionOneException(ex.Message);
+            }
+        }
+
+        public ValueId CreateWorkitemPriority(string priorityName) {
+            try {
+                var priorityType = metaModel.GetAssetType(WorkitemPriorityType);
+                var status = new Asset(priorityType);
+                status.SetAttributeValue(priorityType.NameAttribute, priorityName);
+                services.Save(status);
+
+                return new ValueId(status.Oid.Momentless, priorityName);
             } catch (V1Exception ex) {
                 throw new VersionOneException(queryBuilder.Localize(ex.Message));
             } catch(Exception ex) {
@@ -396,7 +411,7 @@ namespace VersionOne.ServerConnector {
 
         private ValueId GetSourceByName(string externalSystemName) {
             var sourceValues = queryBuilder.QueryPropertyValues(WorkitemSourceType);
-            var source = sourceValues.Where(item => string.Equals(item.Name, externalSystemName)).FirstOrDefault();
+            var source = sourceValues.FirstOrDefault(item => string.Equals(item.Name, externalSystemName));
 
             if(source == null) {
                 throw new ArgumentException("Can't find proper source");
@@ -404,28 +419,6 @@ namespace VersionOne.ServerConnector {
 
             return source;
         }
-
-        //TODO refactor
-        /*
-        private Asset GetProjectByName(string projectName) {
-            var scopeType = metaModel.GetAssetType(Entity.ScopeProperty);
-            var scopeName = scopeType.GetAttributeDefinition(Entity.NameProperty);
-
-            var scopeNameTerm = new FilterTerm(scopeName);
-            scopeNameTerm.Equal(projectName);
-
-            var scopeState = scopeType.GetAttributeDefinition(AssetStateAttribute);
-            var scopeStateTerm = new FilterTerm(scopeState);
-            scopeStateTerm.NotEqual(AssetState.Closed);
-
-            var query = new Query(scopeType);
-            query.Selection.Add(scopeName);
-            var terms  = new AndFilterTerm(scopeNameTerm, scopeStateTerm);
-
-            var result = queryBuilder.Query(Entity.ScopeProperty, terms);
-
-            return result.FirstOrDefault();
-        }*/
 
         public string GetProjectTokenByName(string projectName) {
             var project = GetProjectByName(projectName);
@@ -439,7 +432,7 @@ namespace VersionOne.ServerConnector {
             var filter = GroupFilter.And(
                 Filter.Equal(Entity.NameProperty, projectName),
                 Filter.Closed(false)
-                );
+            );
 
             var query = new Query(scopeType);
             query.Selection.Add(scopeName);
@@ -451,7 +444,6 @@ namespace VersionOne.ServerConnector {
 
         public string GetRootProjectToken() {
             var project = GetRootProject();
-
             return project == null ? null : project.Oid.Momentless.Token;
         }
 
