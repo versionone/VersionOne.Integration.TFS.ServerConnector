@@ -2,6 +2,7 @@
 using System.Linq;
 using VersionOne.ServiceHost.Core.Logging;
 using VersionOne.ServiceHost.Core.Configuration;
+
 namespace VersionOne.ServerConnector.StartupValidation {
     public class V1ProjectsValidator : BaseValidator {
         private readonly ICollection<MappingInfo> v1Projects;

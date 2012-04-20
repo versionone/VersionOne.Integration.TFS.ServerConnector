@@ -91,7 +91,7 @@
     <Compile Include="StartupValidation\V1CustomListFieldValidator.cs" />
     <Compile Include="StartupValidation\V1FieldValidator.cs" />
     <Compile Include="StartupValidation\V1ProjectValidator.cs" />
-    <Compile Include="StartupValidation\V1PrioritiesValidator.cs" />
+    <Compile Include="StartupValidation\V1PriorityValidator.cs" />
     <Compile Include="StartupValidation\V1ProjectsValidator.cs" />
     <Compile Include="VersionOneException.cs" />
     <Compile Include="VersionOneProcessor.cs" />

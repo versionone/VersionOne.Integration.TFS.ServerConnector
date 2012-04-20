@@ -5,10 +5,10 @@ using VersionOne.ServiceHost.Core.Configuration;
 using VersionOne.ServiceHost.Core.Logging;
 
 namespace VersionOne.ServerConnector.StartupValidation {
-    public class V1PrioritiesValidator : BaseValidator {
+    public class V1PriorityValidator : BaseValidator {
         private readonly ICollection<MappingInfo> priorities;
 
-        public V1PrioritiesValidator(ICollection<MappingInfo> priorities) {
+        public V1PriorityValidator(ICollection<MappingInfo> priorities) {
             this.priorities = priorities;
         }
 
