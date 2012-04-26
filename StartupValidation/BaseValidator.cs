@@ -1,16 +1,14 @@
-using VersionOne.ServiceHost.Core;
+using Ninject;
 using VersionOne.ServiceHost.Core.Logging;
 using VersionOne.ServiceHost.Core.StartupValidation;
 
 namespace VersionOne.ServerConnector.StartupValidation {
     public abstract class BaseValidator : ISimpleValidator {
-        protected readonly ILogger Logger;
-        protected readonly IVersionOneProcessor V1Processor;
+        [Inject]
+        public ILogger Logger { get; set; }
 
-        protected  BaseValidator() {
-            Logger = ComponentRepository.Instance.Resolve<ILogger>();
-            V1Processor = ComponentRepository.Instance.Resolve<IVersionOneProcessor>();
-        }
+        [Inject]
+        public IVersionOneProcessor V1Processor { get; set; }
 
         public abstract bool Validate();
     }
