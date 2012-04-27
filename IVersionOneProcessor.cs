@@ -16,7 +16,10 @@ namespace VersionOne.ServerConnector {
         void SaveWorkitems(ICollection<Workitem> workitems);
         void CloseWorkitem(PrimaryWorkitem workitem);
         void UpdateProject(string projectId, Link link);
+        
         string GetWorkitemLink(Workitem workitem);
+        string GetSummaryLink(Workitem workitem);
+        
         ValueId CreateWorkitemStatus(string statusName);
         ValueId CreateWorkitemPriority(string priorityName);
         IList<ValueId> GetWorkitemStatuses();

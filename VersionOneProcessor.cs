@@ -77,7 +77,7 @@ namespace VersionOne.ServerConnector {
             queryBuilder.Setup(services, metaModel, connector.Loc);
         }
 
-        protected internal void Connect(IServices testServices, IMetaModel testMetaData, IQueryBuilder testQueryBuilder) {
+        protected void Connect(IServices testServices, IMetaModel testMetaData, IQueryBuilder testQueryBuilder) {
             services = testServices;
             metaModel = testMetaData;
             queryBuilder = testQueryBuilder;
@@ -245,6 +245,10 @@ namespace VersionOne.ServerConnector {
 
         public string GetWorkitemLink(Workitem workitem) {
             return string.Format("{0}assetdetail.v1?oid={1}", configuration["ApplicationUrl"].InnerText, workitem.Id);
+        }
+
+        public string GetSummaryLink(Workitem workitem) {
+            return string.Format("{0}{1}.mvc/Summary?oidToken={2}", configuration["ApplicationUrl"].InnerText, workitem.TypeName.ToLower(), workitem.Id);
         }
 
         public PropertyValues GetAvailableListValues(string typeToken, string fieldName) {
