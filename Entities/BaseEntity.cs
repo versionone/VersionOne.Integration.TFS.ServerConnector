@@ -12,7 +12,7 @@ namespace VersionOne.ServerConnector.Entities {
 
         protected BaseEntity() { }
 
-        protected virtual T GetProperty<T>(string name) {
+        public virtual T GetProperty<T>(string name) {
             var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
             return (T) (Asset.GetAttribute(attributeDefinition) != null ? Asset.GetAttribute(attributeDefinition).Value : null);
         }

@@ -11,21 +11,15 @@ namespace VersionOne.ServerConnector.Entities {
         public const string OrderProperty = "Order";
 
         public string FeatureGroupName {
-            get {
-                return GetProperty<string>(ParentNameProperty);
-            }
+            get { return GetProperty<string>(ParentNameProperty); }
         }
 
         public string Team {
-            get {
-                return GetProperty<string>(TeamNameProperty);
-            }
+            get { return GetProperty<string>(TeamNameProperty); }
         }
 
         public string SprintName {
-            get {
-                return GetProperty<string>(SprintNameProperty);
-            }
+            get { return GetProperty<string>(SprintNameProperty); }
         }
 
         public int Order {
@@ -37,12 +31,8 @@ namespace VersionOne.ServerConnector.Entities {
         }
 
         public ValueId Status {
-            get {
-                return GetListValue(StatusProperty);
-            }
-            set {
-                SetCustomListValue(StatusProperty, value.Token);
-            }
+            get { return GetListValue(StatusProperty); }
+            set { SetCustomListValue(StatusProperty, value.Token); }
         }
 
         public override string TypeToken {

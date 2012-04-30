@@ -349,9 +349,9 @@ namespace VersionOne.ServerConnector {
 
             var linkType = metaModel.GetAssetType(LinkType);
 
-            var existedLinks = GetAssetLinks(asset.Oid, Filter.Equal(Link.UrlProperty, link.Url));
+            var existingLinks = GetAssetLinks(asset.Oid, Filter.Equal(Link.UrlProperty, link.Url));
 
-            if(existedLinks.Count > 0) {
+            if(existingLinks.Count > 0) {
                 logger.MaybeLog(LogMessage.SeverityType.Debug, string.Format("No need to create link - it already exists."));
                 return;
             }

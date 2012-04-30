@@ -43,9 +43,7 @@ namespace VersionOne.ServerConnector.Entities {
         }
 
         public bool IsClosed {
-            get {
-                return GetProperty<byte>(AssetStateProperty) == 128;
-            }
+            get { return GetProperty<byte>(AssetStateProperty) == 128; }
         }
         
         public string PriorityToken {
@@ -55,6 +53,7 @@ namespace VersionOne.ServerConnector.Entities {
             }
             set {
                 var priority = ListValues[VersionOneProcessor.WorkitemPriorityType].Find(value);
+                
                 if (priority != null) {
                     SetProperty(PriorityProperty, priority.Oid);
                 }
