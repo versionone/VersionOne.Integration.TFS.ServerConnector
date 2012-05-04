@@ -15,7 +15,7 @@ namespace VersionOne.ServerConnector.StartupValidation {
             Logger.Log(LogMessage.SeverityType.Info, string.Format("Checking custom field for {0}...", typeWorkitem));
 
             if (string.IsNullOrEmpty(fieldName)) {
-                Logger.Log(LogMessage.SeverityType.Error, "Config contains not defined or empty field name.");
+                Logger.Log(LogMessage.SeverityType.Error, "Configuration contains undefined or empty field name.");
                 return false;
             }
 
