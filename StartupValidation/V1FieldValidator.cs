@@ -12,19 +12,19 @@ namespace VersionOne.ServerConnector.StartupValidation {
 
         public override bool Validate() {
             var typeWorkitem = containingTypeToken.Equals("Theme") ? "Feature Group" : containingTypeToken;
-            Logger.Log(LogMessage.SeverityType.Info, string.Format("Checking custom field for {0}...", typeWorkitem));
+            Log(LogMessage.SeverityType.Info, string.Format("Checking custom field for {0}...", typeWorkitem));
 
             if (string.IsNullOrEmpty(fieldName)) {
-                Logger.Log(LogMessage.SeverityType.Error, "Configuration contains undefined or empty field name.");
+                Log(LogMessage.SeverityType.Error, "Configuration contains undefined or empty field name.");
                 return false;
             }
 
             if (!V1Processor.AttributeExists(containingTypeToken, fieldName)) {
-                Logger.Log(LogMessage.SeverityType.Error, string.Format("Custom field {0} is not assigned to type {1}", fieldName, containingTypeToken));
+                Log(LogMessage.SeverityType.Error, string.Format("Custom field {0} is not assigned to type {1}", fieldName, containingTypeToken));
                 return false;
             }
 
-            Logger.Log(LogMessage.SeverityType.Info, "Custom field check successful.");
+            Log(LogMessage.SeverityType.Info, "Custom field check successful.");
             return true;
         }
     }

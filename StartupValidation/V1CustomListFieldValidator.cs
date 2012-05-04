@@ -14,10 +14,10 @@ namespace VersionOne.ServerConnector.StartupValidation {
         }
         
         public override bool Validate() {
-            Logger.Log(LogMessage.SeverityType.Info, string.Format("Checking custom field for {0}...", containingTypeToken.Equals("Theme") ? "Feature Group" : containingTypeToken));
+            Log(LogMessage.SeverityType.Info, string.Format("Checking custom field for {0}...", containingTypeToken.Equals("Theme") ? "Feature Group" : containingTypeToken));
             
             if(!V1Processor.AttributeExists(containingTypeToken, fieldName)) {
-                Logger.Log(LogMessage.SeverityType.Error, string.Format("Custom field {0} is not assigned to type {1}", fieldName, containingTypeToken));
+                Log(LogMessage.SeverityType.Error, string.Format("Custom field {0} is not assigned to type {1}", fieldName, containingTypeToken));
                 return false;
             }
 
@@ -26,16 +26,16 @@ namespace VersionOne.ServerConnector.StartupValidation {
 
                 if(listValueTokens != null && listValueTokens.Length > 0) {
                     foreach(var token in listValueTokens.Where(token => availableValues.Find(token) == null)) {
-                        Logger.Log(LogMessage.SeverityType.Error, string.Format("Possible custom field value '{0}' is not within available values.", token));
+                        Log(LogMessage.SeverityType.Error, string.Format("Possible custom field value '{0}' is not within available values.", token));
                         return false;
                     }
                 }
             } catch(VersionOneException ex) {
-                Logger.Log(LogMessage.SeverityType.Debug, "Exception during custom field validation: " + ex.Message + "; proceeding.");
+                Log(LogMessage.SeverityType.Debug, "Exception during custom field validation: " + ex.Message + "; proceeding.");
                 return false;
             }
 
-            Logger.Log(LogMessage.SeverityType.Info, "Custom field check successful.");
+            Log(LogMessage.SeverityType.Info, "Custom field check successful.");
             return true;
         }
     }

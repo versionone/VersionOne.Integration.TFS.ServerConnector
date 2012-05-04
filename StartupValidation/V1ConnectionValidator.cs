@@ -3,14 +3,14 @@
 namespace VersionOne.ServerConnector.StartupValidation {
     public class V1ConnectionValidator : BaseValidator {
         public override bool Validate() {
-            Logger.Log(LogMessage.SeverityType.Info, "Validating connection to VersionOne");
+            Log(LogMessage.SeverityType.Info, "Validating connection to VersionOne");
 
             if(!V1Processor.ValidateConnection()) {
-                Logger.Log(LogMessage.SeverityType.Error, "Cannot establish connection to VersionOne");
+                Log(LogMessage.SeverityType.Error, "Cannot establish connection to VersionOne");
                 return false;
             }
 
-            Logger.Log(LogMessage.SeverityType.Info, "Connection to VersionOne is established successfully");
+            Log(LogMessage.SeverityType.Info, "Connection to VersionOne is established successfully");
             return true;
         }
     }

@@ -13,16 +13,16 @@ namespace VersionOne.ServerConnector.StartupValidation {
         }
 
         public override bool Validate() {
-            Logger.Log(LogMessage.SeverityType.Info, "Checking VersionOne priorities");
+            Log(LogMessage.SeverityType.Info, "Checking VersionOne priorities");
             var result = true;
             var v1Priorities = V1Processor.GetWorkitemPriorities();
 
             foreach(var priority in priorities.Where(priority => !PriorityExists(v1Priorities, priority.Id))) {
-                Logger.Log(LogMessage.SeverityType.Error, string.Format("Cannot find VersionOne priority with identifier {0}", priority.Id));
+                Log(LogMessage.SeverityType.Error, string.Format("Cannot find VersionOne priority with identifier {0}", priority.Id));
                 result = false;
             }
 
-            Logger.Log(LogMessage.SeverityType.Info, "VersionOne priorities are checked");
+            Log(LogMessage.SeverityType.Info, "VersionOne priorities are checked");
             return result;
         }
 

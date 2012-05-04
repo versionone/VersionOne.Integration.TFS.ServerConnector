@@ -9,14 +9,14 @@ namespace VersionOne.ServerConnector.StartupValidation {
         }
         
         public override bool Validate() {
-            Logger.Log(LogMessage.SeverityType.Info, "Checking VersionOne project");
+            Log(LogMessage.SeverityType.Info, "Checking VersionOne project");
 
             if(!V1Processor.ProjectExists(projectToken)) {
-                Logger.Log(LogMessage.SeverityType.Error, string.Format("VersionOne project with '{0}' id doesn't exist", projectToken));
+                Log(LogMessage.SeverityType.Error, string.Format("VersionOne project with '{0}' id doesn't exist", projectToken));
                 return false;
             }
 
-            Logger.Log(LogMessage.SeverityType.Info, string.Format("VersionOne project with '{0}' id successfully found", projectToken));
+            Log(LogMessage.SeverityType.Info, string.Format("VersionOne project with '{0}' id successfully found", projectToken));
             return true;
         }
     }

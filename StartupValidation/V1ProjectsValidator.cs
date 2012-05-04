@@ -12,15 +12,15 @@ namespace VersionOne.ServerConnector.StartupValidation {
         }
 
         public override bool Validate() {
-            Logger.Log(LogMessage.SeverityType.Info, "Checking VersionOne projects");
+            Log(LogMessage.SeverityType.Info, "Checking VersionOne projects");
             var result = true;
 
             foreach(var project in v1Projects.Where(project => !V1Processor.ProjectExists(project.Id))) {
-                Logger.Log(LogMessage.SeverityType.Error, string.Format("Project with '{0}' id doesn't exist in VersionOne", project.Id));
+                Log(LogMessage.SeverityType.Error, string.Format("Project with '{0}' id doesn't exist in VersionOne", project.Id));
                 result = false;
             }
 
-            Logger.Log(LogMessage.SeverityType.Info, "All projects are checked");
+            Log(LogMessage.SeverityType.Info, "All projects are checked");
             return result;
         }
     }
