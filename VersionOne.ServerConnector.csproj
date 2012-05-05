@@ -92,6 +92,7 @@
     <Compile Include="StartupValidation\V1ProjectValidator.cs" />
     <Compile Include="StartupValidation\V1PriorityValidator.cs" />
     <Compile Include="StartupValidation\V1ProjectsValidator.cs" />
+    <Compile Include="StartupValidation\MandatoryOrEmptyFieldValidator.cs" />
     <Compile Include="VersionOneException.cs" />
     <Compile Include="VersionOneProcessor.cs" />
     <Compile Include="Entities\Workitem.cs" />
