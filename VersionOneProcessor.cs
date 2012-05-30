@@ -14,6 +14,7 @@ namespace VersionOne.ServerConnector {
     // TODO this one is getting huge - it should be split
     // TODO change attribute to property in field names and move them to entity classes
     public class VersionOneProcessor : IVersionOneProcessor {
+        public const string ScopeType = "Scope";
         public const string FeatureGroupType = "Theme";
         public const string StoryType = "Story";
         public const string DefectType = "Defect";
@@ -393,7 +394,7 @@ namespace VersionOne.ServerConnector {
             var newWorkitem = services.New(workitemType, Oid.Null);
 
             newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Name"), title);
-            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Scope"), projectOid);
+            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition(ScopeType), projectOid);
             newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Description"), description);
             newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Source"), sourceOid);
             newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition(externalFieldName), externalId);
@@ -496,6 +497,38 @@ namespace VersionOne.ServerConnector {
             }
 
             return result.ToArray();
+        }
+
+        public ICollection<Scope> GetProjectsByName(string name) {
+            var projectType = metaModel.GetAssetType(ScopeType);
+            var nameDef = projectType.GetAttributeDefinition(Entity.NameProperty);
+            var stateDef = projectType.GetAttributeDefinition(AssetStateAttribute);
+
+            var findin = new AttributeSelection { nameDef };
+
+            var filter = new FilterTerm(stateDef);
+            filter.NotEqual(AssetState.Closed);
+            
+            var query = new Query(projectType) {Filter = filter, Find = new QueryFind(name, findin), };
+            query.Selection.Add(nameDef);
+            query.OrderBy.MajorSort(projectType.DefaultOrderBy, OrderBy.Order.Ascending);
+
+            var assets = services.Retrieve(query).Assets;
+
+            return assets.Select(asset => new Scope(asset)).ToList();
+        }
+
+        public Scope CreateProject(string name) {
+            var projectType = metaModel.GetAssetType(ScopeType);
+            var rootProjectOid = GetRootProjectToken();
+
+            var newProject= services.New(projectType, Oid.Null);
+            newProject.SetAttributeValue(projectType.GetAttributeDefinition(Entity.NameProperty), name);
+            newProject.SetAttributeValue(projectType.GetAttributeDefinition(Entity.ParentProperty), rootProjectOid);
+            newProject.SetAttributeValue(projectType.GetAttributeDefinition("BeginDate"), DateTime.Now);
+            services.Save(newProject);
+
+            return new Scope(newProject);
         }
     }
 }

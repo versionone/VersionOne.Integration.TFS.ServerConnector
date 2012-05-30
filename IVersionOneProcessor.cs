@@ -43,5 +43,8 @@ namespace VersionOne.ServerConnector {
 
         string GetProjectTokenByName(string projectName);
         string GetRootProjectToken();
+
+        ICollection<Scope> GetProjectsByName(string name);
+        Scope CreateProject(string name);
     }
 }
