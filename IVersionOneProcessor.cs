@@ -46,5 +46,6 @@ namespace VersionOne.ServerConnector {
 
         ICollection<Scope> GetProjectsByName(string name);
         Scope CreateProject(string name);
+        IList<ListValue> GetCustomTextFields(string typeName);
     }
 }

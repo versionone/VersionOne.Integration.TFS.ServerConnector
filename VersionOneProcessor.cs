@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Ninject;
 using VersionOne.SDK.APIClient;
 using VersionOne.ServerConnector.Entities;
@@ -529,6 +530,91 @@ namespace VersionOne.ServerConnector {
             services.Save(newProject);
 
             return new Scope(newProject);
+        }
+
+        public IList<ListValue> GetCustomTextFields(string typeName) {
+            try {
+                var fields = GetCustomFields(typeName, FieldType.Text);
+                return fields.Select(x => new ListValue(ConvertFromCamelCase(x), x)).ToList();
+            } catch(Exception ex) {
+                throw new VersionOneException("Failed to get custom list fields");
+            }
+        }
+
+        private IEnumerable<string> GetCustomFields(string assetTypeName, FieldType fieldType) {
+            var attrType = metaModel.GetAssetType(AttributeDefinitionType);
+            var assetType = metaModel.GetAssetType(assetTypeName);
+            var isCustomAttributeDef = attrType.GetAttributeDefinition("IsCustom");
+            var nameAttrDef = attrType.GetAttributeDefinition(Entity.NameProperty);
+
+            var termType = new FilterTerm(attrType.GetAttributeDefinition("Asset.AssetTypesMeAndDown.Name"));
+            termType.Equal(assetTypeName);
+
+            IAttributeDefinition inactiveDef;
+            FilterTerm termState = null;
+
+            if(assetType.TryGetAttributeDefinition("Inactive", out inactiveDef)) {
+                termState = new FilterTerm(inactiveDef);
+                termState.Equal("False");
+            }
+
+            var fieldTypeName = string.Empty;
+            var attributeTypeName = string.Empty;
+
+            switch(fieldType) {
+                case FieldType.List:
+                    fieldTypeName = "OneToManyRelationDefinition";
+                    attributeTypeName = "Relation";
+                    break;
+                case FieldType.Numeric:
+                    fieldTypeName = "SimpleAttributeDefinition";
+                    attributeTypeName = "Numeric";
+                    break;
+                case FieldType.Text:
+                    fieldTypeName = "SimpleAttributeDefinition";
+                    attributeTypeName = "Text";
+                    break;
+            }
+
+            var assetTypeTerm = new FilterTerm(attrType.GetAttributeDefinition(AssetTypeAttribute));
+            assetTypeTerm.Equal(fieldTypeName);
+
+            var attributeTypeTerm = new FilterTerm(attrType.GetAttributeDefinition("AttributeType"));
+            attributeTypeTerm.Equal(attributeTypeName);
+
+            var isCustomTerm = new FilterTerm(isCustomAttributeDef);
+            isCustomTerm.Equal("true");
+
+            var result = GetFieldList(new AndFilterTerm(termState, termType, assetTypeTerm, isCustomTerm, attributeTypeTerm),
+                new List<IAttributeDefinition> { nameAttrDef });
+
+            var fieldList = new List<string>();
+            result.ForEach(x => fieldList.Add(x.GetAttribute(nameAttrDef).Value.ToString()));
+
+            return fieldList;
+        }
+
+        private AssetList GetFieldList(IFilterTerm filter, IEnumerable<IAttributeDefinition> selection) {
+            var attributeDefinitionAssetType = metaModel.GetAssetType(AttributeDefinitionType);
+
+            var query = new Query(attributeDefinitionAssetType);
+            foreach(var attribute in selection) {
+                query.Selection.Add(attribute);
+            }
+
+            query.Filter = filter;
+            return services.Retrieve(query).Assets;
+        }
+
+        private static string ConvertFromCamelCase(string camelCasedString) {
+            const string customPrefix = "Custom_";
+
+            if(camelCasedString.StartsWith(customPrefix)) {
+                camelCasedString = camelCasedString.Remove(0, customPrefix.Length);
+            }
+
+            return Regex.Replace(camelCasedString,
+                @"(?<a>(?<!^)((?:[A-Z][a-z])|(?:(?<!^[A-Z]+)[A-Z0-9]+(?:(?=[A-Z][a-z])|$))|(?:[0-9]+)))", @" ${a}");
         }
     }
 }

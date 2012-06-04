@@ -84,7 +84,9 @@
     <Compile Include="Entities\Defect.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\FieldInfo.cs" />
+    <Compile Include="Entities\FieldType.cs" />
     <Compile Include="Entities\Link.cs" />
+    <Compile Include="Entities\ListValue.cs" />
     <Compile Include="Entities\Scope.cs" />
     <Compile Include="EntityFieldTypeResolver.cs" />
     <Compile Include="Filters\Filter.cs" />
