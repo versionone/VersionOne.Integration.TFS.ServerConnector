@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Ninject;
@@ -500,23 +501,26 @@ namespace VersionOne.ServerConnector {
             return result.ToArray();
         }
 
-        public ICollection<Scope> GetProjectsByName(string name) {
+        public ICollection<Scope> LookupProjects(string term) {
             var projectType = metaModel.GetAssetType(ScopeType);
+            var parentDef = projectType.GetAttributeDefinition("Parent");
             var nameDef = projectType.GetAttributeDefinition(Entity.NameProperty);
             var stateDef = projectType.GetAttributeDefinition(AssetStateAttribute);
-
-            var findin = new AttributeSelection { nameDef };
 
             var filter = new FilterTerm(stateDef);
             filter.NotEqual(AssetState.Closed);
             
-            var query = new Query(projectType) {Filter = filter, Find = new QueryFind(name, findin), };
+            var query = new Query(projectType, parentDef) {Filter = filter };
             query.Selection.Add(nameDef);
             query.OrderBy.MajorSort(projectType.DefaultOrderBy, OrderBy.Order.Ascending);
 
-            var assets = services.Retrieve(query).Assets;
+            var assets = services.Retrieve(query).Assets.Flatten();
 
-            return assets.Select(asset => new Scope(asset)).ToList();
+            var selectAll = string.IsNullOrEmpty(term.Trim());
+            return assets
+                .Where(x => selectAll || x.GetAttribute(nameDef).Value.ToString().ToLowerInvariant().Contains(term.ToLowerInvariant()))
+                .Select(asset => new Scope(asset))
+                .ToList();
         }
 
         public Scope CreateProject(string name) {

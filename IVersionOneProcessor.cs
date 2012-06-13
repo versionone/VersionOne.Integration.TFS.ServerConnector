@@ -44,7 +44,7 @@ namespace VersionOne.ServerConnector {
         string GetProjectTokenByName(string projectName);
         string GetRootProjectToken();
 
-        ICollection<Scope> GetProjectsByName(string name);
+        ICollection<Scope> LookupProjects(string term);
         Scope CreateProject(string name);
         IList<ListValue> GetCustomTextFields(string typeName);
     }
