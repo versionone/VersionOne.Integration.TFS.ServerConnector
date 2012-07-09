@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Ninject;
 using VersionOne.SDK.APIClient;
 using VersionOne.ServerConnector.Entities;
 using VersionOne.ServerConnector.Filters;
@@ -54,13 +52,10 @@ namespace VersionOne.ServerConnector {
             get { return queryBuilder.ListPropertyValues; }
         }
 
-        [Inject]
         public VersionOneProcessor(VersionOneSettings settings, ILogger logger) : this(settings.ToXmlElement(), logger) { }
 
-        [Inject]
         public VersionOneProcessor(VersionOneSettings settings) : this(settings, null) { }
 
-        [Inject]
         public VersionOneProcessor(XmlElement config, ILogger logger) {
             configuration = config;
             this.logger = logger;
@@ -68,7 +63,6 @@ namespace VersionOne.ServerConnector {
             queryBuilder = new QueryBuilder();
         }
 
-        [Inject]
         public VersionOneProcessor(XmlElement config) : this(config, null) { }
 
         private void Connect() {
