@@ -33,7 +33,7 @@ namespace VersionOne.ServerConnector {
         void AddProperty(string attr, string prefix, bool isList);
         void AddListProperty(string fieldName, string typeToken);
         void AddOptionalProperty(string attr, string prefix);
-        void AddLinkToWorkitem(Workitem workitem, Link link);
+        void AddLinkToEntity(BaseEntity entity, Link link);
 
         IList<Workitem> GetWorkitems(string type, IFilter filter);
         IList<Workitem> GetPrimaryWorkitems(IFilter filter);

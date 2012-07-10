@@ -8,19 +8,12 @@ namespace VersionOne.ServerConnector.Entities {
         public const string NumberProperty = "Number";
         public const string EstimateProperty = "Estimate";
         public const string PriorityProperty = "Priority";
-        public const string DescriptionProperty = "Description";
-        public const string ReferenceProperty = "Reference";
         public const string ChangeDateUtcProperty = "ChangeDateUTC";
         public const string ScopeProperty = "Scope";
         public const string AssetStateProperty = "AssetState";
         public const string IdProperty = "ID";
 
         public string Number { get { return GetProperty<string>(NumberProperty); } }
-        
-        public string Name {
-            get { return GetProperty<string>(NameProperty); }
-            set { SetProperty(NameProperty, value); }
-        }
 
         public string Description {
             get { return GetProperty<string>(DescriptionProperty); }

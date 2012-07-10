@@ -4,11 +4,11 @@ using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
     public class PrimaryWorkitem : Workitem {        
-        public const string StatusProperty = "Status";
         public const string TeamNameProperty = "Team.Name";
         public const string ParentNameProperty = "Parent.Name";
         public const string SprintNameProperty = "Timebox.Name";
         public const string OrderProperty = "Order";
+        public const string CompletedInBuildRunsProperty = "CompletedInBuildRuns";
 
         public string FeatureGroupName {
             get { return GetProperty<string>(ParentNameProperty); }

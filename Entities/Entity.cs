@@ -10,22 +10,25 @@ namespace VersionOne.ServerConnector.Entities {
         public const string CustomPrefix = "Custom_";
         public const string SourceNameProperty = "Source.Name";        
         public const string StatusNameProperty = "Status.Name";
+        public const string DescriptionProperty = "Description";
+        public const string StatusProperty = "Status";
 
         //TODO decide where we need to keep these constants.
-        //using in V1Processor
         public const string ParentProperty = "Parent";
         public const string ParentAndUpProperty = "ParentAndUp";
-
-        //using in QueryBuilder
         public const string InactiveProperty = "Inactive";
-
-        //using in FilterHelper
         public const string ScopeParentAndUpProperty = "Scope.ParentMeAndUp";
 
         public string Id { get; protected set; }
         public string TypeName { get; protected set; }
 
         protected internal IDictionary<string, PropertyValues> ListValues { get; set; }
+
+        public string Name {
+            get { return GetProperty<string>(NameProperty); }
+            set { SetProperty(NameProperty, value); }
+        }
+
         protected internal IEntityFieldTypeResolver TypeResolver;
 
         internal Entity(Asset asset, IEntityFieldTypeResolver typeResolver) : base(asset) {

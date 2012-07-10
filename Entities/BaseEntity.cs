@@ -2,6 +2,8 @@ using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
     public abstract class BaseEntity {
+        public const string ReferenceProperty = "Reference";
+
         internal readonly Asset Asset;
 
         public virtual string TypeToken { get { return Asset.AssetType.Token; } }
@@ -19,7 +21,13 @@ namespace VersionOne.ServerConnector.Entities {
 
         protected virtual void SetProperty<T>(string name, T value) {
             var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
-            Asset.SetAttributeValue(attributeDefinition, value);
+
+            if(value is BaseEntity) {
+                var entity = value as BaseEntity;
+                Asset.SetAttributeValue(attributeDefinition, entity.Asset.Oid.Momentless);
+            } else {
+                Asset.SetAttributeValue(attributeDefinition, value);
+            }
         }
     }
 }

@@ -18,6 +18,11 @@ namespace VersionOne.ServerConnector {
         public const string FeatureGroupType = "Theme";
         public const string StoryType = "Story";
         public const string DefectType = "Defect";
+        public const string TaskType = "Task";
+        public const string TestType = "Test";
+        public const string ChangeSetType = "ChangeSet";
+        public const string BuildProjectType = "BuildProject";
+        public const string BuildRunType = "BuildRun";
         public const string PrimaryWorkitemType = "PrimaryWorkitem";
         public const string MemberType = "Member";
         public const string LinkType = "Link";
@@ -319,7 +324,6 @@ namespace VersionOne.ServerConnector {
 
         private List<Asset> GetAssetLinks(Oid assetOid, IFilter filter) {
             var fullFilter = GroupFilter.And(filter, Filter.Equal(AssetAttribute, assetOid.Momentless));
-
             return queryBuilder.Query(LinkType, fullFilter);
         }
 
@@ -327,10 +331,10 @@ namespace VersionOne.ServerConnector {
             return GetAssetLinks(Oid.FromToken(workitem.Id, metaModel), filter).Select(x => new Link(x)).ToList();
         }
 
-        public void AddLinkToWorkitem(Workitem workitem, Link link) {
+        public void AddLinkToEntity(BaseEntity entity, Link link) {
             try {
                 if (link != null && !string.IsNullOrEmpty(link.Url)) {
-                    AddLinkToAsset(workitem.Asset, link);
+                    AddLinkToAsset(entity.Asset, link);
                 }
             } catch (V1Exception ex) {
                 throw new VersionOneException(queryBuilder.Localize(ex.Message));

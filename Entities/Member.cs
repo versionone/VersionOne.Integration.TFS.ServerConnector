@@ -10,11 +10,6 @@ namespace VersionOne.ServerConnector.Entities {
 
         public Member(Asset asset) : base(asset, null) {}
 
-        public string Name {
-            get { return GetProperty<string>(NameProperty); }
-            set { SetProperty(NameProperty, value); }
-        }
-
         public string Username {
             get { return GetProperty<string>(UsernameProperty); }
         }

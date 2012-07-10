@@ -14,10 +14,9 @@ namespace VersionOne.ServerConnector.Entities {
             OnMenu = onMenu;
         }
 
-        public Link(string url, string title) : this(url, title, true) {
-        }
+        public Link(string url, string title) : this(url, title, true) { }
 
-        public Link(Asset asset) {
+        internal Link(Asset asset) {
             Title = asset.GetAttribute(asset.AssetType.GetAttributeDefinition(Entity.NameProperty)).Value.ToString();
             Url = asset.GetAttribute(asset.AssetType.GetAttributeDefinition(UrlProperty)).Value.ToString();
             OnMenu = (bool)asset.GetAttribute(asset.AssetType.GetAttributeDefinition(OnMenuProperty)).Value;
@@ -27,9 +26,11 @@ namespace VersionOne.ServerConnector.Entities {
             if(ReferenceEquals(null, obj)) {
                 return false;
             }
+
             if(ReferenceEquals(this, obj)) {
                 return true;
             }
+
             return obj.GetType() == typeof(Link) && Equals((Link) obj);
         }
 

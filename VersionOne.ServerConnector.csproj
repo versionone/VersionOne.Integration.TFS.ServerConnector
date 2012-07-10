@@ -81,6 +81,9 @@
     </Compile>
     <Compile Include="AttributeInfo.cs" />
     <Compile Include="Entities\BaseEntity.cs" />
+    <Compile Include="Entities\BuildProject.cs" />
+    <Compile Include="Entities\BuildRun.cs" />
+    <Compile Include="Entities\ChangeSet.cs" />
     <Compile Include="Entities\Defect.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\FieldInfo.cs" />
