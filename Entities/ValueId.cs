@@ -15,6 +15,10 @@ namespace VersionOne.ServerConnector.Entities {
             this.name = name;
         }
 
+        public static ValueId FromEntity(Entity entity) {
+            return new ValueId(entity.Asset.Oid, entity.Name);
+        }
+
         public override string ToString() {
             return name;
         }

@@ -80,6 +80,7 @@
       <Link>Properties\AssemblyInfoProduct.cs</Link>
     </Compile>
     <Compile Include="AttributeInfo.cs" />
+    <Compile Include="AttributeValue.cs" />
     <Compile Include="Entities\BaseEntity.cs" />
     <Compile Include="Entities\BuildProject.cs" />
     <Compile Include="Entities\BuildRun.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Entities\Link.cs" />
     <Compile Include="Entities\ListValue.cs" />
     <Compile Include="Entities\Scope.cs" />
+    <Compile Include="EntityFactory.cs" />
     <Compile Include="EntityFieldTypeResolver.cs" />
     <Compile Include="Filters\Filter.cs" />
     <Compile Include="Filters\FilterActions.cs" />
@@ -106,11 +108,13 @@
     <Compile Include="IVersionOneProcessor.cs" />
     <Compile Include="Entities\PrimaryWorkitem.cs" />
     <Compile Include="LoggerExtensions.cs" />
+    <Compile Include="MultipleAttributeValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entities\Story.cs" />
     <Compile Include="Entities\ValueId.cs" />
     <Compile Include="ProxySettings.cs" />
     <Compile Include="QueryBuilder.cs" />
+    <Compile Include="SingleAttributeValue.cs" />
     <Compile Include="StartupValidation\BaseValidator.cs" />
     <Compile Include="StartupValidation\V1ConnectionValidator.cs" />
     <Compile Include="StartupValidation\V1CustomListFieldValidator.cs" />

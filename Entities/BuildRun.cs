@@ -5,12 +5,13 @@ namespace VersionOne.ServerConnector.Entities {
     public class BuildRun : Entity {
         public const string ElapsedProperty = "Elapsed";
         public const string DateProperty = "Date";
+        public const string BuildProjectProperty = "BuildProject";
 
         public override string TypeToken {
             get { return VersionOneProcessor.BuildRunType; }
         }
 
-        internal BuildRun(Asset asset, IEntityFieldTypeResolver typeResolver) : base(asset, typeResolver) { }
+        internal BuildRun(Asset asset) : base(asset, null) { }
 
         public ValueId Status {
             get { return GetListValue(StatusProperty); }

@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Linq;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
@@ -28,6 +30,22 @@ namespace VersionOne.ServerConnector.Entities {
             } else {
                 Asset.SetAttributeValue(attributeDefinition, value);
             }
+        }
+
+        protected virtual ValueId[] GetMultiValueProperty(string name) {
+            var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
+            var attribute = Asset.GetAttribute(attributeDefinition);
+            return attribute == null  || attribute.Values == null ? new ValueId[0] : ConvertEnumerable(attribute.Values);
+        }
+
+        // TODO fix, will not work if values already exist
+        protected virtual void SetMultiValueProperty(string name, ValueId[] values) {
+            var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
+            (values ?? new ValueId[0]).ToList().ForEach(x => Asset.AddAttributeValue(attributeDefinition, x.Oid.Momentless));
+        }
+
+        private static ValueId[] ConvertEnumerable(IEnumerable source) {
+            return source.Cast<Oid>().Select(x => new ValueId(x, null)).ToArray();
         }
     }
 }

@@ -2,11 +2,13 @@
 
 namespace VersionOne.ServerConnector.Entities {
     public class ChangeSet : Entity {
+        public const string PrimaryWorkitemsProperty = "PrimaryWorkitems";
+
         public override string TypeToken {
             get { return VersionOneProcessor.ChangeSetType; }
         }
 
-        internal ChangeSet(Asset asset, IEntityFieldTypeResolver typeResolver) : base(asset, typeResolver) { }
+        internal ChangeSet(Asset asset) : base(asset, null) { }
 
         public string Reference {
             get { return GetProperty<string>(ReferenceProperty); }
@@ -18,6 +20,9 @@ namespace VersionOne.ServerConnector.Entities {
             set { SetProperty(DescriptionProperty, value);}
         }
 
-        // TODO PrimaryWorkitems
+        public ValueId[] PrimaryWorkitems {
+            get { return GetMultiValueProperty(PrimaryWorkitemsProperty); }
+            set { SetMultiValueProperty(PrimaryWorkitemsProperty, value);}
+        }
     }
 }

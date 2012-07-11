@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using VersionOne.ServerConnector.Entities;
 using VersionOne.ServerConnector.Filters;
 
@@ -13,7 +14,8 @@ namespace VersionOne.ServerConnector {
         IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId);
         IList<FeatureGroup> GetFeatureGroups(IFilter filters, IFilter childrenFilters);
         
-        void SaveWorkitems(ICollection<Workitem> workitems);
+        void SaveEntities<T>(ICollection<T> entities) where T : BaseEntity;
+        void Save(BaseEntity entity);
         void CloseWorkitem(PrimaryWorkitem workitem);
         void UpdateProject(string projectId, Link link);
         
@@ -37,6 +39,8 @@ namespace VersionOne.ServerConnector {
 
         IList<Workitem> GetWorkitems(string type, IFilter filter);
         IList<Workitem> GetPrimaryWorkitems(IFilter filter);
+        IList<BuildProject> GetBuildProjects(IFilter filter);
+        IList<ChangeSet> GetChangeSets(IFilter filter);
 
         Workitem CreateWorkitem(string assetType, string title, string description, string projectToken, 
                                 string externalFieldName, string externalId, string externalSystemName, string priorityId, string owners);
@@ -47,5 +51,8 @@ namespace VersionOne.ServerConnector {
         ICollection<Scope> LookupProjects(string term);
         Scope CreateProject(string name);
         IList<ListValue> GetCustomTextFields(string typeName);
+
+        BuildRun CreateBuildRun(BuildProject buildProject, string name, DateTime date, double elapsed);
+        ChangeSet CreateChangeSet(string name, string reference, string description);
     }
 }

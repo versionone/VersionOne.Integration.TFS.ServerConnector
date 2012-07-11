@@ -24,6 +24,7 @@ namespace VersionOne.ServerConnector {
         public const string BuildProjectType = "BuildProject";
         public const string BuildRunType = "BuildRun";
         public const string PrimaryWorkitemType = "PrimaryWorkitem";
+        public const string WorkitemType = "Workitem";
         public const string MemberType = "Member";
         public const string LinkType = "Link";
         public const string AttributeDefinitionType = "AttributeDefinition";
@@ -158,19 +159,23 @@ namespace VersionOne.ServerConnector {
             return members;
         }
 
-        public void SaveWorkitems(ICollection<Workitem> workitems) {
-            if(workitems == null || workitems.Count == 0) {
+        public void SaveEntities<T>(ICollection<T> entities) where T : BaseEntity {
+            if(entities == null || entities.Count == 0) {
                 return;
             }
 
-            foreach(var workitem in workitems) {
-                try {
-                    services.Save(workitem.Asset);
-                } catch(V1Exception ex) {
-                    logger.MaybeLog(LogMessage.SeverityType.Error, string.Format(queryBuilder.Localize(GetMessageFromException(ex)) + " '{0}' {2} ({1}).", workitem.Name, workitem.Number, workitem.TypeName));
-                } catch (Exception ex) {
-                    logger.MaybeLog(LogMessage.SeverityType.Error, "Internal error: " + ex.Message);
-                }
+            foreach(var entity in entities) {
+                Save(entity);
+            }
+        }
+
+        public void Save(BaseEntity entity) {
+            try {
+                services.Save(entity.Asset);
+            } catch(V1Exception ex) {
+                logger.MaybeLog(LogMessage.SeverityType.Error, string.Format(queryBuilder.Localize(GetMessageFromException(ex)) + " '{0}' ({1}).", entity.Asset.Oid.Token, entity.TypeToken));
+            } catch (Exception ex) {
+                logger.MaybeLog(LogMessage.SeverityType.Error, "Internal error: " + ex.Message);
             }
         }
 
@@ -203,12 +208,10 @@ namespace VersionOne.ServerConnector {
 
         public ValueId CreateWorkitemStatus(string statusName) {
             try {
-                var primaryWorkitemStatusType = metaModel.GetAssetType(WorkitemStatusType);
-                var status = new Asset(primaryWorkitemStatusType);
-                status.SetAttributeValue(primaryWorkitemStatusType.NameAttribute, statusName);
-                services.Save(status);
-
-                return new ValueId(status.Oid.Momentless, statusName);
+                var statusAsset = GetEntityFactory().Create(WorkitemStatusType, new[] {
+                    AttributeValue.Single(Entity.NameProperty, statusName)
+                });
+                return new ValueId(statusAsset.Oid.Momentless, statusName);
             } catch (V1Exception ex) {
                 throw new VersionOneException(queryBuilder.Localize(ex.Message));
             } catch(Exception ex) {
@@ -218,12 +221,10 @@ namespace VersionOne.ServerConnector {
 
         public ValueId CreateWorkitemPriority(string priorityName) {
             try {
-                var priorityType = metaModel.GetAssetType(WorkitemPriorityType);
-                var status = new Asset(priorityType);
-                status.SetAttributeValue(priorityType.NameAttribute, priorityName);
-                services.Save(status);
-
-                return new ValueId(status.Oid.Momentless, priorityName);
+                var statusAsset = GetEntityFactory().Create(WorkitemPriorityType, new[] {
+                    AttributeValue.Single(Entity.NameProperty, priorityName)
+                });
+                return new ValueId(statusAsset.Oid.Momentless, priorityName);
             } catch (V1Exception ex) {
                 throw new VersionOneException(queryBuilder.Localize(ex.Message));
             } catch(Exception ex) {
@@ -368,6 +369,20 @@ namespace VersionOne.ServerConnector {
             logger.MaybeLog(LogMessage.SeverityType.Info, string.Format("{0} link saved", link.Title));
         }
 
+        public IList<BuildProject> GetBuildProjects(IFilter filter) {
+            var buildProjectType = metaModel.GetAssetType(BuildProjectType);
+            var terms = filter.GetFilter(buildProjectType);
+
+            return queryBuilder.Query(BuildProjectType, terms).Select(asset => new BuildProject(asset)).ToList();
+        } 
+
+        public IList<ChangeSet> GetChangeSets(IFilter filter) {
+            var changeSetType = metaModel.GetAssetType(ChangeSetType);
+            var terms = filter.GetFilter(changeSetType);
+
+            return queryBuilder.Query(ChangeSetType, terms).Select(asset => new ChangeSet(asset)).ToList();
+        } 
+
         public IList<Workitem> GetPrimaryWorkitems(IFilter filter) {
             return GetWorkitems(PrimaryWorkitemType, filter);
         }
@@ -390,28 +405,44 @@ namespace VersionOne.ServerConnector {
             var projectOid = Oid.FromToken(projectToken, metaModel);
             var source = GetSourceByName(externalSystemName);
             var sourceOid = source.Oid.Momentless;
-            var workitemType = metaModel.GetAssetType(assetType);
-            var newWorkitem = services.New(workitemType, Oid.Null);
 
-            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Name"), title);
-            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition(ScopeType), projectOid);
-            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Description"), description);
-            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Source"), sourceOid);
-            newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition(externalFieldName), externalId);
-
-            foreach(var ownerOid in GetOwnerOids(owners)) {
-                newWorkitem.AddAttributeValue(workitemType.GetAttributeDefinition("Owners"), ownerOid);
-            }
-
+            var attributeValues = new List<AttributeValue> {
+                AttributeValue.Single(Entity.NameProperty, title),
+                AttributeValue.Single(ScopeType, projectOid),
+                AttributeValue.Single(Entity.DescriptionProperty, description),
+                AttributeValue.Single("Source", sourceOid),
+                AttributeValue.Single(externalFieldName, externalId),
+                AttributeValue.Multi("Owners", GetOwnerOids(owners).ToArray())
+            };
+            
             if(!string.IsNullOrEmpty(priorityId)) {
-                newWorkitem.SetAttributeValue(workitemType.GetAttributeDefinition("Priority"), Oid.FromToken(priorityId, metaModel));
+                attributeValues.Add(AttributeValue.Single("Priority", Oid.FromToken(priorityId, metaModel)));
             }
 
-            services.Save(newWorkitem);
+            var workitemAsset = GetEntityFactory().Create(assetType, attributeValues);
 
             //TODO refactor
             //NOTE Save doesn't return all the needed data, therefore we need another query
-            return GetWorkitems(newWorkitem.AssetType.Token, Filter.Equal("ID", newWorkitem.Oid.Momentless.Token)).FirstOrDefault();
+            return GetWorkitems(workitemAsset.AssetType.Token, Filter.Equal("ID", workitemAsset.Oid.Momentless.Token)).FirstOrDefault();
+        }
+
+        public BuildRun CreateBuildRun(BuildProject buildProject, string name, DateTime date, double elapsed) {
+            var asset = GetEntityFactory().Create(BuildRunType, new[] {
+                AttributeValue.Single(BuildRun.BuildProjectProperty, buildProject.Asset.Oid.Momentless),
+                AttributeValue.Single(Entity.NameProperty, name),
+                AttributeValue.Single(BuildRun.DateProperty, date),
+                AttributeValue.Single(BuildRun.ElapsedProperty, elapsed)
+            });
+            return new BuildRun(asset);
+        }
+
+        public ChangeSet CreateChangeSet(string name, string reference, string description) {
+            var asset = GetEntityFactory().Create(ChangeSetType, new[] {
+                AttributeValue.Single(Entity.NameProperty, name),
+                AttributeValue.Single(BaseEntity.ReferenceProperty, reference),
+                AttributeValue.Single(Entity.DescriptionProperty, description)
+            });
+            return new ChangeSet(asset);
         }
 
         private ValueId GetSourceByName(string externalSystemName) {
@@ -521,16 +552,18 @@ namespace VersionOne.ServerConnector {
                 .ToList();
         }
 
+        private EntityFactory GetEntityFactory() {
+            return new EntityFactory(metaModel, services);
+        }
+
         public Scope CreateProject(string name) {
-            var projectType = metaModel.GetAssetType(ScopeType);
             var rootProjectOid = GetRootProjectToken();
-
-            var newProject= services.New(projectType, Oid.Null);
-            newProject.SetAttributeValue(projectType.GetAttributeDefinition(Entity.NameProperty), name);
-            newProject.SetAttributeValue(projectType.GetAttributeDefinition(Entity.ParentProperty), rootProjectOid);
-            newProject.SetAttributeValue(projectType.GetAttributeDefinition("BeginDate"), DateTime.Now);
-            services.Save(newProject);
-
+            var newProject = GetEntityFactory().Create(ScopeType,
+                                                       new[] {
+                                                           AttributeValue.Single(Entity.NameProperty, name),
+                                                           AttributeValue.Single(Entity.ParentProperty, rootProjectOid),
+                                                           AttributeValue.Single("BeginDate", DateTime.Now)
+                                                       });
             return new Scope(newProject);
         }
 
