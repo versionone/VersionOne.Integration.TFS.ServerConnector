@@ -43,6 +43,7 @@ namespace VersionOne.ServerConnector {
         public const string WorkitemPriorityType = "WorkitemPriority";
         public const string WorkitemSourceType = "StorySource";
         public const string WorkitemStatusType = "StoryStatus";
+        public const string BuildRunStatusType = "BuildStatus";
 
         private const string IdAttribute = "ID";
         private const string AssetAttribute = "Asset";
@@ -199,6 +200,16 @@ namespace VersionOne.ServerConnector {
         public IList<ValueId> GetWorkitemStatuses() {
             try {
                 return queryBuilder.QueryPropertyValues(WorkitemStatusType).ToList();
+            } catch (V1Exception ex) {
+                throw new VersionOneException(queryBuilder.Localize(ex.Message));
+            } catch(Exception ex) {
+                throw new VersionOneException(ex.Message);
+            }
+        }
+
+        public IList<ValueId> GetBuildRunStatuses() {
+            try {
+                return queryBuilder.QueryPropertyValues(BuildRunStatusType).ToList();
             } catch (V1Exception ex) {
                 throw new VersionOneException(queryBuilder.Localize(ex.Message));
             } catch(Exception ex) {
@@ -376,6 +387,13 @@ namespace VersionOne.ServerConnector {
             return queryBuilder.Query(BuildProjectType, terms).Select(asset => new BuildProject(asset)).ToList();
         } 
 
+        public IList<BuildRun> GetBuildRuns(IFilter filter) {
+            var buildRunType = metaModel.GetAssetType(BuildRunType);
+            var terms = filter.GetFilter(buildRunType);
+
+            return queryBuilder.Query(BuildRunType, terms).Select(asset => new BuildRun(asset, queryBuilder.ListPropertyValues, queryBuilder.TypeResolver)).ToList();
+        } 
+
         public IList<ChangeSet> GetChangeSets(IFilter filter) {
             var changeSetType = metaModel.GetAssetType(ChangeSetType);
             var terms = filter.GetFilter(changeSetType);
@@ -433,7 +451,7 @@ namespace VersionOne.ServerConnector {
                 AttributeValue.Single(BuildRun.DateProperty, date),
                 AttributeValue.Single(BuildRun.ElapsedProperty, elapsed)
             });
-            return new BuildRun(asset);
+            return new BuildRun(asset, ListPropertyValues, queryBuilder.TypeResolver);
         }
 
         public ChangeSet CreateChangeSet(string name, string reference, string description) {
@@ -553,7 +571,7 @@ namespace VersionOne.ServerConnector {
         }
 
         private EntityFactory GetEntityFactory() {
-            return new EntityFactory(metaModel, services);
+            return new EntityFactory(metaModel, services, queryBuilder.AttributesToQuery);
         }
 
         public Scope CreateProject(string name) {

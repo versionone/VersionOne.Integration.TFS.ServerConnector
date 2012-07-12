@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
@@ -6,16 +7,20 @@ namespace VersionOne.ServerConnector.Entities {
         public const string ElapsedProperty = "Elapsed";
         public const string DateProperty = "Date";
         public const string BuildProjectProperty = "BuildProject";
+        public const string ChangeSetsProperty = "ChangeSets";
 
         public override string TypeToken {
             get { return VersionOneProcessor.BuildRunType; }
         }
 
-        internal BuildRun(Asset asset) : base(asset, null) { }
+        internal BuildRun(Asset asset, IDictionary<string, PropertyValues> listValues, IEntityFieldTypeResolver typeResolver) : base(asset, typeResolver) {
+            ListValues = listValues;
+        }
 
+        // TODO impl. getter properly
         public ValueId Status {
-            get { return GetListValue(StatusProperty); }
-            set { SetCustomListValue(StatusProperty, value.Token); }
+            get { return new ValueId(GetProperty<Oid>(StatusProperty), string.Empty); }
+            set { SetProperty(StatusProperty, value.Oid); }
         }
 
         public double? Elapsed {
@@ -28,7 +33,14 @@ namespace VersionOne.ServerConnector.Entities {
             set { SetProperty(DateProperty, value); }
         }
 
-        // TODO BuildProject
-        // TODO ChangeSets
+        public string Description {
+            get { return GetProperty<string>(DescriptionProperty); }
+            set { SetProperty(DescriptionProperty, value); }
+        }
+        
+        public ValueId[] ChangeSets {
+            get { return GetMultiValueProperty(ChangeSetsProperty); }
+            set { SetMultiValueProperty(ChangeSetsProperty, value); }
+        }
     }
 }

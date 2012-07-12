@@ -16,6 +16,7 @@ namespace VersionOne.ServerConnector {
         
         public IDictionary<string, PropertyValues> ListPropertyValues { get; private set; }
         public IEntityFieldTypeResolver TypeResolver { get { return typeResolver; } }
+        public IEnumerable<AttributeInfo> AttributesToQuery { get { return attributesToQuery; } } 
 
         public void Setup(IServices services, IMetaModel metaModel, ILocalizer localizer) {
             this.services = services;
@@ -192,6 +193,8 @@ namespace VersionOne.ServerConnector {
                     return "Member";
                 case "PrimaryWorkitemPriority":                      
                     return "WorkitemPriority";
+                case "BuildRunStatus":
+                    return "BuildStatus";
             }
 
             return propertyAlias;

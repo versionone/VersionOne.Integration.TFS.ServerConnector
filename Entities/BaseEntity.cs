@@ -38,9 +38,14 @@ namespace VersionOne.ServerConnector.Entities {
             return attribute == null  || attribute.Values == null ? new ValueId[0] : ConvertEnumerable(attribute.Values);
         }
 
-        // TODO fix, will not work if values already exist
         protected virtual void SetMultiValueProperty(string name, ValueId[] values) {
             var attributeDefinition = Asset.AssetType.GetAttributeDefinition(name);
+            var attribute = Asset.GetAttribute(attributeDefinition);
+
+            foreach (Oid value in attribute.Values) {
+                Asset.RemoveAttributeValue(attributeDefinition, value);
+            }
+
             (values ?? new ValueId[0]).ToList().ForEach(x => Asset.AddAttributeValue(attributeDefinition, x.Oid.Momentless));
         }
 

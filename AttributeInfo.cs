@@ -1,5 +1,5 @@
 ﻿namespace VersionOne.ServerConnector {
-    internal class AttributeInfo {
+    public class AttributeInfo {
         public readonly string Attr;
         public readonly string Prefix;
         public readonly bool IsList;

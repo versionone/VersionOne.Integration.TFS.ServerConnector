@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector {
     internal class EntityFactory {
         private readonly IMetaModel metaModel;
         private readonly IServices services;
+        private readonly IEnumerable<AttributeInfo> attributesToQuery; 
 
-        internal EntityFactory(IMetaModel metaModel, IServices services) {
+        internal EntityFactory(IMetaModel metaModel, IServices services, IEnumerable<AttributeInfo> attributesToQuery) {
             this.metaModel = metaModel;
             this.services = services;
+            this.attributesToQuery = attributesToQuery;
         }
 
         internal Asset Create(string assetTypeName, IEnumerable<AttributeValue> attributeValues) {
@@ -30,6 +33,10 @@ namespace VersionOne.ServerConnector {
                 } else {
                     throw new NotSupportedException("Unknown Attribute Value type.");
                 }
+            }
+
+            foreach (var attributeInfo in attributesToQuery.Where(attributeInfo => attributeInfo.Prefix == assetTypeName)) {
+                asset.EnsureAttribute(assetType.GetAttributeDefinition(attributeInfo.Attr));
             }
 
             services.Save(asset);

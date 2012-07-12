@@ -39,6 +39,11 @@ namespace VersionOne.ServerConnector.Entities {
             get { return VersionOneProcessor.PrimaryWorkitemType; }
         }
 
+        public ValueId[] CompletedInBuildRuns {
+            get { return GetMultiValueProperty(CompletedInBuildRunsProperty); }
+            set { SetMultiValueProperty(CompletedInBuildRunsProperty, value); }
+        }
+
         internal protected PrimaryWorkitem(Asset asset, IDictionary<string, PropertyValues> listValues, IEntityFieldTypeResolver typeResolver) : base(asset, listValues, typeResolver) { }
 
         internal protected PrimaryWorkitem() { }

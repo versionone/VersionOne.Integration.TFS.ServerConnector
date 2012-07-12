@@ -26,6 +26,7 @@ namespace VersionOne.ServerConnector {
         ValueId CreateWorkitemPriority(string priorityName);
         IList<ValueId> GetWorkitemStatuses();
         IList<ValueId> GetWorkitemPriorities();
+        IList<ValueId> GetBuildRunStatuses();
 
         PropertyValues GetAvailableListValues(string typeToken, string fieldName);
         
