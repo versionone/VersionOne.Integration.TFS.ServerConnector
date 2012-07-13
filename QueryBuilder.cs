@@ -4,12 +4,15 @@ using System.Linq;
 using VersionOne.SDK.APIClient;
 using VersionOne.ServerConnector.Entities;
 using VersionOne.ServerConnector.Filters;
+using SdkOrder = VersionOne.SDK.APIClient.OrderBy.Order;
 
 namespace VersionOne.ServerConnector {
     public class QueryBuilder : IQueryBuilder {
         private IServices services;
         private IMetaModel metaModel;
         private ILocalizer localizer;
+
+        private SortBy sortBy = null;
         
         private readonly LinkedList<AttributeInfo> attributesToQuery = new LinkedList<AttributeInfo>();
         private readonly EntityFieldTypeResolver typeResolver = new EntityFieldTypeResolver();
@@ -37,7 +40,7 @@ namespace VersionOne.ServerConnector {
         }
 
         /// <summary>
-        /// Add not list property which can be doesn't exist at start.
+        /// Add non-list property which can be missing exist at startup.
         /// </summary>
         /// <param name="attr">Attribute name</param>
         /// <param name="prefix">Prefix, usually matching attribute type</param>
@@ -45,10 +48,20 @@ namespace VersionOne.ServerConnector {
             attributesToQuery.AddLast(new AttributeInfo(attr, prefix, false, true));
         }
 
+        public IQueryBuilder SortBy(SortBy sort) {
+            sortBy = sort;
+            return this;
+        }
+
         public AssetList Query(string workitemTypeName, IFilterTerm filter) {
             try {
                 var workitemType = metaModel.GetAssetType(workitemTypeName);
                 var query = new Query(workitemType) { Filter = filter};
+
+                if(sortBy != null) {
+                    var order = sortBy.Order == Order.Ascending ? OrderBy.Order.Ascending : OrderBy.Order.Descending;
+                    query.OrderBy.MajorSort(workitemType.GetAttributeDefinition(sortBy.Attribute), order);
+                }
 
                 AddSelection(query, workitemTypeName, workitemType);
                 return services.Retrieve(query).Assets;

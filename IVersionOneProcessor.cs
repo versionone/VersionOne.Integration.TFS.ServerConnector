@@ -38,8 +38,8 @@ namespace VersionOne.ServerConnector {
         void AddOptionalProperty(string attr, string prefix);
         void AddLinkToEntity(BaseEntity entity, Link link);
 
-        IList<Workitem> GetWorkitems(string type, IFilter filter);
-        IList<Workitem> GetPrimaryWorkitems(IFilter filter);
+        IList<Workitem> GetWorkitems(string type, IFilter filter, SortBy sortBy = null);
+        IList<Workitem> GetPrimaryWorkitems(IFilter filter, SortBy sortBy = null);
         IList<BuildProject> GetBuildProjects(IFilter filter);
         IList<ChangeSet> GetChangeSets(IFilter filter);
 

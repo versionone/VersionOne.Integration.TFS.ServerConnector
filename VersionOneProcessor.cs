@@ -401,11 +401,11 @@ namespace VersionOne.ServerConnector {
             return queryBuilder.Query(ChangeSetType, terms).Select(asset => new ChangeSet(asset)).ToList();
         } 
 
-        public IList<Workitem> GetPrimaryWorkitems(IFilter filter) {
-            return GetWorkitems(PrimaryWorkitemType, filter);
+        public IList<Workitem> GetPrimaryWorkitems(IFilter filter, SortBy sortBy = null) {
+            return GetWorkitems(PrimaryWorkitemType, filter, sortBy);
         }
 
-        public IList<Workitem> GetWorkitems(string type, IFilter filter) {
+        public IList<Workitem> GetWorkitems(string type, IFilter filter, SortBy sortBy = null) {
             var workitemType = metaModel.GetAssetType(type);
             var terms = filter.GetFilter(workitemType);
 

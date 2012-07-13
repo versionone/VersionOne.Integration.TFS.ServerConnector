@@ -109,12 +109,14 @@
     <Compile Include="Entities\PrimaryWorkitem.cs" />
     <Compile Include="LoggerExtensions.cs" />
     <Compile Include="MultipleAttributeValue.cs" />
+    <Compile Include="Order.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entities\Story.cs" />
     <Compile Include="Entities\ValueId.cs" />
     <Compile Include="ProxySettings.cs" />
     <Compile Include="QueryBuilder.cs" />
     <Compile Include="SingleAttributeValue.cs" />
+    <Compile Include="SortBy.cs" />
     <Compile Include="StartupValidation\BaseValidator.cs" />
     <Compile Include="StartupValidation\V1ConnectionValidator.cs" />
     <Compile Include="StartupValidation\V1CustomListFieldValidator.cs" />
