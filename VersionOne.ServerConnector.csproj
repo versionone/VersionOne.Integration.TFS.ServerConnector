@@ -92,6 +92,8 @@
     <Compile Include="Entities\Link.cs" />
     <Compile Include="Entities\ListValue.cs" />
     <Compile Include="Entities\Scope.cs" />
+    <Compile Include="Entities\Task.cs" />
+    <Compile Include="Entities\Test.cs" />
     <Compile Include="EntityFactory.cs" />
     <Compile Include="EntityFieldTypeResolver.cs" />
     <Compile Include="Filters\Filter.cs" />

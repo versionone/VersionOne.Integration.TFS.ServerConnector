@@ -128,36 +128,15 @@ namespace VersionOne.ServerConnector {
 
         // TODO make this Story-agnostic. In case of criteria based ex. on Story-only custom fields current filter approach won't let an easy solution.
         public IList<FeatureGroup> GetFeatureGroups(IFilter filter, IFilter childrenFilter) {
-            var featureGroupType = metaModel.GetAssetType(FeatureGroupType);
-            var ownersDefinition = featureGroupType.GetAttributeDefinition(OwnersAttribute);
+            var allMembers = GetMembers(Filter.Empty());
 
             return queryBuilder.Query(FeatureGroupType, filter)
                 .Select(asset => new FeatureGroup(
                     asset, ListPropertyValues, 
-                    GetWorkitems(StoryType, GroupFilter.And(Filter.Equal(Entity.ParentAndUpProperty, asset.Oid.Momentless.Token.ToString()), childrenFilter)), 
-                    GetMembersByIds(asset.GetAttribute(ownersDefinition).ValuesList),
+                    GetWorkitems(StoryType, GroupFilter.And(Filter.Equal(Entity.ParentAndUpProperty, asset.Oid.Momentless.Token), childrenFilter)), 
+                    ChooseOwners(asset, allMembers),
                     queryBuilder.TypeResolver))
                 .ToList();
-        }
-
-        // TODO avoid ancient non generic collections
-        private IList<Member> GetMembersByIds(IList oids) {
-            if (oids.Count == 0) {
-                return new List<Member>();
-            }
-
-            var memberType = metaModel.GetAssetType(MemberType);
-
-            var terms = new OrFilterTerm();
-            
-            foreach(var oid in oids) {
-                var term = new FilterTerm(memberType.GetAttributeDefinition(IdAttribute));
-                term.Equal(oid);
-                terms.Or(term);
-            }
-            
-            var members = queryBuilder.Query(MemberType, terms).Select(asset => new Member(asset)).ToList();
-            return members;
         }
 
         public void SaveEntities<T>(ICollection<T> entities) where T : BaseEntity {
@@ -409,7 +388,17 @@ namespace VersionOne.ServerConnector {
             var workitemType = metaModel.GetAssetType(type);
             var terms = filter.GetFilter(workitemType);
 
-            return queryBuilder.Query(type, terms).Select(asset => Workitem.Create(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
+            var allMembers = GetMembers(Filter.Empty());
+            
+            return queryBuilder.Query(type, terms)
+                .Select(asset => Workitem.Create(asset, ListPropertyValues, queryBuilder.TypeResolver, ChooseOwners(asset, allMembers)))
+                .ToList();
+        }
+
+        private static IList<Member> ChooseOwners(Asset asset, IEnumerable<Member> allMembers) {
+            var ownersDef = asset.AssetType.GetAttributeDefinition(OwnersAttribute);
+            var owners = asset.GetAttribute(ownersDef).Values.Cast<Oid>().ToList();
+            return allMembers.Where(x => owners.Contains(x.Asset.Oid)).ToList();
         }
 
         //TODO refactor

@@ -11,6 +11,7 @@ namespace VersionOne.ServerConnector.Entities {
         public const string ChangeDateUtcProperty = "ChangeDateUTC";
         public const string ScopeProperty = "Scope";
         public const string AssetStateProperty = "AssetState";
+        public const string ScopeNameProperty = "Scope.Name";
         public const string IdProperty = "ID";
 
         public string Number { get { return GetProperty<string>(NumberProperty); } }
@@ -72,17 +73,19 @@ namespace VersionOne.ServerConnector.Entities {
 
         protected Workitem() { }
 
-        internal static Workitem Create(Asset asset, IDictionary<string, PropertyValues> listPropertyValues, IEntityFieldTypeResolver typeResolver) {
+        internal static Workitem Create(Asset asset, IDictionary<string, PropertyValues> listPropertyValues, IEntityFieldTypeResolver typeResolver, IList<Member> owners = null) {
             switch(asset.AssetType.Token) {
                 case VersionOneProcessor.StoryType:
                     return new Story(asset, listPropertyValues, typeResolver);
                 case VersionOneProcessor.DefectType:
                     return new Defect(asset, listPropertyValues, typeResolver);
+                case VersionOneProcessor.TaskType:
+                    return new Task(asset, listPropertyValues, owners, typeResolver);
+                case VersionOneProcessor.TestType:
+                    return new Test(asset, listPropertyValues, owners, typeResolver);
                 default:
                     throw new NotSupportedException("Type " + asset.AssetType.Token + " is not supported in factory method");
             }
         }
-
-        public const string ScopeNameProperty = "Scope.Name";
     }
 }
