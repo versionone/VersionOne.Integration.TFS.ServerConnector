@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
@@ -25,7 +24,7 @@ namespace VersionOne.ServerConnector.Entities {
         public int Order {
             get {
                 int order;
-                Int32.TryParse(GetProperty<Rank>(OrderProperty).ToString(), out order);
+                int.TryParse(GetProperty<Rank>(OrderProperty).ToString(), out order);
                 return order;
             }
         }
