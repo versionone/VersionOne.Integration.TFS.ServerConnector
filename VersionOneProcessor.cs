@@ -99,7 +99,7 @@ namespace VersionOne.ServerConnector {
         }
 
         public Member GetLoggedInMember() {
-            return GetMembers(Filter.Empty()).FirstOrDefault(item => item.Asset.Oid.Token.Equals(services.LoggedIn));
+            return GetMembers(Filter.Empty()).FirstOrDefault(item => item.Asset.Oid.Equals(services.LoggedIn));
         }
 
         public ICollection<Member> GetMembers(IFilter filter) {
