@@ -11,7 +11,7 @@ namespace VersionOne.ServerConnector.Entities {
             get { return VersionOneProcessor.StoryType; }
         }
 
-        protected internal Story(Asset asset, IDictionary<string, PropertyValues> listValues, IEntityFieldTypeResolver typeResolver) : base(asset, listValues, typeResolver) { }
+        protected internal Story(Asset asset, IDictionary<string, PropertyValues> listValues, IEntityFieldTypeResolver typeResolver, IList<Member> owners = null) : base(asset, listValues, typeResolver, owners) { }
 
         protected Story() { }
 

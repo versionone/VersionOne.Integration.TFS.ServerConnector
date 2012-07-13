@@ -43,7 +43,8 @@ namespace VersionOne.ServerConnector.Entities {
             set { SetMultiValueProperty(CompletedInBuildRunsProperty, value); }
         }
 
-        internal protected PrimaryWorkitem(Asset asset, IDictionary<string, PropertyValues> listValues, IEntityFieldTypeResolver typeResolver) : base(asset, listValues, typeResolver) { }
+        internal protected PrimaryWorkitem(Asset asset, IDictionary<string, PropertyValues> listValues, IEntityFieldTypeResolver typeResolver, IList<Member> owners = null) 
+            : base(asset, listValues, owners, typeResolver) { }
 
         internal protected PrimaryWorkitem() { }
     }
