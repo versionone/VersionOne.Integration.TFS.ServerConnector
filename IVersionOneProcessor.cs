@@ -55,5 +55,8 @@ namespace VersionOne.ServerConnector {
 
         BuildRun CreateBuildRun(BuildProject buildProject, string name, DateTime date, double elapsed);
         ChangeSet CreateChangeSet(string name, string reference, string description);
+
+        void LogConnectionConfiguration();
+        void LogConnectionInformation();
     }
 }

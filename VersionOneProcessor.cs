@@ -5,9 +5,9 @@ using System.Text.RegularExpressions;
 using VersionOne.SDK.APIClient;
 using VersionOne.ServerConnector.Entities;
 using VersionOne.ServerConnector.Filters;
+using VersionOne.ServiceHost.Core.Configuration;
 using VersionOne.ServiceHost.Core.Logging;
 using System.Xml;
-using System.Collections;
 
 namespace VersionOne.ServerConnector {
     // TODO extract hardcoded strings to constants
@@ -50,6 +50,7 @@ namespace VersionOne.ServerConnector {
 
         private IServices services;
         private IMetaModel metaModel;
+        private ILocalizer localizer;
         private readonly ILogger logger; 
         private readonly XmlElement configuration;
 
@@ -77,6 +78,7 @@ namespace VersionOne.ServerConnector {
             connector.Validate();
             services = connector.Services;
             metaModel = connector.MetaModel;
+            localizer = connector.Loc;
 
             queryBuilder.Setup(services, metaModel, connector.Loc);
         }
@@ -657,6 +659,21 @@ namespace VersionOne.ServerConnector {
 
             return Regex.Replace(camelCasedString,
                 @"(?<a>(?<!^)((?:[A-Z][a-z])|(?:(?<!^[A-Z]+)[A-Z0-9]+(?:(?=[A-Z][a-z])|$))|(?:[0-9]+)))", @" ${a}");
+        }
+
+        public void LogConnectionConfiguration() {
+            logger.LogVersionOneConfiguration(LogMessage.SeverityType.Info, configuration);
+        }
+
+        public void LogConnectionInformation() {
+            try {
+                var metaVersion = ((MetaModel) metaModel).Version;
+                var loggedInMember = GetLoggedInMember();
+                var defaultRole = localizer.Resolve(loggedInMember.DefaultRole);
+                logger.LogVersionOneConnectionInformation(LogMessage.SeverityType.Info, metaVersion.ToString(), services.LoggedIn.ToString(), defaultRole);
+            } catch(Exception ex) {
+                logger.Log(LogMessage.SeverityType.Warning, "Failed to log VersionOne connection information.", ex);
+            }
         }
     }
 }
