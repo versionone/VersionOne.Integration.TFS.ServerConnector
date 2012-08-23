@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 
 namespace VersionOne.ServerConnector.Entities {
@@ -47,5 +48,16 @@ namespace VersionOne.ServerConnector.Entities {
             : base(asset, listValues, owners, typeResolver) { }
 
         internal protected PrimaryWorkitem() { }
+
+        internal static new PrimaryWorkitem Create(Asset asset, IDictionary<string, PropertyValues> listPropertyValues, IEntityFieldTypeResolver typeResolver, IList<Member> owners = null) {
+            switch(asset.AssetType.Token) {
+                case VersionOneProcessor.StoryType:
+                    return new Story(asset, listPropertyValues, typeResolver, owners);
+                case VersionOneProcessor.DefectType:
+                    return new Defect(asset, listPropertyValues, typeResolver, owners);
+                default:
+                    throw new NotSupportedException("Type " + asset.AssetType.Token + " is not supported in factory method");
+            }
+        }
     }
 }

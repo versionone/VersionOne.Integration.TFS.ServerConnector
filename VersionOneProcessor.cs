@@ -108,26 +108,6 @@ namespace VersionOne.ServerConnector {
             return queryBuilder.Query(MemberType, filter).Select(item => new Member(item)).ToList();
         } 
 
-        // TODO use GetPrimaryWorkitems()
-        public IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId) {
-            var projectOid = Oid.FromToken(projectId, metaModel);
-            var filter = GroupFilter.And(Filter.Closed(false), Filter.Equal(Workitem.ScopeProperty, projectOid));
-
-            return queryBuilder
-                .Query(PrimaryWorkitemType, filter)
-                .Select(asset => new PrimaryWorkitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
-        }
-
-        // TODO use GetPrimaryWorkitems()
-        public IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId) {
-            var projectOid = Oid.FromToken(projectId, metaModel);
-            var filter = GroupFilter.And(Filter.Closed(true), Filter.Equal(Workitem.ScopeProperty, projectOid));
-
-            return queryBuilder
-                .Query(PrimaryWorkitemType, filter)
-                .Select(asset => new PrimaryWorkitem(asset, ListPropertyValues, queryBuilder.TypeResolver)).ToList();
-        }
-
         // TODO make this Story-agnostic. In case of criteria based ex. on Story-only custom fields current filter approach won't let an easy solution.
         public IList<FeatureGroup> GetFeatureGroups(IFilter filter, IFilter childrenFilter) {
             var allMembers = GetMembers(Filter.Empty());
@@ -382,8 +362,15 @@ namespace VersionOne.ServerConnector {
             return queryBuilder.Query(ChangeSetType, terms).Select(asset => new ChangeSet(asset)).ToList();
         } 
 
-        public IList<Workitem> GetPrimaryWorkitems(IFilter filter, SortBy sortBy = null) {
-            return GetWorkitems(PrimaryWorkitemType, filter, sortBy);
+        public IList<PrimaryWorkitem> GetPrimaryWorkitems(IFilter filter, SortBy sortBy = null) {
+            var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
+            var terms = filter.GetFilter(workitemType);
+
+            var allMembers = GetMembers(Filter.Empty());
+            
+            return queryBuilder.Query(PrimaryWorkitemType, terms)
+                .Select(asset => PrimaryWorkitem.Create(asset, ListPropertyValues, queryBuilder.TypeResolver, ChooseOwners(asset, allMembers)))
+                .ToList();
         }
 
         public IList<Workitem> GetWorkitems(string type, IFilter filter, SortBy sortBy = null) {

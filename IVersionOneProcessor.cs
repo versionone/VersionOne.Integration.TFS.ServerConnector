@@ -10,8 +10,6 @@ namespace VersionOne.ServerConnector {
         Member GetLoggedInMember();
         ICollection<Member> GetMembers(IFilter filter);
         
-        IList<PrimaryWorkitem> GetWorkitemsByProjectId(string projectId);
-        IList<PrimaryWorkitem> GetClosedWorkitemsByProjectId(string projectId);
         IList<FeatureGroup> GetFeatureGroups(IFilter filters, IFilter childrenFilters);
         
         void SaveEntities<T>(ICollection<T> entities) where T : BaseEntity;
@@ -39,7 +37,7 @@ namespace VersionOne.ServerConnector {
         void AddLinkToEntity(BaseEntity entity, Link link);
 
         IList<Workitem> GetWorkitems(string type, IFilter filter, SortBy sortBy = null);
-        IList<Workitem> GetPrimaryWorkitems(IFilter filter, SortBy sortBy = null);
+        IList<PrimaryWorkitem> GetPrimaryWorkitems(IFilter filter, SortBy sortBy = null);
         IList<BuildProject> GetBuildProjects(IFilter filter);
         IList<ChangeSet> GetChangeSets(IFilter filter);
 

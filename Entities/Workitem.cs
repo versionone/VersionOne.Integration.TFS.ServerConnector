@@ -76,9 +76,8 @@ namespace VersionOne.ServerConnector.Entities {
         internal static Workitem Create(Asset asset, IDictionary<string, PropertyValues> listPropertyValues, IEntityFieldTypeResolver typeResolver, IList<Member> owners = null) {
             switch(asset.AssetType.Token) {
                 case VersionOneProcessor.StoryType:
-                    return new Story(asset, listPropertyValues, typeResolver, owners);
                 case VersionOneProcessor.DefectType:
-                    return new Defect(asset, listPropertyValues, typeResolver, owners);
+                    return PrimaryWorkitem.Create(asset, listPropertyValues, typeResolver, owners);
                 case VersionOneProcessor.TaskType:
                     return new Task(asset, listPropertyValues, owners, typeResolver);
                 case VersionOneProcessor.TestType:
