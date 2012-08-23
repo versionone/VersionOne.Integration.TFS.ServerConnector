@@ -384,8 +384,15 @@ namespace VersionOne.ServerConnector {
                 .ToList();
         }
 
+        // TODO see if this method should really fail as it does now if Owners attribute is unavailable
         private static IList<Member> ChooseOwners(Asset asset, IEnumerable<Member> allMembers) {
             var ownersDef = asset.AssetType.GetAttributeDefinition(OwnersAttribute);
+            var ownersAttribute = asset.GetAttribute(ownersDef);
+
+            if(ownersDef == null) {
+                throw new V1Exception("Cannot set Owners of workitem, corresponding attribute not enlisted for asset type " + asset.AssetType.Token);
+            }
+
             var owners = asset.GetAttribute(ownersDef).Values.Cast<Oid>().ToList();
             return allMembers.Where(x => owners.Contains(x.Asset.Oid)).ToList();
         }
