@@ -77,12 +77,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\VersionOne.ServiceHost\Properties\AssemblyInfoCommon.cs">
-      <Link>Properties\AssemblyInfoCommon.cs</Link>
-    </Compile>
-    <Compile Include="..\VersionOne.ServiceHost\Properties\AssemblyInfoProduct.cs">
-      <Link>Properties\AssemblyInfoProduct.cs</Link>
-    </Compile>
     <Compile Include="AttributeInfo.cs" />
     <Compile Include="AttributeValue.cs" />
     <Compile Include="Entities\BaseEntity.cs" />
