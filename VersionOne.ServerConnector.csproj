@@ -70,10 +70,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="VersionOne.SDK.APIClient">
-      <HintPath>packages\VersionOne.SDK.APIClient.12.2.59.0\lib\net40\VersionOne.SDK.APIClient.dll</HintPath>
+      <HintPath>packages\VersionOne.SDK.APIClient.12.2.0.0\lib\net40\VersionOne.SDK.APIClient.dll</HintPath>
     </Reference>
     <Reference Include="VersionOne.ServiceHost.Core">
-      <HintPath>packages\VersionOne.ServiceHost.Core.1.0.62.0\lib\net40\VersionOne.ServiceHost.Core.dll</HintPath>
+      <HintPath>packages\VersionOne.ServiceHost.Core.1.0.52.0\lib\net40\VersionOne.ServiceHost.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
