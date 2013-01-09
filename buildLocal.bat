@@ -1,0 +1,1 @@
+build.bat %CD%\..\v1_build_tools\bin
