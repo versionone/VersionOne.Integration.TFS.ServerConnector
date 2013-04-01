@@ -24,7 +24,7 @@ mkdir %NUGET_PKG%
 /p:PackageSources=%NUGET_SRC% ^
 /p:RequireRestoreConsent=false
 
-%NUGET% update packages.config -Verbose -Source %NUGET_SRC% -repositoryPath %NUGET_PKG%
+REM %NUGET% update packages.config -Verbose -Source %NUGET_SRC% -repositoryPath %NUGET_PKG%
 
 %MSBUILD% %PROJECT% ^
 /p:V1BuildToolsPath=%BUILD_TOOLS% ^
