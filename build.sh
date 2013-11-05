@@ -146,10 +146,10 @@ MSBuild.exe $SOLUTION_FILE -m \
 # ---- Restore packages and update them to the latest compatible versions -----
 
 echo "Build is restoring NuGet packages"
-nuget restore VersionOne.ServerConnector.sln
+nuget restore $SOLUTION_FILE -Source $NUGET_FETCH_URL
 
 echo "Build is updating NuGet packages to latest compatible versions"
-nuget update VersionOne.ServerConnector.sln
+nuget update $SOLUTION_FILE -Source $NUGET_FETCH_URL
 
 # ---- Build solution using msbuild -------------------------------------------
 
