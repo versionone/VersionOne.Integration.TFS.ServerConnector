@@ -75,7 +75,7 @@
       <HintPath>packages\VersionOne.SDK.APIClient.12.5.0.181\lib\net40\VersionOne.SDK.APIClient.dll</HintPath>
     </Reference>
     <Reference Include="VersionOne.ServiceHost.Core">
-      <HintPath>packages\VersionOne.ServiceHost.Core.1.0.142.0\lib\net40\VersionOne.ServiceHost.Core.dll</HintPath>
+      <HintPath>packages\VersionOne.ServiceHost.Core.1.0.167.0\lib\net40\VersionOne.ServiceHost.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
