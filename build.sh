@@ -73,7 +73,7 @@ echo $(which $WORKSPACE/.nuget/NuGet.exe)
 if [ ! $(which $BUILDTOOLS_PATH/NuGet.exe) ] && [ -d "$WORKSPACE/.nuget" ] && [ ! $(which "$WORKSPACE/.nuget/nuget.exe") ]; then
   # Get the latest nuget.exe
   echo "Build is downloading the latest nuget.exe"
-  powershell -NoProfile -ExecutionPolicy unrestricted -Command "(new-object System.Net.WebClient).Downloadfile('http://nuget.org/nuget.exe', 'nuget.exe')"
+  powershell -NoProfile -ExecutionPolicy unrestricted -Command "(new-object System.Net.WebClient).Downloadfile('http://nuget.org/nuget.exe', './.nuget/nuget.exe')"
 fi  
 
 if [ ! $(which $BUILDTOOLS_PATH/NuGet.exe) ] && [ $(which $WORKSPACE/.nuget/NuGet.exe) ]; then
@@ -146,10 +146,10 @@ MSBuild.exe $SOLUTION_FILE -m \
 # ---- Restore packages and update them to the latest compatible versions -----
 
 echo "Build is restoring NuGet packages"
-nuget.exe restore VersionOne.ServerConnector.sln
+nuget restore VersionOne.ServerConnector.sln
 
 echo "Build is updating NuGet packages to latest compatible versions"
-nuget.exe update VersionOne.ServerConnector.sln
+nuget update VersionOne.ServerConnector.sln
 
 # ---- Build solution using msbuild -------------------------------------------
 
@@ -164,5 +164,5 @@ MSBuild.exe $SOLUTION_FILE \
 
 # ---- Produce NuGet .nupkg file ----------------------------------------------------------
 cd $WORKSPACE/
-NuGet.exe pack $MAIN_CSPROJ -Symbols -prop Configuration=$Configuration
+nuget pack $MAIN_CSPROJ -Symbols -prop Configuration=$Configuration
 cd $WORKSPACE
