@@ -45,6 +45,10 @@ namespace VersionOne.ServerConnector {
         public const string WorkitemStatusType = "StoryStatus";
         public const string BuildRunStatusType = "BuildStatus";
 
+	    public const string TestSetType = "TestSet";
+		public const string ThemeType = "Theme";
+		public const string EpicType = "Epic";
+
         private const string IdAttribute = "ID";
         private const string AssetAttribute = "Asset";
 
