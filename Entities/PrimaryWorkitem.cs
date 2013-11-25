@@ -55,6 +55,8 @@ namespace VersionOne.ServerConnector.Entities {
                     return new Story(asset, listPropertyValues, typeResolver, owners);
                 case VersionOneProcessor.DefectType:
                     return new Defect(asset, listPropertyValues, typeResolver, owners);
+				case VersionOneProcessor.TestSetType:
+		            return new TestSet(asset, listPropertyValues, typeResolver, owners);
                 default:
                     throw new NotSupportedException("Type " + asset.AssetType.Token + " is not supported in factory method");
             }

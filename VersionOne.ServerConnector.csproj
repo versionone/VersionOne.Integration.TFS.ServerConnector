@@ -87,6 +87,7 @@
     <Compile Include="Entities\ChangeSet.cs" />
     <Compile Include="Entities\Defect.cs" />
     <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\Epic.cs" />
     <Compile Include="Entities\FieldInfo.cs" />
     <Compile Include="Entities\FieldType.cs" />
     <Compile Include="Entities\Link.cs" />
@@ -94,6 +95,8 @@
     <Compile Include="Entities\Scope.cs" />
     <Compile Include="Entities\Task.cs" />
     <Compile Include="Entities\Test.cs" />
+    <Compile Include="Entities\TestSet.cs" />
+    <Compile Include="Entities\Theme.cs" />
     <Compile Include="EntityFactory.cs" />
     <Compile Include="EntityFieldTypeResolver.cs" />
     <Compile Include="Filters\Filter.cs" />

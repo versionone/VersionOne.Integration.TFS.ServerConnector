@@ -76,12 +76,17 @@ namespace VersionOne.ServerConnector.Entities {
         internal static Workitem Create(Asset asset, IDictionary<string, PropertyValues> listPropertyValues, IEntityFieldTypeResolver typeResolver, IList<Member> owners = null) {
             switch(asset.AssetType.Token) {
                 case VersionOneProcessor.StoryType:
-                case VersionOneProcessor.DefectType:
+				case VersionOneProcessor.DefectType:
+				case VersionOneProcessor.TestSetType:
                     return PrimaryWorkitem.Create(asset, listPropertyValues, typeResolver, owners);
                 case VersionOneProcessor.TaskType:
                     return new Task(asset, listPropertyValues, owners, typeResolver);
                 case VersionOneProcessor.TestType:
                     return new Test(asset, listPropertyValues, owners, typeResolver);
+				case VersionOneProcessor.ThemeType:
+					return new Theme(asset, listPropertyValues, owners, typeResolver);
+				case VersionOneProcessor.EpicType:
+					return new Epic(asset, listPropertyValues, owners, typeResolver);
                 default:
                     throw new NotSupportedException("Type " + asset.AssetType.Token + " is not supported in factory method");
             }
