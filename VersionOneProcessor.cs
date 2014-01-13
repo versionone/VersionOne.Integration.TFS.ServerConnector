@@ -8,6 +8,7 @@ using VersionOne.ServerConnector.Filters;
 using VersionOne.ServiceHost.Core.Configuration;
 using VersionOne.ServiceHost.Core.Logging;
 using System.Xml;
+using Attribute = VersionOne.SDK.APIClient.Attribute;
 
 namespace VersionOne.ServerConnector {
     // TODO extract hardcoded strings to constants
@@ -35,6 +36,7 @@ namespace VersionOne.ServerConnector {
         public const string OwnersAttribute = "Owners";
         public const string AssetStateAttribute = "AssetState";
         public const string AssetTypeAttribute = "AssetType";
+		public const string OwnedWorkitemsAttribute = "OwnedWorkitems";
 
         public const string DeleteOperation = "Delete";
         public const string InactivateOperation = "Inactivate";
@@ -59,8 +61,9 @@ namespace VersionOne.ServerConnector {
         private readonly XmlElement configuration;
 
         private IQueryBuilder queryBuilder;
+		
 
-        private IDictionary<string, PropertyValues> ListPropertyValues {
+	    private IDictionary<string, PropertyValues> ListPropertyValues {
             get { return queryBuilder.ListPropertyValues; }
         }
 
@@ -104,23 +107,29 @@ namespace VersionOne.ServerConnector {
             return true;
         }
 
-        public Member GetLoggedInMember() {
-            return GetMembers(Filter.Empty()).FirstOrDefault(item => item.Asset.Oid.Equals(services.LoggedIn));
+        public Member GetLoggedInMember()
+        {
+	        return queryBuilder
+				.Query(MemberType, Filter.Equal(IdAttribute, services.LoggedIn))
+		        .Select(item => new Member(item))
+		        .FirstOrDefault();
         }
 
+		// TODO: remove this?
         public ICollection<Member> GetMembers(IFilter filter) {
-            return queryBuilder.Query(MemberType, filter).Select(item => new Member(item)).ToList();
+            return queryBuilder.Query(MemberType, filter)
+				.Select(item => new Member(item))
+				.ToList();
         } 
 
         // TODO make this Story-agnostic. In case of criteria based ex. on Story-only custom fields current filter approach won't let an easy solution.
         public IList<FeatureGroup> GetFeatureGroups(IFilter filter, IFilter childrenFilter) {
-            var allMembers = GetMembers(Filter.Empty());
 
             return queryBuilder.Query(FeatureGroupType, filter)
                 .Select(asset => new FeatureGroup(
                     asset, ListPropertyValues, 
                     GetWorkitems(StoryType, GroupFilter.And(Filter.Equal(Entity.ParentAndUpProperty, asset.Oid.Momentless.Token), childrenFilter)), 
-                    ChooseOwners(asset, allMembers),
+                    ChooseOwners(asset),
                     queryBuilder.TypeResolver))
                 .ToList();
         }
@@ -370,35 +379,36 @@ namespace VersionOne.ServerConnector {
             var workitemType = metaModel.GetAssetType(PrimaryWorkitemType);
             var terms = filter.GetFilter(workitemType);
 
-            var allMembers = GetMembers(Filter.Empty());
-            
             return queryBuilder.Query(PrimaryWorkitemType, terms)
-                .Select(asset => PrimaryWorkitem.Create(asset, ListPropertyValues, queryBuilder.TypeResolver, ChooseOwners(asset, allMembers)))
+                .Select(asset => PrimaryWorkitem.Create(asset, ListPropertyValues, queryBuilder.TypeResolver, ChooseOwners(asset)))
                 .ToList();
         }
 
         public IList<Workitem> GetWorkitems(string type, IFilter filter, SortBy sortBy = null) {
-            var workitemType = metaModel.GetAssetType(type);
-            var terms = filter.GetFilter(workitemType);
-
-            var allMembers = GetMembers(Filter.Empty());
+            IAssetType workitemType = metaModel.GetAssetType(type);
+            GroupFilterTerm terms = filter.GetFilter(workitemType);
             
             return queryBuilder.Query(type, terms)
-                .Select(asset => Workitem.Create(asset, ListPropertyValues, queryBuilder.TypeResolver, ChooseOwners(asset, allMembers)))
+                .Select(asset => Workitem.Create(asset, ListPropertyValues, queryBuilder.TypeResolver, ChooseOwners(asset)))
                 .ToList();
         }
 
         // TODO see if this method should really fail as it does now if Owners attribute is unavailable
-        private static IList<Member> ChooseOwners(Asset asset, IEnumerable<Member> allMembers) {
-            var ownersDef = asset.AssetType.GetAttributeDefinition(OwnersAttribute);
-            var ownersAttribute = asset.GetAttribute(ownersDef);
+        private IList<Member> ChooseOwners(Asset asset) {
+            IAttributeDefinition ownersDef = asset.AssetType.GetAttributeDefinition(OwnersAttribute);
+			Attribute ownersAttribute = asset.GetAttribute(ownersDef);
 
-            if(ownersDef == null) {
-                throw new V1Exception("Cannot set Owners of workitem, corresponding attribute not enlisted for asset type " + asset.AssetType.Token);
-            }
+			if (ownersDef == null)
+			{
+				throw new V1Exception("Cannot set Owners of workitem, corresponding attribute not enlisted for asset type " + asset.AssetType.Token);
+			}
 
-            var owners = asset.GetAttribute(ownersDef).Values.Cast<Oid>().ToList();
-            return allMembers.Where(x => owners.Contains(x.Asset.Oid)).ToList();
+	        List<Member> owners = queryBuilder
+				.Query(MemberType, Filter.Equal(OwnedWorkitemsAttribute, asset.Oid))
+				.Select(item => new Member(item))
+				.ToList();
+	        
+			return owners;
         }
 
         //TODO refactor
@@ -426,7 +436,7 @@ namespace VersionOne.ServerConnector {
                 attributeValues.Add(AttributeValue.Single("Priority", Oid.FromToken(priorityId, metaModel)));
             }
 
-            var workitemAsset = GetEntityFactory().Create(assetType, attributeValues);
+            Asset workitemAsset = GetEntityFactory().Create(assetType, attributeValues);
 
             //TODO refactor
             //NOTE Save doesn't return all the needed data, therefore we need another query
