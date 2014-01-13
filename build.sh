@@ -92,6 +92,6 @@ MSBuild.exe $SOLUTION_FILE \
 
 # ---- Produce NuGet .nupkg file ----------------------------------------------------------
 
-nuget pack $MAIN_CSPROJ -Symbols -prop Configuration=$Configuration
+$NUGET_EXE pack $MAIN_CSPROJ -Symbols -prop Configuration=$Configuration
 
 
