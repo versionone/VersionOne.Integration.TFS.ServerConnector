@@ -28,8 +28,8 @@ namespace VersionOne.ServerConnector.Tests
 		[TestFixtureSetUp]
 		public void TestFixtureSetUp()
 		{
-			IAPIConnector metaConnector = new V1APIConnector(V1Url + MetaUrl, Username, Password);
-			IAPIConnector serviceConnector = new V1APIConnector(V1Url + DataUrl, Username, Password);
+			var metaConnector = new VersionOneAPIConnector(V1Url + MetaUrl).WithVersionOneUsernameAndPassword(Username, Password);
+			var serviceConnector = new VersionOneAPIConnector(V1Url + DataUrl).WithVersionOneUsernameAndPassword(Username, Password);
 			MetaModel = new MetaModel(metaConnector);
 			Services = new Services(MetaModel, serviceConnector);
 
