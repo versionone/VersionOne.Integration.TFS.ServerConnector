@@ -80,6 +80,12 @@ namespace VersionOne.ServerConnector {
 
         public VersionOneProcessor(XmlElement config) : this(config, null) { }
 
+        public void SetUpstreamUserAgent(string userAgent)
+        {
+            services.SetUpstreamUserAgent(userAgent);
+        }
+
+
         private void Connect() {
             var connector = new V1Central(configuration);
             connector.Validate();

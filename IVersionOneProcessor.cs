@@ -56,5 +56,6 @@ namespace VersionOne.ServerConnector {
 
         void LogConnectionConfiguration();
         void LogConnectionInformation();
+        void SetUpstreamUserAgent(string userAgent);
     }
 }
