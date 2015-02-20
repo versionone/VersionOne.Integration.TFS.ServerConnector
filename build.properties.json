@@ -1,6 +1,6 @@
 {
-    "solution": "VersionOne.ServerConnector.sln",
-    "projectToPackage": "VersionOne.ServerConnector.csproj",
+    "solution": "VersionOne.Integration.TFS.ServerConnector.sln",
+    "projectToPackage": "VersionOne.Integration.TFS.ServerConnector.csproj",
     "nugetSources": "http://packages.nuget.org/api/v2/;http://www.myget.org/F/versionone/api/v2/",
     "configuration": "Release",
     "platform": "Any CPU",    
