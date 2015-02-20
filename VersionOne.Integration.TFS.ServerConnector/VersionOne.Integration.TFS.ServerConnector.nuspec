@@ -19,7 +19,7 @@
         <dependency id="VersionOne.SDK.APIClient" version="[14.1.1.264,15)" />
         <dependency id="VersionOne.ServiceHost.Core" version="[1,2)" />
     </dependencies>
-    <copyright>Copyright 2008-2015</copyright>
-    <tags>V1 VersionOne API apiclient servicehost agile</tags>
+    <copyright>$copyright$</copyright>
+    <tags>$tags$</tags>
   </metadata>
 </package>
