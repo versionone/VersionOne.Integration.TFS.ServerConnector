@@ -16,7 +16,7 @@
     -->
     <dependencies>
         <dependency id="Ninject" version="[3.0.1,4)" />
-        <dependency id="VersionOne.SDK.APIClient" version="[14.1.1.264,15)" />
+        <dependency id="VersionOne.SDK.APIClient" version="[14.1.1.295,15)" />
         <dependency id="VersionOne.ServiceHost.Core" version="[1,2)" />
     </dependencies>
     <copyright>$copyright$</copyright>
