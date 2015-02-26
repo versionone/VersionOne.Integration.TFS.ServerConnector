@@ -1,6 +1,6 @@
 ﻿using VersionOne.ServiceHost.Core.Logging;
 
-namespace VersionOne.ServerConnector.StartupValidation {
+namespace VersionOne.Integration.TFS.ServerConnector.StartupValidation {
     public class MandatoryOrEmptyFieldValidator : BaseValidator {
         private readonly string fieldName;
         private readonly string description;

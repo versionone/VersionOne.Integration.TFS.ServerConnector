@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 using Rhino.Mocks;
-using VersionOne.ServerConnector.Entities;
-using VersionOne.ServerConnector.StartupValidation;
-using VersionOne.ServerConnector.Tests.TestEntity;
+using VersionOne.Integration.TFS.ServerConnector.Entities;
+using VersionOne.Integration.TFS.ServerConnector.StartupValidation;
+using VersionOne.Integration.TFS.ServerConnector.Tests.TestEntity;
 using VersionOne.ServiceHost.Core.Configuration;
 
-namespace VersionOne.ServerConnector.Tests.StartupValidation
+namespace VersionOne.Integration.TFS.ServerConnector.Tests.StartupValidation
 {
 	[TestFixture]
 	public class VersionOnePriorityValidatorTester : BaseLkkTester

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace VersionOne.ServerConnector {
+namespace VersionOne.Integration.TFS.ServerConnector {
     public class EntityFieldTypeResolver : IEntityFieldTypeResolver {
         internal readonly IDictionary<string, string> FieldMappings = new Dictionary<string, string>();
 

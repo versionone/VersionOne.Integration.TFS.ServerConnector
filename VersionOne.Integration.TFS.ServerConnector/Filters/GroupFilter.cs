@@ -2,7 +2,7 @@
 using System.Linq;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.ServerConnector.Filters {
+namespace VersionOne.Integration.TFS.ServerConnector.Filters {
     public class GroupFilter : IFilter {
         private readonly IFilter[] filters;
         private readonly FilterActions groupAction;

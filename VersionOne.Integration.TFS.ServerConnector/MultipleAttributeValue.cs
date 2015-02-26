@@ -1,4 +1,4 @@
-namespace VersionOne.ServerConnector {
+namespace VersionOne.Integration.TFS.ServerConnector {
     internal class MultipleAttributeValue : AttributeValue {
         internal readonly object[] Values;
         

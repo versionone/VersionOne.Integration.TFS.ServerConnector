@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using NUnit.Framework;
-using VersionOne.ServerConnector.Entities;
-using VersionOne.ServerConnector.Filters;
+using VersionOne.Integration.TFS.ServerConnector.Entities;
+using VersionOne.Integration.TFS.ServerConnector.Filters;
 
-namespace VersionOne.ServerConnector.Tests.Filters
+namespace VersionOne.Integration.TFS.ServerConnector.Tests.Filters
 {
 	[TestFixture]
 	[Ignore("Integration tests")]

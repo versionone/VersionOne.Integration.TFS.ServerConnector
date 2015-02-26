@@ -1,8 +1,8 @@
-﻿using System.Linq;
-using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
+﻿using System.Collections.Generic;
+using System.Linq;
 
-namespace VersionOne.ServerConnector.Entities {
+namespace VersionOne.Integration.TFS.ServerConnector.Entities {
     public class FeatureGroup : Workitem {
         public IList<Workitem> Children {get; protected set;}
         

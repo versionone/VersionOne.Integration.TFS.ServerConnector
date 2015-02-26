@@ -1,6 +1,6 @@
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.ServerConnector.Filters {
+namespace VersionOne.Integration.TFS.ServerConnector.Filters {
     public interface IFilter {
         GroupFilterTerm GetFilter(IAssetType type);
     }

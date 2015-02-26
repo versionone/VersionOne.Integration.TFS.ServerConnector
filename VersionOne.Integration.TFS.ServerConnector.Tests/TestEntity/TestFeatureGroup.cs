@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using VersionOne.ServerConnector.Entities;
+using VersionOne.Integration.TFS.ServerConnector.Entities;
 
-namespace VersionOne.ServerConnector.Tests.TestEntity
+namespace VersionOne.Integration.TFS.ServerConnector.Tests.TestEntity
 {
 	internal class TestFeatureGroup : FeatureGroup
 	{

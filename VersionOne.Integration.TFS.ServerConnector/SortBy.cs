@@ -1,4 +1,4 @@
-﻿namespace VersionOne.ServerConnector {
+﻿namespace VersionOne.Integration.TFS.ServerConnector {
     public class SortBy {
         public readonly string Attribute;
         public readonly Order Order;

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using VersionOne.ServerConnector.Entities;
+using VersionOne.Integration.TFS.ServerConnector.Entities;
 using VersionOne.ServiceHost.Core.Configuration;
 using VersionOne.ServiceHost.Core.Logging;
 
-namespace VersionOne.ServerConnector.StartupValidation {
+namespace VersionOne.Integration.TFS.ServerConnector.StartupValidation {
     public class V1PriorityValidator : BaseValidator {
         private readonly ICollection<MappingInfo> priorities;
 

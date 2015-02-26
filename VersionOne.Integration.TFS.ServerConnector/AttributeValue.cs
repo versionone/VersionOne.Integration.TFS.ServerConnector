@@ -1,4 +1,4 @@
-﻿namespace VersionOne.ServerConnector {
+﻿namespace VersionOne.Integration.TFS.ServerConnector {
     public abstract class AttributeValue {
         internal readonly string Name;
 

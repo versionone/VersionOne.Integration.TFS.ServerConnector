@@ -6,20 +6,18 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>https://github.com/versionone/VersionOne.Integration.TFS.ServerConnector/blob/master/LICENSE.md</licenseUrl>
-    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>https://raw.githubusercontent.com/versionone/VersionOne.Integration.TFS.ServerConnector/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/versionone/VersionOne.Integration.TFS.ServerConnector/</projectUrl>
-    <iconUrl>https://github.com/versionone/VersionOne.Integration.TFS.ServerConnector/blob/master/v1.png</iconUrl>   
+    <iconUrl>https://raw.githubusercontent.com/versionone/VersionOne.Integration.TFS.ServerConnector/master/v1.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
+    <tags>$tags$</tags>
+    <dependencies>
+      <dependency id="VersionOne.ServiceHost.Core" version="1.1.0.0" />
+    </dependencies>
     <!--
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     -->
-    <dependencies>
-        <dependency id="Ninject" version="[3.0.1,4)" />
-        <dependency id="VersionOne.SDK.APIClient" version="[14.1.1.295,15)" />
-        <dependency id="VersionOne.ServiceHost.Core" version="[1,2)" />
-    </dependencies>
     <copyright>$copyright$</copyright>
-    <tags>$tags$</tags>
   </metadata>
 </package>

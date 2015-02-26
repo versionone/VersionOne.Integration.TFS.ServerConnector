@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
 using Rhino.Mocks;
-using VersionOne.ServerConnector.StartupValidation;
+using VersionOne.Integration.TFS.ServerConnector.StartupValidation;
 
-namespace VersionOne.ServerConnector.Tests.StartupValidation
+namespace VersionOne.Integration.TFS.ServerConnector.Tests.StartupValidation
 {
 	[TestFixture]
 	public class MandatoryOrEmptyFieldValidatorTester : BaseValidationTester

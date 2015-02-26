@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.ServerConnector.Entities {
+namespace VersionOne.Integration.TFS.ServerConnector.Entities {
     public class BuildRun : Entity {
         public const string ElapsedProperty = "Elapsed";
         public const string DateProperty = "Date";

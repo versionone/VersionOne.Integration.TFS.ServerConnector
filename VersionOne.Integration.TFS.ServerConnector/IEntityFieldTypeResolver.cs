@@ -1,4 +1,4 @@
-namespace VersionOne.ServerConnector {
+namespace VersionOne.Integration.TFS.ServerConnector {
     public interface IEntityFieldTypeResolver {
         void AddMapping(string entityType, string fieldName, string resolvedTypeName);
         string Resolve(string entityType, string fieldName);

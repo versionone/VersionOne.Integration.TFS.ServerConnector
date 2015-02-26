@@ -1,4 +1,4 @@
-﻿namespace VersionOne.ServerConnector {
+﻿namespace VersionOne.Integration.TFS.ServerConnector {
     public class AttributeInfo {
         public readonly string Attr;
         public readonly string Prefix;

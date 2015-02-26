@@ -1,10 +1,10 @@
 ﻿using NUnit.Framework;
 using Rhino.Mocks;
-using VersionOne.ServerConnector.Entities;
-using VersionOne.ServerConnector.StartupValidation;
+using VersionOne.Integration.TFS.ServerConnector.Entities;
+using VersionOne.Integration.TFS.ServerConnector.StartupValidation;
 using VersionOne.ServiceHost.Core.StartupValidation;
 
-namespace VersionOne.ServerConnector.Tests.StartupValidation
+namespace VersionOne.Integration.TFS.ServerConnector.Tests.StartupValidation
 {
 	[TestFixture]
 	public class V1CustomListFieldValidatorTester : BaseValidationTester

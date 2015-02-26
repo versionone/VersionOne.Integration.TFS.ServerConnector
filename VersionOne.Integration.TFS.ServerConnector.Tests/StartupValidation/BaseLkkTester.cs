@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Rhino.Mocks;
 using VersionOne.ServiceHost.Core.Logging;
 
-namespace VersionOne.ServerConnector.Tests.StartupValidation
+namespace VersionOne.Integration.TFS.ServerConnector.Tests.StartupValidation
 {
 	[TestFixture]
 	public class BaseLkkTester

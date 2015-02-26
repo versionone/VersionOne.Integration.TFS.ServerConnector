@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using VersionOne.Integration.TFS.ServerConnector.Entities;
 using VersionOne.SDK.APIClient;
-using VersionOne.ServerConnector.Entities;
 
-namespace VersionOne.ServerConnector.Tests.TestEntity
+namespace VersionOne.Integration.TFS.ServerConnector.Tests.TestEntity
 {
 	internal class TestWorkitem : PrimaryWorkitem
 	{

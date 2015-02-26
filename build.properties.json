@@ -5,9 +5,7 @@
     "configuration": "Release",
     "platform": "Any CPU",    
     "version": "1.1.0.0",
-    "description":"Internal component used by TFS integration.",
-    "company":"VersionOne, Inc.",
-    "copyright":"Copyright 2008-2015, VersionOne, Inc.",
+    "organizationName": "VersionOne, Inc.",
     "assemblyinfo": [
 			{
 				"id": "VersionOne.Integration.TFS.ServerConnector",
@@ -21,6 +19,9 @@
 			}
     	],
       "nuspecTokens":{
-        "tags": "VersionOne V1 TFS ServerConnector"
+        "author":"VersionOne, Inc.",
+        "description":"Internal component used by TFS integration.",
+        "tags": "VersionOne V1 TFS ServerConnector",
+        "copyright":"Copyright 2008-2015, VersionOne, Inc."
       }
 }

@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using VersionOne.SDK.APIClient;
-using VersionOne.ServerConnector.Entities;
-using VersionOne.ServerConnector.Filters;
-using SdkOrder = VersionOne.SDK.APIClient.OrderBy.Order;
+using VersionOne.Integration.TFS.ServerConnector.Entities;
+using VersionOne.Integration.TFS.ServerConnector.Filters;
 
-namespace VersionOne.ServerConnector {
+namespace VersionOne.Integration.TFS.ServerConnector {
     public class QueryBuilder : IQueryBuilder {
         private IServices services;
         private IMetaModel metaModel;

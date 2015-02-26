@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using VersionOne.Integration.TFS.ServerConnector.Entities;
+using VersionOne.Integration.TFS.ServerConnector.Filters;
 using VersionOne.SDK.APIClient;
-using VersionOne.ServerConnector.Entities;
-using VersionOne.ServerConnector.Filters;
 using VersionOne.ServiceHost.Core.Configuration;
 using VersionOne.ServiceHost.Core.Logging;
 
-namespace VersionOne.ServerConnector.Tests
+namespace VersionOne.Integration.TFS.ServerConnector.Tests
 {
 	[TestFixture]
 	[Ignore("Integration tests")]

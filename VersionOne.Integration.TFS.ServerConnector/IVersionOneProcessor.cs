@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using VersionOne.ServerConnector.Entities;
-using VersionOne.ServerConnector.Filters;
+using VersionOne.Integration.TFS.ServerConnector.Entities;
+using VersionOne.Integration.TFS.ServerConnector.Filters;
 
-namespace VersionOne.ServerConnector {
+namespace VersionOne.Integration.TFS.ServerConnector {
     public interface IVersionOneProcessor {
         bool ValidateConnection();
 

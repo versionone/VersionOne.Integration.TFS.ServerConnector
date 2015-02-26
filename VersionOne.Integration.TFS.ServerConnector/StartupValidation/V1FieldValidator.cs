@@ -1,6 +1,6 @@
 using VersionOne.ServiceHost.Core.Logging;
 
-namespace VersionOne.ServerConnector.StartupValidation {
+namespace VersionOne.Integration.TFS.ServerConnector.StartupValidation {
     public class V1FieldValidator : BaseValidator {
         private readonly string fieldName;
         private readonly string containingTypeToken;

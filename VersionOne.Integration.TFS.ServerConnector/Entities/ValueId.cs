@@ -1,6 +1,6 @@
 ﻿using VersionOne.SDK.APIClient;
 
-namespace VersionOne.ServerConnector.Entities {
+﻿namespace VersionOne.Integration.TFS.ServerConnector.Entities {
     public class ValueId {
         internal readonly Oid Oid;
         private readonly string name;

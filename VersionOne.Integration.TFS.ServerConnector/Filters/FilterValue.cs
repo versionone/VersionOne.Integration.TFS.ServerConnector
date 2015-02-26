@@ -1,4 +1,4 @@
-namespace VersionOne.ServerConnector.Filters {
+namespace VersionOne.Integration.TFS.ServerConnector.Filters {
     public class FilterValue {
         public object Value { get; set;}
         public FilterValuesActions Action { get; set; }
