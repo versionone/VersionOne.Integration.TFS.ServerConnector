@@ -1,9 +1,9 @@
 ﻿using NUnit.Framework;
 using Rhino.Mocks;
-using VersionOne.Integration.TFS.ServerConnector.Filters;
 using VersionOne.SDK.APIClient;
+﻿using VersionOne.Integration.Tfs.ServerConnector.Filters;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Tests.Filters
+namespace VersionOne.Integration.Tfs.ServerConnector.Tests.Filters
 {
 	[TestFixture]
 	public class FilterTester

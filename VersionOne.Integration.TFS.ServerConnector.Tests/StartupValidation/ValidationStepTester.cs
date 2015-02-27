@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Rhino.Mocks;
 using VersionOne.ServiceHost.Core.StartupValidation;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Tests.StartupValidation
+namespace VersionOne.Integration.Tfs.ServerConnector.Tests.StartupValidation
 {
 	[TestFixture]
 	public class ValidationStepTester : BaseValidationTester

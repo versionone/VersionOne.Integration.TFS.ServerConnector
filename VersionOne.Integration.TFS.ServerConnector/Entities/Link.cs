@@ -1,5 +1,5 @@
 ﻿using VersionOne.SDK.APIClient;
-﻿namespace VersionOne.Integration.TFS.ServerConnector.Entities {
+﻿namespace VersionOne.Integration.Tfs.ServerConnector.Entities {
     public class Link {
         public const string OnMenuProperty = "OnMenu";
         public const string UrlProperty = "URL";

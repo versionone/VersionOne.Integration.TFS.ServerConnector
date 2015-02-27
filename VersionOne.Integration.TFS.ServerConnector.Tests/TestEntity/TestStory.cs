@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using VersionOne.Integration.TFS.ServerConnector.Entities;
+using VersionOne.Integration.Tfs.ServerConnector.Entities;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Tests.TestEntity
+namespace VersionOne.Integration.Tfs.ServerConnector.Tests.TestEntity
 {
 	public class TestStory : Story
 	{

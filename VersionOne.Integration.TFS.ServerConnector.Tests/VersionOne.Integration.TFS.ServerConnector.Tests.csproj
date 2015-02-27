@@ -6,8 +6,8 @@
     <ProjectGuid>{2E1830A7-5619-4B1A-BAF4-7F6EBC59879D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VersionOne.Integration.TFS.ServerConnector.Tests</RootNamespace>
-    <AssemblyName>VersionOne.Integration.TFS.ServerConnector.Tests</AssemblyName>
+    <RootNamespace>VersionOne.Integration.Tfs.ServerConnector.Tests</RootNamespace>
+    <AssemblyName>VersionOne.Integration.Tfs.ServerConnector.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -125,9 +125,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\VersionOne.Integration.TFS.ServerConnector\VersionOne.Integration.TFS.ServerConnector.csproj">
+    <ProjectReference Include="..\VersionOne.Integration.TFS.ServerConnector\VersionOne.Integration.Tfs.ServerConnector.csproj">
       <Project>{19a13ca5-7461-4453-8a5e-9c5a7a55c4d5}</Project>
-      <Name>VersionOne.Integration.TFS.ServerConnector</Name>
+      <Name>VersionOne.Integration.Tfs.ServerConnector</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

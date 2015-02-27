@@ -2,11 +2,11 @@ using System;
 using System.Xml;
 using NUnit.Framework;
 using Rhino.Mocks;
-using VersionOne.Integration.TFS.ServerConnector.Entities;
 using VersionOne.SDK.APIClient;
 using VersionOne.ServiceHost.Core.Logging;
+using VersionOne.Integration.Tfs.ServerConnector.Entities;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Tests
+namespace VersionOne.Integration.Tfs.ServerConnector.Tests
 {
 	public abstract class BaseIntegrationTester
 	{

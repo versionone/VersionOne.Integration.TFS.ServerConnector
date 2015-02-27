@@ -2,7 +2,7 @@
 using VersionOne.SDK.APIClient;
 using VersionOne.ServiceHost.Core.Logging;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Tests
+namespace VersionOne.Integration.Tfs.ServerConnector.Tests
 {
 	public class TestVersionOneProcessor : VersionOneProcessor
 	{

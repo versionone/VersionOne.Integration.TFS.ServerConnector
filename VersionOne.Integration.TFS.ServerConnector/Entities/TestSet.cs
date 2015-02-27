@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Entities {
+namespace VersionOne.Integration.Tfs.ServerConnector.Entities {
     [DebuggerDisplay("{TypeName} {Name}, Id={Id}, Number={Number}")]
     public class TestSet : PrimaryWorkitem {
         public override string TypeToken {

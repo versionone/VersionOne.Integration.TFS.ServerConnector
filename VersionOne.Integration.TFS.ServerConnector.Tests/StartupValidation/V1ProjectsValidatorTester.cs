@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 using Rhino.Mocks;
-using VersionOne.Integration.TFS.ServerConnector.StartupValidation;
 using VersionOne.ServiceHost.Core.Configuration;
+using VersionOne.Integration.Tfs.ServerConnector.StartupValidation;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Tests.StartupValidation
+namespace VersionOne.Integration.Tfs.ServerConnector.Tests.StartupValidation
 {
 	[TestFixture]
 	public class VersionOneProjectValidatorTester : BaseLkkTester

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Entities {
+namespace VersionOne.Integration.Tfs.ServerConnector.Entities {
     public class PropertyValues : IEnumerable<ValueId> {
         private readonly IDictionary<Oid, ValueId> dictionary = new Dictionary<Oid, ValueId>();
 

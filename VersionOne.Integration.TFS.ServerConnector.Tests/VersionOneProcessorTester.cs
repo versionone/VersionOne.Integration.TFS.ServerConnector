@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 using Rhino.Mocks;
-using VersionOne.Integration.TFS.ServerConnector.Entities;
-using VersionOne.Integration.TFS.ServerConnector.Filters;
-using VersionOne.Integration.TFS.ServerConnector.Tests.TestEntity;
 using VersionOne.SDK.APIClient;
 using VersionOne.ServiceHost.Core.Logging;
+using VersionOne.Integration.Tfs.ServerConnector.Entities;
+using VersionOne.Integration.Tfs.ServerConnector.Filters;
+using VersionOne.Integration.Tfs.ServerConnector.Tests.TestEntity;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Tests
+namespace VersionOne.Integration.Tfs.ServerConnector.Tests
 {
 	[TestFixture]
 	public class VersionOneProcessorTester

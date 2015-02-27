@@ -1,6 +1,6 @@
 ﻿using VersionOne.SDK.APIClient;
 
-﻿namespace VersionOne.Integration.TFS.ServerConnector.Entities {
+﻿namespace VersionOne.Integration.Tfs.ServerConnector.Entities {
     public class BuildProject : Entity {
         public override string TypeToken {
             get { return VersionOneProcessor.BuildProjectType; }

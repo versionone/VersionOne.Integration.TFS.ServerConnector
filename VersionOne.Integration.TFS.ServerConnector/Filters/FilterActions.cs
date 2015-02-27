@@ -1,4 +1,4 @@
-namespace VersionOne.Integration.TFS.ServerConnector.Filters {
+namespace VersionOne.Integration.Tfs.ServerConnector.Filters {
     public enum FilterActions {
         And,
         Or,

@@ -1,6 +1,6 @@
 {
-    "solution": "VersionOne.Integration.TFS.ServerConnector.sln",
-    "projectToPackage": "VersionOne.Integration.TFS.ServerConnector\\VersionOne.Integration.TFS.ServerConnector.csproj",
+    "solution": "VersionOne.Integration.Tfs.ServerConnector.sln",
+    "projectToPackage": "VersionOne.Integration.Tfs.ServerConnector\\VersionOne.Integration.Tfs.ServerConnector.csproj",
     "nugetSources": "http://packages.nuget.org/api/v2/;http://www.myget.org/F/versionone/api/v2/",
     "configuration": "Release",
     "platform": "Any CPU",    
@@ -8,14 +8,14 @@
     "organizationName": "VersionOne, Inc.",
     "assemblyinfo": [
 			{
-				"id": "VersionOne.Integration.TFS.ServerConnector",
-				"product":"VersionOne.Integration.TFS.ServerConnector",
-				"title":"VersionOne.Integration.TFS.ServerConnector"
+				"id": "VersionOne.Integration.Tfs.ServerConnector",
+				"product":"VersionOne.Integration.Tfs.ServerConnector",
+				"title":"VersionOne.Integration.Tfs.ServerConnector"
 			},
 			{
-				"id": "VersionOne.Integration.TFS.ServerConnector.Tests",
-				"product":"VersionOne.Integration.TFS.ServerConnector.Tests",
-				"title":"VersionOne.Integration.TFS.ServerConnector.Tests"
+				"id": "VersionOne.Integration.Tfs.ServerConnector.Tests",
+				"product":"VersionOne.Integration.Tfs.ServerConnector.Tests",
+				"title":"VersionOne.Integration.Tfs.ServerConnector.Tests"
 			}
     	],
       "nuspecTokens":{

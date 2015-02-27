@@ -1,9 +1,9 @@
 ﻿using NUnit.Framework;
 using Rhino.Mocks;
-using VersionOne.Integration.TFS.ServerConnector.StartupValidation;
 using VersionOne.ServiceHost.Core.StartupValidation;
+﻿using VersionOne.Integration.Tfs.ServerConnector.StartupValidation;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Tests.StartupValidation
+namespace VersionOne.Integration.Tfs.ServerConnector.Tests.StartupValidation
 {
 	[TestFixture]
 	public class V1ConnectionValidatorTester : BaseValidationTester

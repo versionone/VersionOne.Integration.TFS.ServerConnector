@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using VersionOne.SDK.APIClient;
 using System.Xml;
-using VersionOne.Integration.TFS.ServerConnector.Entities;
-using VersionOne.Integration.TFS.ServerConnector.Filters;
 using VersionOne.ServiceHost.Core.Configuration;
 using VersionOne.ServiceHost.Core.Logging;
+using VersionOne.Integration.Tfs.ServerConnector.Entities;
+using VersionOne.Integration.Tfs.ServerConnector.Filters;
 using Attribute = VersionOne.SDK.APIClient.Attribute;
 
-namespace VersionOne.Integration.TFS.ServerConnector {
+namespace VersionOne.Integration.Tfs.ServerConnector {
     // TODO extract hardcoded strings to constants
     // TODO this one is getting huge - it should be split
     // TODO change attribute to property in field names and move them to entity classes

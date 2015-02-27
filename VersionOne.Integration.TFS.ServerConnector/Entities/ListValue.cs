@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Entities {
+namespace VersionOne.Integration.Tfs.ServerConnector.Entities {
     [DebuggerDisplay("[{Name}, {Value}]")]
     public class ListValue {
         public const string NameProperty = "Name";

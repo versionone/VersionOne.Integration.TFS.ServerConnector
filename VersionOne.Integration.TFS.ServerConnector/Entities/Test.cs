@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Entities {
+namespace VersionOne.Integration.Tfs.ServerConnector.Entities {
     public class Test : Workitem {
         public override string TypeToken {
             get { return VersionOneProcessor.TestType; }

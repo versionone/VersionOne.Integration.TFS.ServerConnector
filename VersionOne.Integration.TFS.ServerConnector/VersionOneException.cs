@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VersionOne.Integration.TFS.ServerConnector {
+namespace VersionOne.Integration.Tfs.ServerConnector {
     public class VersionOneException : Exception {
         public VersionOneException(string message) : base(message) { }
     }

@@ -1,6 +1,6 @@
 ﻿using VersionOne.ServiceHost.Core.Logging;
 
-namespace VersionOne.Integration.TFS.ServerConnector.StartupValidation {
+﻿namespace VersionOne.Integration.Tfs.ServerConnector.StartupValidation {
     public class V1ConnectionValidator : BaseValidator {
         public override bool Validate() {
             Log(LogMessage.SeverityType.Info, "Validating connection to VersionOne");

@@ -1,4 +1,4 @@
-namespace VersionOne.Integration.TFS.ServerConnector.Entities {
+namespace VersionOne.Integration.Tfs.ServerConnector.Entities {
     public enum FieldType {
         List,
         Numeric,

@@ -1,6 +1,6 @@
 ﻿using VersionOne.SDK.APIClient;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Tests.TestEntity
+﻿namespace VersionOne.Integration.Tfs.ServerConnector.Tests.TestEntity
 {
 	public class TestAttributeDefinition : IAttributeDefinition
 	{

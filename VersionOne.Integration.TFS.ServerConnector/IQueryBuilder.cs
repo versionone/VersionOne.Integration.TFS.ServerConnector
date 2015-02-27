@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
-using VersionOne.Integration.TFS.ServerConnector.Entities;
-using VersionOne.Integration.TFS.ServerConnector.Filters;
+using VersionOne.Integration.Tfs.ServerConnector.Entities;
+using VersionOne.Integration.Tfs.ServerConnector.Filters;
 
-namespace VersionOne.Integration.TFS.ServerConnector {
+namespace VersionOne.Integration.Tfs.ServerConnector {
     // TODO refactor APIClient types
     public interface IQueryBuilder {
         IDictionary<string, PropertyValues> ListPropertyValues { get; }

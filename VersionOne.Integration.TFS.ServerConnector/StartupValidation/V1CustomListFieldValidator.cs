@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using VersionOne.ServiceHost.Core.Logging;
 
-namespace VersionOne.Integration.TFS.ServerConnector.StartupValidation {
+namespace VersionOne.Integration.Tfs.ServerConnector.StartupValidation {
     public class V1CustomListFieldValidator : BaseValidator {
         private readonly string fieldName;
         private readonly string containingTypeToken;

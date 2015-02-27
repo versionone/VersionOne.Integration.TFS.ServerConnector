@@ -2,7 +2,7 @@ using System.Collections;
 using System.Linq;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Entities {
+namespace VersionOne.Integration.Tfs.ServerConnector.Entities {
     public abstract class BaseEntity {
         public const string ReferenceProperty = "Reference";
 

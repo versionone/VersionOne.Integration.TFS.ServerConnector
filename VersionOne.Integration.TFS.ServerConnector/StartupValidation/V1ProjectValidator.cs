@@ -1,6 +1,6 @@
 ﻿using VersionOne.ServiceHost.Core.Logging;
 
-namespace VersionOne.Integration.TFS.ServerConnector.StartupValidation {
+﻿namespace VersionOne.Integration.Tfs.ServerConnector.StartupValidation {
     public class V1ProjectValidator : BaseValidator {
         private readonly string projectToken;
 

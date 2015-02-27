@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using VersionOne.SDK.APIClient;
-using VersionOne.Integration.TFS.ServerConnector.Entities;
-using VersionOne.Integration.TFS.ServerConnector.Filters;
+using VersionOne.Integration.Tfs.ServerConnector.Entities;
+using VersionOne.Integration.Tfs.ServerConnector.Filters;
 
-namespace VersionOne.Integration.TFS.ServerConnector {
+namespace VersionOne.Integration.Tfs.ServerConnector {
     public class QueryBuilder : IQueryBuilder {
         private IServices services;
         private IMetaModel metaModel;

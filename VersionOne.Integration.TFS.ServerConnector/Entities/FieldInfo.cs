@@ -1,6 +1,6 @@
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Entities {
+namespace VersionOne.Integration.Tfs.ServerConnector.Entities {
     public class FieldInfo : BaseEntity {       
         public const string AssetTypeProperty = "AssetType";
         public const string IsReadOnlyProperty = "IsReadOnly";

@@ -1,6 +1,6 @@
 ﻿using VersionOne.ServiceHost.Core.Logging;
 
-namespace VersionOne.Integration.TFS.ServerConnector {
+﻿namespace VersionOne.Integration.Tfs.ServerConnector {
     /// <summary>
     /// This class provides logger extension method so we could safely reuse <see cref="VersionOneProcessor"/> outside of ServiceHost without having to deploy VersionOne.ServiceHost.Core.
     /// </summary>

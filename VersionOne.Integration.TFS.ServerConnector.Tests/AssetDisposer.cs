@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Tests
+namespace VersionOne.Integration.Tfs.ServerConnector.Tests
 {
 	public class AssetDisposer : IDisposable
 	{

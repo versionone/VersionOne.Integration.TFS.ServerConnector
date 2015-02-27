@@ -1,6 +1,6 @@
 ﻿using VersionOne.SDK.APIClient;
 
-﻿namespace VersionOne.Integration.TFS.ServerConnector.Entities {
+﻿namespace VersionOne.Integration.Tfs.ServerConnector.Entities {
     public class Member : Entity {
         public const string EmailProperty = "Email";
         public const string UsernameProperty = "Username";

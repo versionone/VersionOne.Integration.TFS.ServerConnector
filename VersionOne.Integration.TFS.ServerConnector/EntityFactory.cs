@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.Integration.TFS.ServerConnector {
+namespace VersionOne.Integration.Tfs.ServerConnector {
     // TODO extract interface and inject into VersionOneProcessor
     internal class EntityFactory {
         private readonly IMetaModel metaModel;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Entities {
+namespace VersionOne.Integration.Tfs.ServerConnector.Entities {
     public abstract class Workitem : Entity {
         public const string OwnersProperty = "Owners";
         public const string NumberProperty = "Number";

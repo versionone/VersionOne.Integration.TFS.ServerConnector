@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using VersionOne.SDK.APIClient;
 
-namespace VersionOne.Integration.TFS.ServerConnector.Filters {
+namespace VersionOne.Integration.Tfs.ServerConnector.Filters {
     public class Filter : IFilter {
         public readonly string Name;
         public readonly FilterActions Operation;
