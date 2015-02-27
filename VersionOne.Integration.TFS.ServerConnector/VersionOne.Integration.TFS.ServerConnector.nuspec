@@ -6,9 +6,9 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <licenseUrl>https://raw.githubusercontent.com/versionone/VersionOne.Integration.Tfs.ServerConnector/master/LICENSE.md</licenseUrl>
-    <projectUrl>https://github.com/versionone/VersionOne.Integration.Tfs.ServerConnector/</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/versionone/VersionOne.Integration.Tfs.ServerConnector/master/v1.png</iconUrl>
+    <licenseUrl>https://raw.githubusercontent.com/versionone/VersionOne.Integration.TFS.ServerConnector/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/versionone/VersionOne.Integration.TFS.ServerConnector/</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/versionone/VersionOne.Integration.TFS.ServerConnector/master/v1.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>$description$</description>
     <tags>$tags$</tags>
